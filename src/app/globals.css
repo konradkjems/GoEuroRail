@@ -1,26 +1,135 @@
-@import "tailwindcss";
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* New color palette */
+  --accent: #FFD166;        /* Yellow - Energetic, optimistic */
+  --contrast: #264653;      /* Dark Blue - Balance and depth */
+  --secondary: #06D6A0;     /* Green - Nature and sustainability */
+  --background: #FAF3E0;    /* Light Beige - Warm and inviting */
+  --highlight: #F94144;     /* Red - CTA and important elements */
+  
+  /* Legacy colors for backward compatibility */
+  --primary-color: var(--accent);
+  --primary-dark: var(--contrast);
+  --primary-light: var(--secondary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 10, 10, 10;
+    --input-text-rgb: 255, 255, 255;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--contrast);
+}
+
+/* Ensure form inputs have visible text */
+input, 
+textarea, 
+select, 
+select option {
+  color: #000 !important; /* Force black text for all inputs */
+}
+
+/* Ensure text in white cards is visible */
+.bg-white h1, 
+.bg-white h2, 
+.bg-white h3, 
+.bg-white h4, 
+.bg-white h5, 
+.bg-white h6, 
+.bg-white p, 
+.bg-white span, 
+.bg-white label, 
+.bg-white li,
+.bg-white input,
+.bg-white textarea,
+.bg-white select,
+.bg-white select option {
+  color: rgb(51, 51, 51);
+}
+
+/* Form labels and text in edit/new trip pages */
+form label,
+form p,
+form span,
+form h3,
+form h4 {
+  color: #333 !important;
+}
+
+/* Ensure text in colored backgrounds remains visible */
+.bg-blue-600 *, .bg-red-600 *, .bg-green-600 * {
+  color: white;
+}
+
+/* Fix for form input values and placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Ensure selected options are visible */
+select option:checked,
+select option:hover {
+  background-color: #f3f4f6;
+  color: #000;
+}
+
+/* Custom styles for the Interrail planner */
+.btn-primary {
+  background-color: var(--accent);
+  color: var(--contrast);
+}
+
+.btn-primary:hover {
+  background-color: #FFC233; /* Slightly darker yellow */
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #05C090; /* Slightly darker green */
+}
+
+.btn-danger {
+  background-color: var(--highlight);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #E53E41; /* Slightly darker red */
+}
+
+/* Custom navigation styles */
+.nav-link {
+  color: var(--contrast);
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--accent);
+}
+
+/* Form styling */
+input, textarea, select {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  color: var(--contrast);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.3);
 }

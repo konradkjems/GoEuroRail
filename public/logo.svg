@@ -1,0 +1,15 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="120" rx="18" fill="#FAF3E0"/>
+  <path d="M30 40L60 60L90 40M90 80H30C23.3726 80 18 74.6274 18 68V50C18 43.3726 23.3726 38 30 38H90C96.6274 38 102 43.3726 102 50V68C102 74.6274 96.6274 80 90 80Z" stroke="#264653" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Train tracks -->
+  <path d="M40 84V94" stroke="#FFD166" stroke-width="4" stroke-linecap="round"/>
+  <path d="M50 84V94" stroke="#FFD166" stroke-width="4" stroke-linecap="round"/>
+  <path d="M60 84V94" stroke="#FFD166" stroke-width="4" stroke-linecap="round"/>
+  <path d="M70 84V94" stroke="#FFD166" stroke-width="4" stroke-linecap="round"/>
+  <path d="M80 84V94" stroke="#FFD166" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Horizontal rail -->
+  <path d="M30 88H90" stroke="#06D6A0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M30 90H90" stroke="#06D6A0" stroke-width="5" stroke-linecap="round"/>
+</svg> 
