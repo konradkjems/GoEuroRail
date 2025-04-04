@@ -1,8 +1,8 @@
 export interface Trip {
   id: string;
   name: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   notes?: string;
   stops: TripStop[];
   travelers?: number;
@@ -10,11 +10,11 @@ export interface Trip {
 
 export interface TripStop {
   city: City;
-  arrivalDate?: string;
-  departureDate?: string;
+  arrivalDate: Date | null;
+  departureDate: Date | null;
   accommodation?: string;
   notes?: string;
-  nights?: number;
+  nights: number;
 }
 
 export interface City {
@@ -25,4 +25,20 @@ export interface City {
     lat: number;
     lng: number;
   };
+}
+
+export interface FormTrip {
+  name: string;
+  startDate: string;
+  endDate: string;
+  notes: string;
+  stops: FormTripStop[];
+}
+
+export interface FormTripStop {
+  cityId: string;
+  arrivalDate: string;
+  departureDate: string;
+  accommodation: string;
+  notes: string;
 } 

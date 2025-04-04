@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Trip, City } from "@/types";
+import { Trip, City, TripStop } from "@/types";
 import Layout from "@/components/Layout";
 import SplitView from "@/components/SplitView";
 import { cities } from "@/lib/cities";
@@ -16,7 +16,8 @@ import {
   MapPinIcon,
   ArrowRightIcon,
   PencilSquareIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 
 // Dynamically import the map component to avoid server-side rendering issues
@@ -33,7 +34,6 @@ export default function NewTrip() {
   // Form state
   const [tripName, setTripName] = useState("My European Adventure");
   const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [travelers, setTravelers] = useState(1);
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,14 +43,22 @@ export default function NewTrip() {
   useEffect(() => {
     setIsClient(true);
     
-    // Set default dates
+    // Set default start date to today
     const today = new Date();
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    
     setStartDate(today.toISOString().split('T')[0]);
-    setEndDate(nextWeek.toISOString().split('T')[0]);
   }, []);
+
+  // Calculate end date based on stays
+  const calculateEndDate = (stops: TripStop[]): Date => {
+    if (stops.length === 0) return new Date(startDate);
+    
+    let currentDate = new Date(startDate);
+    stops.forEach(stop => {
+      currentDate.setDate(currentDate.getDate() + (stop.nights || 1));
+    });
+    
+    return currentDate;
+  };
 
   // Handle city selection from the map
   const handleCityClick = (cityId: string) => {
@@ -83,14 +91,6 @@ export default function NewTrip() {
       errors.startDate = "Start date is required";
     }
     
-    if (!endDate) {
-      errors.endDate = "End date is required";
-    }
-    
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      errors.dates = "End date must be after start date";
-    }
-    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -101,52 +101,38 @@ export default function NewTrip() {
     
     setIsSubmitting(true);
     
-    // Create stops from selected cities
-    const stops = selectedCities.map((city, index) => {
-      // Calculate dates based on trip length and number of cities
-      const tripLengthMs = new Date(endDate).getTime() - new Date(startDate).getTime();
-      const stayDurationMs = tripLengthMs / Math.max(1, selectedCities.length - 1);
-      const stayDuration = Math.floor(stayDurationMs / (1000 * 60 * 60 * 24));
-      
-      let arrivalDate, departureDate;
-      
-      if (index === 0) {
-        // First city
-        arrivalDate = startDate;
-        
-        const firstDeparture = new Date(startDate);
-        firstDeparture.setDate(firstDeparture.getDate() + stayDuration);
-        departureDate = firstDeparture.toISOString().split('T')[0];
-      } else if (index === selectedCities.length - 1) {
-        // Last city
-        const lastArrival = new Date(endDate);
-        lastArrival.setDate(lastArrival.getDate() - stayDuration);
-        arrivalDate = lastArrival.toISOString().split('T')[0];
-        departureDate = endDate;
-      } else {
-        // Middle cities
-        const arrivalMs = new Date(startDate).getTime() + (stayDurationMs * index);
-        const departureMs = arrivalMs + stayDurationMs;
-        
-        arrivalDate = new Date(arrivalMs).toISOString().split('T')[0];
-        departureDate = new Date(departureMs).toISOString().split('T')[0];
+    // Create stops from selected cities with default 1 night stay
+    const stops: TripStop[] = selectedCities.map((city, index) => {
+      let currentDate = new Date(startDate);
+      if (index > 0) {
+        // Add the nights from previous stops to get the arrival date
+        for (let i = 0; i < index; i++) {
+          currentDate.setDate(currentDate.getDate() + 1); // Default 1 night per stop
+        }
       }
+      
+      const arrivalDate = new Date(currentDate);
+      const departureDate = new Date(currentDate);
+      departureDate.setDate(departureDate.getDate() + 1);
       
       return {
         city,
         arrivalDate,
         departureDate,
-        nights: calculateNights(arrivalDate, departureDate),
+        nights: 1,
         notes: "",
         accommodation: ""
       };
     });
     
+    // Calculate end date based on stays
+    const endDate = calculateEndDate(stops);
+    
     // Create new trip
     const newTrip: Trip = {
       id: Date.now().toString(),
       name: tripName,
-      startDate,
+      startDate: new Date(startDate),
       endDate,
       travelers,
       notes,
@@ -171,14 +157,6 @@ export default function NewTrip() {
       setIsSubmitting(false);
       alert("There was an error creating your trip. Please try again.");
     }
-  };
-  
-  // Calculate nights between two dates
-  const calculateNights = (arrivalDate: string, departureDate: string) => {
-    const start = new Date(arrivalDate);
-    const end = new Date(departureDate);
-    const diff = end.getTime() - start.getTime();
-    return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
   };
 
   // Map section with city selection
@@ -235,50 +213,26 @@ export default function NewTrip() {
             )}
           </div>
           
-          {/* Trip Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#264653] mb-1">
-                Start Date
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <CalendarIcon className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full pl-10 p-2 border border-gray-300 rounded focus:border-[#FFD166] focus:ring focus:ring-[#FFD166]/20 focus:outline-none"
-                />
+          {/* Start Date */}
+          <div>
+            <label className="block text-sm font-medium text-[#264653] mb-1">
+              Start Date
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <CalendarIcon className="h-4 w-4 text-gray-400" />
               </div>
-              {formErrors.startDate && (
-                <p className="mt-1 text-xs text-[#F94144]">{formErrors.startDate}</p>
-              )}
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full pl-10 p-2 border border-gray-300 rounded focus:border-[#FFD166] focus:ring focus:ring-[#FFD166]/20 focus:outline-none"
+              />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-[#264653] mb-1">
-                End Date
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <CalendarIcon className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full pl-10 p-2 border border-gray-300 rounded focus:border-[#FFD166] focus:ring focus:ring-[#FFD166]/20 focus:outline-none"
-                />
-              </div>
-              {formErrors.endDate && (
-                <p className="mt-1 text-xs text-[#F94144]">{formErrors.endDate}</p>
-              )}
-            </div>
+            {formErrors.startDate && (
+              <p className="mt-1 text-xs text-[#F94144]">{formErrors.startDate}</p>
+            )}
           </div>
-          {formErrors.dates && (
-            <p className="mt-1 text-xs text-[#F94144]">{formErrors.dates}</p>
-          )}
           
           {/* Number of Travelers */}
           <div>
@@ -320,41 +274,28 @@ export default function NewTrip() {
           
           {/* Selected Cities */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-[#264653]">Selected Cities</h3>
-              <span className="text-xs text-[#264653]/70">{selectedCities.length} cities selected</span>
-            </div>
-            
+            <label className="block text-sm font-medium text-[#264653] mb-2">
+              Selected Cities
+            </label>
             {selectedCities.length > 0 ? (
-              <div className="space-y-2 max-h-60 overflow-auto border border-gray-200 rounded p-2">
+              <div className="space-y-2">
                 {selectedCities.map((city, index) => (
-                  <div 
-                    key={city.id} 
-                    className="flex items-center justify-between p-2 bg-[#FAF3E0] rounded"
-                  >
+                  <div key={city.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                     <div className="flex items-center">
-                      <span className="w-5 h-5 rounded-full bg-[#FFD166] text-[#264653] flex items-center justify-center text-xs mr-2">
-                        {index + 1}
-                      </span>
-                      <div>
-                        <p className="text-sm font-medium text-[#264653]">{city.name}</p>
-                        <p className="text-xs text-[#264653]/70">{city.country}</p>
-                      </div>
+                      <MapPinIcon className="h-4 w-4 text-[#264653] mr-2" />
+                      <span className="text-sm text-[#264653]">{city.name}, {city.country}</span>
                     </div>
                     <button
                       onClick={() => handleRemoveCity(city.id)}
-                      className="text-[#264653] hover:text-[#F94144]"
+                      className="text-[#F94144] hover:text-[#E53E41]"
                     >
-                      <TrashIcon className="h-4 w-4" />
+                      <XMarkIcon className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 border border-dashed border-gray-300 rounded">
-                <MapPinIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">Click on the map to select cities for your trip</p>
-              </div>
+              <p className="text-sm text-[#264653]/70">Click cities on the map to add them to your trip</p>
             )}
           </div>
         </div>

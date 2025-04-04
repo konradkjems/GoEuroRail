@@ -1,0 +1,18 @@
+{
+  "name": "city-processor",
+  "version": "1.0.0",
+  "description": "Process European cities from CSV",
+  "main": "processCities.ts",
+  "type": "module",
+  "scripts": {
+    "process": "ts-node processCities.ts"
+  },
+  "dependencies": {
+    "csv-parser": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+} 

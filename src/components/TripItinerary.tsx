@@ -14,7 +14,9 @@ import {
   SunIcon,
   PlusIcon,
   CheckIcon,
-  XMarkIcon
+  XMarkIcon,
+  MinusIcon,
+  ArrowsUpDownIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -39,12 +41,10 @@ export default function TripItinerary({
   const [editedTrip, setEditedTrip] = useState<Trip | null>(null);
   const [showAddDestination, setShowAddDestination] = useState(false);
   const [newDestination, setNewDestination] = useState("");
+  const [newDestinationInput, setNewDestinationInput] = useState("");
 
-  // Sync with prop changes
   useEffect(() => {
-    if (trip) {
-      setEditedTrip(JSON.parse(JSON.stringify(trip)));
-    }
+    setEditedTrip(trip);
   }, [trip]);
   
   // Handle delete trip
@@ -81,8 +81,8 @@ export default function TripItinerary({
     
     const newStop: TripStop = {
       city: cityToAdd,
-      arrivalDate: new Date().toISOString(),
-      departureDate: new Date(Date.now() + 86400000).toISOString(), // Next day
+      arrivalDate: new Date(),
+      departureDate: new Date(Date.now() + 86400000), // Next day
       nights: 1
     };
     
@@ -95,17 +95,221 @@ export default function TripItinerary({
     setNewDestination("");
   };
 
-  // Remove a stop
-  const handleRemoveStop = (index: number) => {
-    if (!editedTrip) return;
+  // Add new custom destination
+  const handleAddCustomDestination = () => {
+    if (!editedTrip || !newDestinationInput) return;
     
-    const updatedStops = [...editedTrip.stops];
-    updatedStops.splice(index, 1);
+    const newCity: City = {
+      id: `custom-${Date.now()}`,
+      name: newDestinationInput,
+      country: "Custom Destination",
+      coordinates: { lat: 0, lng: 0 } // Default coordinates
+    };
+    
+    const newStop: TripStop = {
+      city: newCity,
+      arrivalDate: new Date(),
+      departureDate: new Date(Date.now() + 86400000), // Next day
+      nights: 1
+    };
     
     setEditedTrip({
       ...editedTrip,
-      stops: updatedStops
+      stops: [...editedTrip.stops, newStop]
     });
+    
+    setShowAddDestination(false);
+    setNewDestinationInput("");
+  };
+
+  // Handle adding a destination after a specific stop
+  const handleAddDestinationAfter = (index: number, cityId: string) => {
+    if (!editedTrip) return;
+    
+    const cityToAdd = cities.find(city => city.id === cityId);
+    if (!cityToAdd) return;
+    
+    // Get the current stop and next stop (if any)
+    const currentStop = editedTrip.stops[index];
+    const nextStop = editedTrip.stops[index + 1];
+    
+    // Calculate arrival and departure dates
+    const arrivalDate = currentStop.departureDate 
+      ? new Date(currentStop.departureDate)
+      : new Date(); // Default to current date if no departure date
+      
+    const departureDate = nextStop?.arrivalDate 
+      ? new Date(nextStop.arrivalDate)
+      : new Date(arrivalDate.getTime() + 86400000); // Next day if no next stop
+    
+    const newStop: TripStop = {
+      city: cityToAdd,
+      arrivalDate,
+      departureDate,
+      nights: 1
+    };
+    
+    // Insert the new stop after the current index
+    const updatedStops = [...editedTrip.stops];
+    updatedStops.splice(index + 1, 0, newStop);
+    
+    const updatedTrip = {
+      ...editedTrip,
+      stops: updatedStops
+    };
+    
+    setEditedTrip(updatedTrip);
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+  };
+
+  // Handle updating a stop
+  const handleUpdateStop = (index: number, updatedStop: TripStop) => {
+    if (!editedTrip) return;
+    
+    const updatedStops = [...editedTrip.stops];
+    updatedStops[index] = updatedStop;
+
+    // Update subsequent stops' dates based on the change
+    for (let i = index + 1; i < updatedStops.length; i++) {
+      const previousStop = updatedStops[i - 1];
+      const currentStop = updatedStops[i];
+      
+      // Calculate new arrival date based on previous stop's departure
+      const newArrivalDate = new Date(previousStop.arrivalDate!);
+      newArrivalDate.setDate(newArrivalDate.getDate() + previousStop.nights);
+      
+      // Calculate new departure date based on current stop's nights
+      const newDepartureDate = new Date(newArrivalDate);
+      newDepartureDate.setDate(newDepartureDate.getDate() + currentStop.nights);
+      
+      updatedStops[i] = {
+        ...currentStop,
+        arrivalDate: newArrivalDate,
+        departureDate: newDepartureDate
+      };
+    }
+
+    // Calculate new end date based on last stop
+    const lastStop = updatedStops[updatedStops.length - 1];
+    const newEndDate = new Date(lastStop.arrivalDate!);
+    newEndDate.setDate(newEndDate.getDate() + lastStop.nights);
+    
+    const updatedTrip = {
+      ...editedTrip,
+      stops: updatedStops,
+      endDate: newEndDate
+    };
+    
+    setEditedTrip(updatedTrip);
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+  };
+
+  // Handle removing a stop
+  const handleRemoveStop = (index: number) => {
+    if (!editedTrip) return;
+    
+    const updatedStops = editedTrip.stops.filter((_, i) => i !== index);
+
+    // Update dates for all stops after the removed stop
+    for (let i = index; i < updatedStops.length; i++) {
+      const previousStop = updatedStops[i - 1];
+      const currentStop = updatedStops[i];
+      
+      // If this is the first stop after removal, use the previous stop's dates
+      if (i === index && previousStop) {
+        const newArrivalDate = new Date(previousStop.arrivalDate!);
+        newArrivalDate.setDate(newArrivalDate.getDate() + previousStop.nights);
+        
+        const newDepartureDate = new Date(newArrivalDate);
+        newDepartureDate.setDate(newDepartureDate.getDate() + currentStop.nights);
+        
+        updatedStops[i] = {
+          ...currentStop,
+          arrivalDate: newArrivalDate,
+          departureDate: newDepartureDate
+        };
+      }
+      // For subsequent stops, calculate based on the previous stop
+      else if (i > index) {
+        const newArrivalDate = new Date(previousStop.arrivalDate!);
+        newArrivalDate.setDate(newArrivalDate.getDate() + previousStop.nights);
+        
+        const newDepartureDate = new Date(newArrivalDate);
+        newDepartureDate.setDate(newDepartureDate.getDate() + currentStop.nights);
+        
+        updatedStops[i] = {
+          ...currentStop,
+          arrivalDate: newArrivalDate,
+          departureDate: newDepartureDate
+        };
+      }
+    }
+
+    // Calculate new end date based on last stop
+    const lastStop = updatedStops[updatedStops.length - 1];
+    const newEndDate = lastStop ? new Date(lastStop.arrivalDate!) : editedTrip.startDate;
+    if (lastStop) {
+      newEndDate.setDate(newEndDate.getDate() + lastStop.nights);
+    }
+    
+    const updatedTrip = {
+      ...editedTrip,
+      stops: updatedStops,
+      endDate: newEndDate
+    };
+    
+    setEditedTrip(updatedTrip);
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+  };
+
+  // Handle moving a stop up or down
+  const handleMoveStop = (index: number, direction: 'up' | 'down') => {
+    if (!editedTrip) return;
+    
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= editedTrip.stops.length) return;
+    
+    const updatedStops = [...editedTrip.stops];
+    const temp = updatedStops[index];
+    updatedStops[index] = updatedStops[newIndex];
+    updatedStops[newIndex] = temp;
+
+    // Update dates for all stops after the moved ones
+    for (let i = Math.min(index, newIndex); i < updatedStops.length; i++) {
+      const previousStop = updatedStops[i - 1];
+      const currentStop = updatedStops[i];
+      
+      if (i === 0) {
+        // First stop uses trip start date
+        currentStop.arrivalDate = editedTrip.startDate;
+        currentStop.departureDate = new Date(new Date(currentStop.arrivalDate).getTime() + (currentStop.nights * 24 * 60 * 60 * 1000));
+      } else {
+        // Calculate based on previous stop
+        currentStop.arrivalDate = new Date(new Date(previousStop.arrivalDate!).getTime() + (previousStop.nights * 24 * 60 * 60 * 1000));
+        currentStop.departureDate = new Date(new Date(currentStop.arrivalDate).getTime() + (currentStop.nights * 24 * 60 * 60 * 1000));
+      }
+    }
+
+    // Calculate new end date based on last stop
+    const lastStop = updatedStops[updatedStops.length - 1];
+    const newEndDate = new Date(new Date(lastStop.arrivalDate!).getTime() + (lastStop.nights * 24 * 60 * 60 * 1000));
+    
+    const updatedTrip = {
+      ...editedTrip,
+      stops: updatedStops,
+      endDate: newEndDate
+    };
+    
+    setEditedTrip(updatedTrip);
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
   };
 
   // If no trip is selected
@@ -187,7 +391,7 @@ export default function TripItinerary({
           <span>
             {formatDate(trip.startDate)} to {formatDate(trip.endDate)}
           </span>
-          {trip.travelers > 0 && (
+          {trip.travelers && trip.travelers > 0 && (
             <div className="flex items-center ml-4">
               <UsersIcon className="h-4 w-4 mr-1 flex-shrink-0" />
               <span>{trip.travelers} {trip.travelers === 1 ? 'person' : 'people'}</span>
@@ -220,7 +424,7 @@ export default function TripItinerary({
       <div className="flex-1 overflow-auto">
         {trip.stops.length > 0 ? (
           <div>
-            {(isEditing ? editedTrip?.stops : trip.stops).map((stop, index) => (
+            {(isEditing ? editedTrip?.stops ?? [] : trip.stops).map((stop, index) => (
               <StopCard 
                 key={`${stop.city.id}-${index}`}
                 stop={stop}
@@ -229,7 +433,11 @@ export default function TripItinerary({
                 onClick={() => onSelectStop && onSelectStop(index)}
                 isLastStop={index === trip.stops.length - 1}
                 isEditing={isEditing}
-                onRemove={isEditing ? () => handleRemoveStop(index) : undefined}
+                onRemove={() => handleRemoveStop(index)}
+                onUpdate={(updatedStop) => handleUpdateStop(index, updatedStop)}
+                onAddDestinationAfter={handleAddDestinationAfter}
+                onMove={handleMoveStop}
+                editedTrip={editedTrip}
               />
             ))}
           </div>
@@ -250,6 +458,7 @@ export default function TripItinerary({
         {showAddDestination && (
           <div className="p-4 bg-[#FAF3E0] border-t border-gray-200">
             <h3 className="font-medium text-[#264653] mb-2">Add New Destination</h3>
+            <div className="space-y-2">
             <div className="flex space-x-2">
               <select
                 value={newDestination}
@@ -257,14 +466,24 @@ export default function TripItinerary({
                 className="flex-1 rounded border border-gray-200 p-2"
               >
                 <option value="">Select a city</option>
-                {cities.map(city => (
+                  {cities
+                    .filter(city => !editedTrip?.stops.some(stop => stop.city.id === city.id))
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(city => (
                   <option key={city.id} value={city.id}>
                     {city.name}, {city.country}
                   </option>
                 ))}
               </select>
               <button
-                onClick={handleAddDestination}
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    if (handleAddDestinationAfter) {
+                      handleAddDestinationAfter(-1, newDestination);
+                      setShowAddDestination(false);
+                      setNewDestination("");
+                    }
+                  }}
                 disabled={!newDestination}
                 className="bg-[#06D6A0] text-white px-4 py-2 rounded disabled:opacity-50"
               >
@@ -272,10 +491,32 @@ export default function TripItinerary({
               </button>
               <button
                 onClick={() => setShowAddDestination(false)}
-                className="bg-[#F94144] text-white px-4 py-2 rounded"
+                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="flex-1 border-t border-gray-300 my-2">
+                  <span className="bg-white px-2 text-sm text-gray-500">or</span>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newDestinationInput}
+                  onChange={(e) => setNewDestinationInput(e.target.value)}
+                  placeholder="Type a custom destination"
+                  className="flex-1 rounded border border-gray-200 p-2"
+                />
+                <button
+                  onClick={() => handleAddCustomDestination()}
+                  disabled={!newDestinationInput}
+                  className="bg-[#06D6A0] text-white px-4 py-2 rounded disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -325,10 +566,45 @@ interface StopCardProps {
   isSelected?: boolean;
   onClick?: () => void;
   isLastStop?: boolean;
+  isEditing?: boolean;
+  onRemove?: () => void;
+  onUpdate?: (updatedStop: TripStop) => void;
+  onAddDestinationAfter?: (index: number, cityId: string) => void;
+  onMove?: (index: number, direction: 'up' | 'down') => void;
+  editedTrip?: Trip | null;
 }
 
-function StopCard({ stop, index, isSelected = false, onClick, isLastStop = false }: StopCardProps) {
+function StopCard({ 
+  stop, 
+  index, 
+  isSelected = false, 
+  onClick, 
+  isLastStop = false,
+  isEditing = false,
+  onRemove,
+  onUpdate,
+  onAddDestinationAfter,
+  onMove,
+  editedTrip
+}: StopCardProps) {
   const [showHostels, setShowHostels] = useState(false);
+  const [editedCityName, setEditedCityName] = useState(stop.city.name);
+  const [editedNights, setEditedNights] = useState(stop.nights || 0);
+  const [showAddDestination, setShowAddDestination] = useState(false);
+  const [newDestination, setNewDestination] = useState("");
+
+  // Handle nights adjustment
+  const handleNightsChange = (delta: number) => {
+    const newNights = Math.max(0, editedNights + delta);
+    setEditedNights(newNights);
+    if (onUpdate) {
+      onUpdate({
+        ...stop,
+        nights: newNights,
+        departureDate: new Date(new Date(stop.arrivalDate!).getTime() + (newNights * 24 * 60 * 60 * 1000))
+      });
+    }
+  };
   
   // Dummy data for the reference design
   const hostels = [
@@ -339,65 +615,58 @@ function StopCard({ stop, index, isSelected = false, onClick, isLastStop = false
     { name: "Hostel Vrba", rating: 8.5, price: "€35" },
   ];
   
-  const otherUsers = index === 0 ? 52 : index === 1 ? 3 : index === 2 ? 6 : index === 3 ? 47 : 0;
-  
   // Determine what kind of stop it is
   const isStartStop = index === 0;
   const isStopover = !isStartStop && !isLastStop && (stop.nights === 0 || !stop.nights);
   
-  // Travel time to next stop (dummy data for reference)
-  const travelTime = index === 0 ? "~6h 0m" : index === 1 ? "~2h 55m" : index === 2 ? "No estimate" : "~1h 15m";
-  
   return (
     <div className="border-b border-gray-200">
-      {/* Stop header */}
       <div className="p-4">
         <div className="flex justify-between items-start">
-          <div>
+          <div className="flex-1">
             <div className="flex items-center">
               <h3 className="font-medium text-[#264653]">{stop.city.name}</h3>
-              <button className="ml-1">
-                <PencilIcon className="h-3 w-3 text-[#06D6A0]" />
+              {isEditing && (
+                <button 
+                  onClick={onRemove}
+                  className="ml-2 text-[#F94144] hover:text-[#E53E41] p-1 rounded-full hover:bg-red-50"
+                  title="Remove stop"
+                >
+                  <TrashIcon className="h-4 w-4" />
               </button>
+              )}
             </div>
             
-            <div className="text-sm text-[#264653] mt-1">
-              {isStartStop && <div>Start</div>}
-              {isStopover && <div>Stopover</div>}
-              {stop.nights > 0 && <div>{stop.nights} night(s)</div>}
-              {stop.departureDate && <div className="text-xs text-[#264653]/70">
-                {index > 0 && stop.arrivalDate && (
-                  <span>Fri {formatDate(stop.arrivalDate).split(' ')[0]} - </span>
-                )}
-                {stop.departureDate && <span>Tue {formatDate(stop.departureDate).split(' ')[0]}</span>}
-              </div>}
-            </div>
+            {/* Date information */}
+            {stop.arrivalDate && (
+              <div className="text-sm text-[#264653]/70 mt-1">
+                {formatDate(stop.arrivalDate)} - {formatDate(new Date(new Date(stop.arrivalDate).getTime() + (stop.nights * 24 * 60 * 60 * 1000)))}
+              </div>
+            )}
           </div>
           
-          {stop.nights > 0 && (
-            <Link
-              href="#"
-              className="px-3 py-1 bg-[#FFD166] text-[#264653] text-xs rounded hover:bg-[#FFC233] font-medium"
+          {/* Nights controls - always visible */}
+          <div className="flex items-center space-x-2 bg-[#FAF3E0] p-2 rounded-lg">
+            <button
+              onClick={() => handleNightsChange(-1)}
+              className="text-[#264653] hover:text-[#06D6A0] p-1.5 rounded-full border border-gray-200 hover:border-[#06D6A0] hover:bg-white transition-colors"
+              title="Decrease nights"
             >
-              Book stay
-            </Link>
-          )}
-        </div>
-        
-        {/* User count for this stop */}
-        {otherUsers > 0 && (
-          <div className="mt-3 flex items-center text-sm text-[#264653]">
-            <div className="flex -space-x-2 mr-2">
-              <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs">
-                {index % 2 === 0 ? "+1" : "+2"}
-              </div>
-              <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center text-xs text-white">
-                {index % 2 === 0 ? "+2" : "+1"}
-              </div>
+              <MinusIcon className="h-4 w-4" />
+            </button>
+            <div className="min-w-[80px] text-center">
+              <div className="font-medium text-[#264653]">{editedNights}</div>
+              <div className="text-xs text-[#264653]/70">nights</div>
             </div>
-            <span className="text-xs">{otherUsers} others in {stop.city.name} at this time</span>
+            <button
+              onClick={() => handleNightsChange(1)}
+              className="text-[#264653] hover:text-[#06D6A0] p-1.5 rounded-full border border-gray-200 hover:border-[#06D6A0] hover:bg-white transition-colors"
+              title="Increase nights"
+            >
+              <PlusIcon className="h-4 w-4" />
+            </button>
           </div>
-        )}
+        </div>
       </div>
       
       {/* Hostel section for stays */}
@@ -447,20 +716,45 @@ function StopCard({ stop, index, isSelected = false, onClick, isLastStop = false
       {/* Train information for continuing the journey */}
       {!isLastStop && (
         <div className="border-t border-gray-200 flex items-stretch">
-          <div className="flex-none p-2 flex flex-col items-center justify-center">
-            <button className="w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center text-[#264653] hover:bg-[#FAF3E0]">
-              +
+          <div className="flex-none p-2 flex flex-col items-center justify-center space-y-2">
+            <button 
+              onClick={() => setShowAddDestination(true)}
+              className="w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center text-[#264653] hover:bg-[#FAF3E0] hover:border-[#06D6A0] hover:text-[#06D6A0] transition-colors"
+              title="Add destination after this stop"
+            >
+              <PlusIcon className="h-4 w-4" />
+            </button>
+            <div className="flex flex-col space-y-1">
+              <button
+                onClick={() => onMove && onMove(index, 'up')}
+                disabled={index === 0}
+                className={`w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center text-[#264653] transition-colors ${
+                  index === 0 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-[#FAF3E0] hover:border-[#FFD166] hover:text-[#FFD166]'
+                }`}
+                title="Move stop up"
+              >
+                <ChevronUpIcon className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => onMove && onMove(index, 'down')}
+                disabled={isLastStop}
+                className={`w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center text-[#264653] transition-colors ${
+                  isLastStop 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-[#FAF3E0] hover:border-[#FFD166] hover:text-[#FFD166]'
+                }`}
+                title="Move stop down"
+              >
+                <ChevronDownIcon className="h-4 w-4" />
             </button>
           </div>
-          <div className="flex-none p-2 flex flex-col items-center justify-center">
-            <button className="w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center text-[#264653] hover:bg-[#FAF3E0]">
-              ↻
-            </button>
           </div>
           <div className="grow flex items-center bg-[#FFD166]/30 p-2">
             <SunIcon className="h-6 w-6 text-[#FFD166] mr-2" />
             <div className="flex-1">
-              <div className="font-medium text-[#264653]">{travelTime}</div>
+              <div className="font-medium text-[#264653]">~10h 10m</div>
               <div className="text-sm text-[#264653]">View trains</div>
             </div>
           </div>
@@ -469,10 +763,51 @@ function StopCard({ stop, index, isSelected = false, onClick, isLastStop = false
               <div className="w-4 h-4 bg-white rounded-full"></div>
             </div>
           </div>
-          <div className="flex-none bg-[#FAF3E0] p-2 flex items-center justify-center text-[#264653]">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+        </div>
+      )}
+
+      {/* Add Destination Section */}
+      {showAddDestination && (
+        <div className="p-4 bg-[#FAF3E0] border-t border-gray-200">
+          <h3 className="font-medium text-[#264653] mb-2">Add New Destination</h3>
+          <div className="space-y-2">
+            <div className="flex space-x-2">
+              <select
+                value={newDestination}
+                onChange={(e) => setNewDestination(e.target.value)}
+                className="flex-1 rounded border border-gray-200 p-2"
+              >
+                <option value="">Select a city</option>
+                {cities
+                  .filter(city => !editedTrip?.stops.some(stop => stop.city.id === city.id))
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(city => (
+                    <option key={city.id} value={city.id}>
+                      {city.name}, {city.country}
+                    </option>
+                  ))}
+              </select>
+              <button
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  if (onAddDestinationAfter) {
+                    onAddDestinationAfter(index, newDestination);
+                    setShowAddDestination(false);
+                    setNewDestination("");
+                  }
+                }}
+                disabled={!newDestination}
+                className="bg-[#06D6A0] text-white px-4 py-2 rounded disabled:opacity-50"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowAddDestination(false)}
+                className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

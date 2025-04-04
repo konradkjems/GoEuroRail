@@ -3,10 +3,10 @@ import { City, FormTrip, FormTripStop, Trip, TripStop } from "@/types";
 import { cities } from "./cities";
 import { v4 as uuidv4 } from "uuid";
 
-export function formatDate(dateString: string): string {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+export function formatDate(date: string | Date): string {
+  if (!date) return 'N/A';
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -54,7 +54,8 @@ export function convertFormTripStopToTripStop(formStop: FormTripStop): TripStop 
     arrivalDate: formStop.arrivalDate ? parseISO(formStop.arrivalDate) : null,
     departureDate: formStop.departureDate ? parseISO(formStop.departureDate) : null,
     accommodation: formStop.accommodation,
-    notes: formStop.notes
+    notes: formStop.notes,
+    nights: 1 // Default to 1 night
   };
 }
 
