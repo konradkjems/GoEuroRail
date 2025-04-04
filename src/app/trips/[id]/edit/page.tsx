@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import TripForm from "@/components/TripForm";
-import { FormTrip, Trip } from "@/types";
+import { FormTrip } from "@/types";
 import { loadTrips, saveTrips } from "@/lib/utils";
 
 export default function EditTrip({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [trip, setTrip] = useState<Trip | null>(null);
+  const [trip, setTrip] = useState<FormTrip | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Load trip data
     const trips = loadTrips();
-    const foundTrip = trips.find(t => t.id === params.id);
+    const foundTrip = trips.find((t: FormTrip) => t._id === params.id);
     
     if (foundTrip) {
       setTrip(foundTrip);
@@ -39,33 +39,26 @@ export default function EditTrip({ params }: { params: { id: string } }) {
       const trips = loadTrips();
       
       // Find the index of the trip to update
-      const tripIndex = trips.findIndex(t => t.id === trip.id);
+      const tripIndex = trips.findIndex((t: FormTrip) => t._id === trip._id);
       
       if (tripIndex !== -1) {
         // Create updated trip object
-        const updatedTrip: Trip = {
+        const updatedTrip: FormTrip = {
           ...trip,
           name: formData.name,
-          startDate: new Date(formData.startDate),
-          endDate: new Date(formData.endDate),
+          startDate: formData.startDate,
+          endDate: formData.endDate,
           notes: formData.notes,
           stops: formData.stops
             .filter(stop => stop.cityId) // Filter out empty stops
-            .map(stop => {
-              const city = trip.stops.find(s => s.city.id === stop.cityId)?.city;
-              
-              if (!city) {
-                throw new Error(`City with ID ${stop.cityId} not found`);
-              }
-              
-              return {
-                city,
-                arrivalDate: stop.arrivalDate ? new Date(stop.arrivalDate) : null,
-                departureDate: stop.departureDate ? new Date(stop.departureDate) : null,
-                accommodation: stop.accommodation,
-                notes: stop.notes
-              };
-            })
+            .map(stop => ({
+              cityId: stop.cityId,
+              arrivalDate: stop.arrivalDate,
+              departureDate: stop.departureDate,
+              nights: stop.nights || 1,
+              accommodation: stop.accommodation || '',
+              notes: stop.notes || ''
+            }))
         };
         
         // Update the trip in the array
@@ -75,7 +68,7 @@ export default function EditTrip({ params }: { params: { id: string } }) {
         saveTrips(trips);
         
         // Redirect to trip details
-        router.push(`/trips/${trip.id}`);
+        router.push(`/trips/${trip._id}`);
       }
     } catch (error) {
       console.error("Error updating trip:", error);
@@ -97,7 +90,7 @@ export default function EditTrip({ params }: { params: { id: string } }) {
     <div className="space-y-6">
       <div className="flex items-center mb-6">
         <Link 
-          href={`/trips/${trip.id}`}
+          href={`/trips/${trip._id}`}
           className="flex items-center text-blue-600 hover:text-blue-800"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-1" />

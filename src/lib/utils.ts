@@ -35,10 +35,11 @@ export function convertFormTripToTrip(formTrip: FormTrip): Trip {
   return {
     id: uuidv4(),
     name: formTrip.name,
-    startDate: parseISO(formTrip.startDate),
-    endDate: parseISO(formTrip.endDate),
+    startDate: formTrip.startDate,
+    endDate: formTrip.endDate,
     stops,
-    notes: formTrip.notes
+    notes: formTrip.notes || '',
+    travelers: formTrip.travelers
   };
 }
 
@@ -51,41 +52,41 @@ export function convertFormTripStopToTripStop(formStop: FormTripStop): TripStop 
 
   return {
     city,
-    arrivalDate: formStop.arrivalDate ? parseISO(formStop.arrivalDate) : null,
-    departureDate: formStop.departureDate ? parseISO(formStop.departureDate) : null,
-    accommodation: formStop.accommodation,
-    notes: formStop.notes,
-    nights: 1 // Default to 1 night
+    arrivalDate: formStop.arrivalDate,
+    departureDate: formStop.departureDate,
+    accommodation: formStop.accommodation || '',
+    notes: formStop.notes || '',
+    nights: formStop.nights || 1
   };
 }
 
-// Simple client-side storage functions
-export function saveTrips(trips: Trip[]): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("interrail-trips", JSON.stringify(trips));
+// Function to get timezone from coordinates (simplified version)
+export const getTimezoneFromCoordinates = (lat: number, lng: number): string => {
+  // This is a simplified version. In a real application, you would use a proper
+  // timezone database like 'tzdata' or an API service to get accurate timezone data.
+  
+  // For now, we'll use a simple longitude-based approximation
+  const hourOffset = Math.round(lng / 15);
+  
+  if (lat > 35 && lat < 70) { // Rough boundaries for Europe
+    if (hourOffset <= 0) return 'Europe/London';
+    if (hourOffset === 1) return 'Europe/Paris';
+    if (hourOffset === 2) return 'Europe/Berlin';
+    if (hourOffset === 3) return 'Europe/Moscow';
   }
-}
+  
+  return 'Europe/London'; // Default fallback
+};
 
-export function loadTrips(): Trip[] {
-  if (typeof window !== "undefined") {
-    const tripsJson = localStorage.getItem("interrail-trips");
-    if (tripsJson) {
-      try {
-        const parsedTrips = JSON.parse(tripsJson);
-        return parsedTrips.map((trip: any) => ({
-          ...trip,
-          startDate: new Date(trip.startDate),
-          endDate: new Date(trip.endDate),
-          stops: trip.stops.map((stop: any) => ({
-            ...stop,
-            arrivalDate: stop.arrivalDate ? new Date(stop.arrivalDate) : null,
-            departureDate: stop.departureDate ? new Date(stop.departureDate) : null
-          }))
-        }));
-      } catch (error) {
-        console.error("Error parsing trips from localStorage:", error);
-      }
-    }
-  }
-  return [];
-} 
+// Function to load trips from localStorage
+export const loadTrips = () => {
+  if (typeof window === 'undefined') return [];
+  const savedTrips = localStorage.getItem('trips');
+  return savedTrips ? JSON.parse(savedTrips) : [];
+};
+
+// Function to save trips to localStorage
+export const saveTrips = (trips: any[]) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('trips', JSON.stringify(trips));
+}; 

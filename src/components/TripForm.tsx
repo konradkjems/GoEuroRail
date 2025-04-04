@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 interface TripFormProps {
-  initialData?: Trip;
+  initialData?: FormTrip;
   onSubmit: (data: FormTrip) => void;
 }
 
@@ -14,6 +14,7 @@ const DEFAULT_STOP: FormTripStop = {
   cityId: "",
   arrivalDate: "",
   departureDate: "",
+  nights: 1,
   accommodation: "",
   notes: ""
 };
@@ -24,19 +25,22 @@ export default function TripForm({ initialData, onSubmit }: TripFormProps) {
   // Convert trip data to form format if editing
   const defaultValues: FormTrip = isEditing
     ? {
+        _id: initialData._id,
         name: initialData.name,
-        startDate: formatDate(initialData.startDate),
-        endDate: formatDate(initialData.endDate),
+        startDate: initialData.startDate,
+        endDate: initialData.endDate,
         notes: initialData.notes,
         stops: initialData.stops.map(stop => ({
-          cityId: stop.city.id,
-          arrivalDate: stop.arrivalDate ? formatDate(stop.arrivalDate) : "",
-          departureDate: stop.departureDate ? formatDate(stop.departureDate) : "",
-          accommodation: stop.accommodation,
-          notes: stop.notes
+          cityId: stop.cityId,
+          arrivalDate: stop.arrivalDate,
+          departureDate: stop.departureDate,
+          nights: stop.nights || 1,
+          accommodation: stop.accommodation || '',
+          notes: stop.notes || ''
         }))
       }
     : {
+        _id: Date.now().toString(),
         name: "",
         startDate: "",
         endDate: "",

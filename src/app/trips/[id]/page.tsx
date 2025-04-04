@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Trip, TripStop, City } from "@/types";
+import { FormTrip, FormTripStop } from "@/types";
 import { loadTrips, saveTrips } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import SplitView from "@/components/SplitView";
@@ -18,7 +18,7 @@ const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
 
 export default function TripDetails({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [trip, setTrip] = useState<Trip | null>(null);
+  const [trip, setTrip] = useState<FormTrip | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,8 +32,8 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       const nextWeek = new Date(today);
       nextWeek.setDate(today.getDate() + 7);
       
-      const newTrip: Trip = {
-        id: Date.now().toString(),
+      const newTrip: FormTrip = {
+        _id: Date.now().toString(),
         name: "New Trip",
         startDate: today.toISOString().split('T')[0],
         endDate: nextWeek.toISOString().split('T')[0],
@@ -47,7 +47,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       
       // Get existing trips to add this one
       const savedTrips = localStorage.getItem('trips');
-      let existingTrips: Trip[] = [];
+      let existingTrips: FormTrip[] = [];
       if (savedTrips) {
         existingTrips = JSON.parse(savedTrips);
       }
@@ -57,7 +57,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       localStorage.setItem('trips', JSON.stringify(updatedTrips));
       
       // Update URL to use real ID without reloading
-      router.replace(`/trips/${newTrip.id}`);
+      router.replace(`/trips/${newTrip._id}`);
       return;
     }
     
@@ -65,7 +65,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     const savedTrips = localStorage.getItem('trips');
     if (savedTrips) {
       const parsedTrips = JSON.parse(savedTrips);
-      const foundTrip = parsedTrips.find((t: Trip) => t.id === params.id);
+      const foundTrip = parsedTrips.find((t: FormTrip) => t._id === params.id);
       
       if (foundTrip) {
         setTrip(foundTrip);
@@ -100,7 +100,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     const savedTrips = localStorage.getItem('trips');
     if (savedTrips) {
       const parsedTrips = JSON.parse(savedTrips);
-      const updatedTrips = parsedTrips.filter((t: Trip) => t.id !== id);
+      const updatedTrips = parsedTrips.filter((t: FormTrip) => t._id !== id);
       
       // Update localStorage
       localStorage.setItem('trips', JSON.stringify(updatedTrips));
@@ -110,14 +110,14 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleUpdateTrip = (updatedTrip: Trip) => {
+  const handleUpdateTrip = (updatedTrip: FormTrip) => {
     if (!updatedTrip) return;
     
     const savedTrips = localStorage.getItem('trips');
     if (savedTrips) {
       const parsedTrips = JSON.parse(savedTrips);
-      const updatedTrips = parsedTrips.map((t: Trip) => 
-        t.id === updatedTrip.id ? updatedTrip : t
+      const updatedTrips = parsedTrips.map((t: FormTrip) => 
+        t._id === updatedTrip._id ? updatedTrip : t
       );
       
       // Update localStorage
@@ -132,7 +132,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     if (!trip) return;
     
     // Find the stop index for this city
-    const stopIndex = trip.stops.findIndex(stop => stop.city.id === cityId);
+    const stopIndex = trip.stops.findIndex(stop => stop.cityId === cityId);
     
     if (stopIndex !== -1) {
       setSelectedStopIndex(stopIndex);
@@ -148,7 +148,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     if (!cityToAdd) return;
     
     // Check if city is already in the trip
-    const isAlreadyInTrip = trip.stops.some(stop => stop.city.id === cityId);
+    const isAlreadyInTrip = trip.stops.some(stop => stop.cityId === cityId);
     if (isAlreadyInTrip) {
       alert(`${cityToAdd.name} is already in your trip.`);
       return;
@@ -172,10 +172,12 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     departureDateObj.setDate(departureDateObj.getDate() + 1);
     
     // Create the new stop
-    const newStop: TripStop = {
-      city: cityToAdd,
-      arrivalDate: arrivalDateObj.toISOString(),
-      departureDate: departureDateObj.toISOString(),
+    const newStop: FormTripStop = {
+      cityId: cityToAdd.id,
+      arrivalDate: arrivalDateObj.toISOString().split('T')[0],
+      departureDate: departureDateObj.toISOString().split('T')[0],
+      accommodation: '',
+      notes: '',
       nights: 1
     };
     

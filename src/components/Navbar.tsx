@@ -1,25 +1,37 @@
-import Link from "next/link";
-import { MapIcon, HomeIcon, PlusIcon } from "@heroicons/react/24/outline";
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Navbar() {
   return (
-    <nav className="bg-blue-600 p-4 shadow-md">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="/" className="text-white font-bold text-xl flex items-center">
-          <MapIcon className="h-6 w-6 mr-2" />
-          Interrail Planner
-        </Link>
-        
-        <div className="flex space-x-4">
-          <Link href="/" className="text-white hover:text-blue-200 flex items-center">
-            <HomeIcon className="h-5 w-5 mr-1" />
-            <span>Home</span>
-          </Link>
+    <nav className="bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/gur-logo2 wide.svg"
+                alt="GoEuroRail Logo"
+                width={180}
+                height={40}
+                className="h-10 w-auto"
+              />
+            </Link>
+          </div>
           
-          <Link href="/trips/new" className="text-white hover:text-blue-200 flex items-center">
-            <PlusIcon className="h-5 w-5 mr-1" />
-            <span>New Trip</span>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Link 
+              href="/trips" 
+              className="text-[#264653] hover:text-[#06D6A0] px-3 py-2 rounded-md text-sm font-medium"
+            >
+              My Trips
+            </Link>
+            <Link 
+              href="/trips/new" 
+              className="bg-[#FFD166] text-[#264653] hover:bg-[#FFC233] px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Plan New Trip
+            </Link>
+          </div>
         </div>
       </div>
     </nav>

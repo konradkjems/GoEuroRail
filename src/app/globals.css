@@ -16,6 +16,9 @@
   --primary-color: var(--accent);
   --primary-dark: var(--contrast);
   --primary-light: var(--secondary);
+
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,8 +30,8 @@
 }
 
 body {
-  background-color: var(--background);
-  color: var(--contrast);
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
 }
 
 /* Ensure form inputs have visible text */

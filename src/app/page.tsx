@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { loadTrips, saveTrips } from "@/lib/utils";
-import { Trip, TripStop, City } from "@/types";
-import Layout from "@/components/Layout";
+import { Trip, TripStop, FormTrip, FormTripStop, City } from "@/types";
 import SplitView from "@/components/SplitView";
 import dynamic from "next/dynamic";
 import TripItinerary from "@/components/TripItinerary";
@@ -19,8 +18,8 @@ const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
 });
 
 export default function Home() {
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [trips, setTrips] = useState<FormTrip[]>([]);
+  const [selectedTrip, setSelectedTrip] = useState<FormTrip | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState(-1);
   const [isClient, setIsClient] = useState(false);
   const [showNewTripForm, setShowNewTripForm] = useState(false);
@@ -68,8 +67,8 @@ export default function Home() {
     return () => {
       window.removeEventListener('addCityToTrip', handleAddCityToTrip);
     };
-  }, [selectedTrip]); // Re-add the event listener when selectedTrip changes
-  
+  }, [selectedTrip]);
+
   // Function to add a city to the selected trip
   const addCityToTrip = (cityId: string) => {
     if (!selectedTrip) return;
@@ -79,37 +78,40 @@ export default function Home() {
     if (!cityToAdd) return;
     
     // Check if city is already in the trip
-    const isAlreadyInTrip = selectedTrip.stops.some(stop => stop.city.id === cityId);
+    const isAlreadyInTrip = selectedTrip.stops.some(stop => stop.cityId === cityId);
     if (isAlreadyInTrip) {
       alert(`${cityToAdd.name} is already in your trip.`);
       return;
     }
     
-    // Estimate the arrival and departure dates based on the last stop or trip start date
-    let arrivalDate: string;
+    // Estimate the arrival date based on the last stop or trip start date
+    let arrivalDateStr: string;
     if (selectedTrip.stops.length > 0) {
       // Get the last stop's departure date or add 1 day to arrival if no departure
       const lastStop = selectedTrip.stops[selectedTrip.stops.length - 1];
-      arrivalDate = lastStop.departureDate || selectedTrip.startDate;
+      arrivalDateStr = lastStop.departureDate || selectedTrip.startDate;
     } else {
-      arrivalDate = selectedTrip.startDate;
+      arrivalDateStr = selectedTrip.startDate;
     }
     
     // Create a departure date 1 day after arrival
-    const arrivalDateObj = new Date(arrivalDate);
-    const departureDateObj = new Date(arrivalDateObj);
-    departureDateObj.setDate(arrivalDateObj.getDate() + 1);
+    const arrivalDate = new Date(arrivalDateStr);
+    const departureDate = new Date(arrivalDate);
+    departureDate.setDate(arrivalDate.getDate() + 1);
     
     // Create the new stop
-    const newStop: TripStop = {
-      city: cityToAdd,
-      arrivalDate: arrivalDateObj.toISOString().split('T')[0],
-      departureDate: departureDateObj.toISOString().split('T')[0],
-      nights: 1
+    const newStop: FormTripStop = {
+      cityId: cityToAdd.id,
+      arrivalDate: arrivalDate.toISOString().split('T')[0],
+      departureDate: departureDate.toISOString().split('T')[0],
+      accommodation: '',
+      notes: '',
+      nights: 1,  // Add default value for nights
+      isStopover: false  // Initialize as not a stopover
     };
     
     // Add the stop to the trip
-    const updatedTrip = {
+    const updatedTrip: FormTrip = {
       ...selectedTrip,
       stops: [...selectedTrip.stops, newStop]
     };
@@ -125,13 +127,12 @@ export default function Home() {
   const handleCreateTrip = () => {
     if (!newTripName) return;
     
-    const newTrip: Trip = {
-      id: Date.now().toString(),
+    const newTrip: FormTrip = {
+      _id: Date.now().toString(),
       name: newTripName,
       startDate: newTripStartDate,
       endDate: newTripEndDate,
       notes: "",
-      travelers: 1,
       stops: []
     };
     
@@ -146,7 +147,7 @@ export default function Home() {
 
   // Handle trip deletion
   const handleDeleteTrip = (id: string) => {
-    const updatedTrips = trips.filter(trip => trip.id !== id);
+    const updatedTrips = trips.filter(trip => trip._id !== id);
     setTrips(updatedTrips);
     
     // Update localStorage
@@ -161,9 +162,9 @@ export default function Home() {
   };
 
   // Handle trip update
-  const handleUpdateTrip = (updatedTrip: Trip) => {
+  const handleUpdateTrip = (updatedTrip: FormTrip) => {
     const updatedTrips = trips.map(trip => 
-      trip.id === updatedTrip.id ? updatedTrip : trip
+      trip._id === updatedTrip._id ? updatedTrip : trip
     );
     
     setTrips(updatedTrips);
@@ -178,117 +179,104 @@ export default function Home() {
     if (!selectedTrip) return;
     
     // Find the stop index for this city
-    const stopIndex = selectedTrip.stops.findIndex(stop => stop.city.id === cityId);
+    const stopIndex = selectedTrip.stops.findIndex(stop => stop.cityId === cityId);
     
     if (stopIndex !== -1) {
       setSelectedStopIndex(stopIndex);
     }
   };
 
-  // Map section with overlay for new trip form when needed
-  const mapSection = (
-    <div className="h-full relative">
-      <InterrailMap
-        selectedTrip={selectedTrip}
-        onCityClick={handleCityClick}
-      />
-      {/* New Trip Form Overlay */}
-      {showNewTripForm && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-[#264653] mb-4">Create New Trip</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#264653] mb-1">
-                  Trip Name
-                </label>
-                <input
-                  type="text"
-                  value={newTripName}
-                  onChange={(e) => setNewTripName(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  placeholder="Summer in Europe"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#264653] mb-1">
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  value={newTripStartDate}
-                  onChange={(e) => setNewTripStartDate(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#264653] mb-1">
-                  End Date
-                </label>
-                <input
-                  type="date"
-                  value={newTripEndDate}
-                  onChange={(e) => setNewTripEndDate(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                />
-              </div>
-              <div className="flex space-x-3 pt-2">
-                <button
-                  onClick={handleCreateTrip}
-                  disabled={!newTripName}
-                  className="flex-1 bg-[#FFD166] text-[#264653] py-2 rounded hover:bg-[#FFC233] disabled:opacity-50"
-                >
-                  Create Trip
-                </button>
-                <button
-                  onClick={() => setShowNewTripForm(false)}
-                  className="flex-1 bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Create New Trip Button when no trip selected */}
-      {!selectedTrip && !showNewTripForm && (
-        <div className="absolute top-4 right-4">
-          <Link
-            href="/trips/new"
-            className="bg-[#FFD166] text-[#264653] px-4 py-2 rounded-md shadow hover:bg-[#FFC233] flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-1" />
-            Create New Trip
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-
-  // Content section component
-  const contentSection = (
-    <div className="h-full flex flex-col">
-      <TripItinerary 
-        trip={selectedTrip}
-        onDeleteTrip={handleDeleteTrip}
-        selectedStopIndex={selectedStopIndex}
-        onSelectStop={setSelectedStopIndex}
-        onUpdateTrip={handleUpdateTrip}
-      />
-    </div>
-  );
-
   return (
-    <Layout>
+    <div className="h-[calc(100vh-4rem)]">
       {isClient && (
-        <SplitView 
-          mapSection={mapSection}
-          contentSection={contentSection}
-          mapWidth="70%"
+        <SplitView
+          mapSection={
+            <div className="h-full relative">
+              <InterrailMap
+                selectedTrip={selectedTrip}
+                onCityClick={handleCityClick}
+              />
+              {showNewTripForm && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
+                  <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                    <h2 className="text-xl font-bold text-[#264653] mb-4">Create New Trip</h2>
+                    <div className="space-y-4">
+                      <div>
+                        <label htmlFor="tripName" className="block text-sm font-medium text-gray-700">Trip Name</label>
+                        <input
+                          type="text"
+                          id="tripName"
+                          value={newTripName}
+                          onChange={(e) => setNewTripName(e.target.value)}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#06D6A0] focus:ring-[#06D6A0] sm:text-sm"
+                          placeholder="Enter trip name"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input
+                          type="date"
+                          id="startDate"
+                          value={newTripStartDate}
+                          onChange={(e) => setNewTripStartDate(e.target.value)}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#06D6A0] focus:ring-[#06D6A0] sm:text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
+                        <input
+                          type="date"
+                          id="endDate"
+                          value={newTripEndDate}
+                          onChange={(e) => setNewTripEndDate(e.target.value)}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#06D6A0] focus:ring-[#06D6A0] sm:text-sm"
+                        />
+                      </div>
+                      <div className="flex justify-end space-x-3">
+                        <button
+                          onClick={() => setShowNewTripForm(false)}
+                          className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleCreateTrip}
+                          className="px-4 py-2 text-sm font-medium bg-[#06D6A0] text-white rounded-md hover:bg-[#05C090]"
+                        >
+                          Create Trip
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {!selectedTrip && !showNewTripForm && (
+                <div className="absolute top-4 right-4">
+                  <button
+                    onClick={() => setShowNewTripForm(true)}
+                    className="bg-[#FFD166] text-[#264653] px-4 py-2 rounded-md shadow hover:bg-[#FFC233] flex items-center"
+                  >
+                    <PlusIcon className="h-5 w-5 mr-1" />
+                    Create New Trip
+                  </button>
+                </div>
+              )}
+            </div>
+          }
+          contentSection={
+            <div className="h-full flex flex-col">
+              <TripItinerary
+                trip={selectedTrip}
+                onDeleteTrip={handleDeleteTrip}
+                selectedStopIndex={selectedStopIndex}
+                onSelectStop={setSelectedStopIndex}
+                onUpdateTrip={handleUpdateTrip}
+              />
+            </div>
+          }
+          mapWidth="60%"
         />
       )}
-    </Layout>
+    </div>
   );
 }

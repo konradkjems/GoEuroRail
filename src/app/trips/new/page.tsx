@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Trip, City, TripStop } from "@/types";
+import { FormTrip, City, FormTripStop } from "@/types";
 import Layout from "@/components/Layout";
 import SplitView from "@/components/SplitView";
 import { cities } from "@/lib/cities";
@@ -49,15 +49,15 @@ export default function NewTrip() {
   }, []);
 
   // Calculate end date based on stays
-  const calculateEndDate = (stops: TripStop[]): Date => {
-    if (stops.length === 0) return new Date(startDate);
+  const calculateEndDate = (stops: FormTripStop[]): string => {
+    if (stops.length === 0) return startDate;
     
     let currentDate = new Date(startDate);
     stops.forEach(stop => {
       currentDate.setDate(currentDate.getDate() + (stop.nights || 1));
     });
     
-    return currentDate;
+    return currentDate.toISOString().split('T')[0];
   };
 
   // Handle city selection from the map
@@ -102,7 +102,7 @@ export default function NewTrip() {
     setIsSubmitting(true);
     
     // Create stops from selected cities with default 1 night stay
-    const stops: TripStop[] = selectedCities.map((city, index) => {
+    const stops: FormTripStop[] = selectedCities.map((city, index) => {
       let currentDate = new Date(startDate);
       if (index > 0) {
         // Add the nights from previous stops to get the arrival date
@@ -116,9 +116,9 @@ export default function NewTrip() {
       departureDate.setDate(departureDate.getDate() + 1);
       
       return {
-        city,
-        arrivalDate,
-        departureDate,
+        cityId: city.id,
+        arrivalDate: arrivalDate.toISOString().split('T')[0],
+        departureDate: departureDate.toISOString().split('T')[0],
         nights: 1,
         notes: "",
         accommodation: ""
@@ -129,10 +129,10 @@ export default function NewTrip() {
     const endDate = calculateEndDate(stops);
     
     // Create new trip
-    const newTrip: Trip = {
-      id: Date.now().toString(),
+    const newTrip: FormTrip = {
+      _id: Date.now().toString(),
       name: tripName,
-      startDate: new Date(startDate),
+      startDate,
       endDate,
       travelers,
       notes,
@@ -142,7 +142,7 @@ export default function NewTrip() {
     // Save to localStorage
     try {
       const savedTrips = localStorage.getItem('trips');
-      let existingTrips: Trip[] = [];
+      let existingTrips: FormTrip[] = [];
       
       if (savedTrips) {
         existingTrips = JSON.parse(savedTrips);
@@ -151,7 +151,7 @@ export default function NewTrip() {
       localStorage.setItem('trips', JSON.stringify([...existingTrips, newTrip]));
       
       // Redirect to the trip detail page
-      router.push(`/trips/${newTrip.id}`);
+      router.push(`/trips/${newTrip._id}`);
     } catch (error) {
       console.error("Error saving trip:", error);
       setIsSubmitting(false);
@@ -164,16 +164,17 @@ export default function NewTrip() {
     <div className="h-full relative">
       <InterrailMap
         selectedTrip={{
-          id: "temp",
+          _id: "temp",
           name: tripName,
           startDate,
-          endDate,
+          endDate: calculateEndDate([]),
           notes: "",
           travelers: 1,
           stops: selectedCities.map(city => ({
-            city,
+            cityId: city.id,
             arrivalDate: startDate,
-            departureDate: endDate,
+            departureDate: calculateEndDate([]),
+            nights: 1,
             accommodation: "",
             notes: ""
           }))

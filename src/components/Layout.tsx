@@ -20,12 +20,7 @@ export default function Layout({ children }: LayoutProps) {
       <header className="bg-white shadow relative z-20">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold text-[#264653] flex items-center">
-            <img src="/logo.svg" alt="GoEuroRail Logo" className="w-8 h-8 mr-2" />
-            <span>
-              <span className="text-[#264653]">Go</span>
-              <span className="text-[#06D6A0]">Euro</span>
-              <span className="text-[#FFD166]">Rail</span>
-            </span>
+            <img src="/gur-logo2 wide.svg" alt="GoEuroRail Logo" className="h-10 w-auto" />
           </Link>
           
           <nav className="hidden md:flex space-x-4">

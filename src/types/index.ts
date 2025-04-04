@@ -1,3 +1,4 @@
+// Base interfaces for data models
 export interface City {
   id: string;
   name: string;
@@ -6,37 +7,58 @@ export interface City {
     lat: number;
     lng: number;
   };
+  region: string;
+  population: number;
+  isTransportHub: boolean;
+  size: 'small' | 'medium' | 'large';
 }
 
+// Form interfaces (used in components)
+export interface FormTripStop {
+  cityId: string;
+  arrivalDate: string;
+  departureDate: string;
+  nights: number;
+  isStopover?: boolean;
+  accommodation?: string;
+  notes?: string;
+  trainDetails?: {
+    trainNumber: string;
+    duration: string;
+    changes: number;
+    price?: {
+      amount: number;
+      currency: string;
+    };
+  };
+}
+
+export interface FormTrip {
+  _id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  notes?: string;
+  travelers?: number;
+  stops: FormTripStop[];
+}
+
+// Database interfaces (used in API and database operations)
 export interface TripStop {
   city: City;
-  arrivalDate: Date | null;
-  departureDate: Date | null;
-  accommodation: string;
-  notes: string;
+  arrivalDate: string;
+  departureDate: string;
+  accommodation?: string;
+  notes?: string;
+  nights?: number;
 }
 
 export interface Trip {
   id: string;
   name: string;
-  startDate: Date;
-  endDate: Date;
-  stops: TripStop[];
-  notes: string;
-}
-
-export interface FormTripStop {
-  cityId: string;
-  arrivalDate: string;
-  departureDate: string;
-  accommodation: string;
-  notes: string;
-}
-
-export interface FormTrip {
-  name: string;
   startDate: string;
   endDate: string;
-  stops: FormTripStop[];
+  stops: TripStop[];
   notes: string;
+  travelers?: number;
 } 
