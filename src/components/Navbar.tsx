@@ -16,6 +16,28 @@ export default function Navbar() {
                 className="h-10 w-auto"
               />
             </Link>
+            
+            {/* Main navigation links */}
+            <div className="hidden md:flex items-center space-x-4 ml-6">
+              <Link 
+                href="/passes" 
+                className="text-[#264653] hover:text-[#06D6A0] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Rail Passes
+              </Link>
+              <Link 
+                href="/recommended-trips" 
+                className="text-[#264653] hover:text-[#06D6A0] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Recommended Trips
+              </Link>
+              <Link 
+                href="/country-guides" 
+                className="text-[#264653] hover:text-[#06D6A0] px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Country Guides
+              </Link>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">

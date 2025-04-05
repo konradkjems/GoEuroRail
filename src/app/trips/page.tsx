@@ -17,6 +17,18 @@ import {
 import { formatDate } from "@/lib/utils";
 import { cities } from "@/lib/cities";
 
+// Map city IDs to their corresponding local photos
+const cityImages: Record<string, string> = {
+  paris: "/Photos/paris.jpg",
+  rome: "/Photos/rome.jpg",
+  barcelona: "/Photos/barcelona.jpg",
+  amsterdam: "/Photos/amsterdam.jpg",
+  // Add more cities as photos become available
+};
+
+// Default image for trips
+const DEFAULT_TRIP_IMAGE = "/Photos/classic-capitals.jpg";
+
 export default function TripsPage() {
   const router = useRouter();
   const [trips, setTrips] = useState<FormTrip[]>([]);
@@ -98,8 +110,10 @@ export default function TripsPage() {
                       >
                         <div className="absolute inset-0 opacity-30 bg-center bg-cover" 
                              style={{ backgroundImage: firstCity ? 
-                               `url(https://source.unsplash.com/featured/600x400?${firstCity.name},landmark)` : 
-                               'url(https://source.unsplash.com/featured/600x400?europe,train)' 
+                               (cityImages[firstCity.id.toLowerCase()] ? 
+                                `url(${cityImages[firstCity.id.toLowerCase()]})` : 
+                                `url(${DEFAULT_TRIP_IMAGE})`) : 
+                               `url(${DEFAULT_TRIP_IMAGE})` 
                              }} 
                         />
                         <div className="relative z-10 text-center px-4">

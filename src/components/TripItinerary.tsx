@@ -36,6 +36,26 @@ interface TripItineraryProps {
   onUpdateTrip?: (updatedTrip: FormTrip) => void;
 }
 
+// Helper function to safely create ISO date strings
+const safeISODateString = (date: Date | string): string => {
+  try {
+    // If date is already a string, convert to Date object
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      // Return today's date as fallback
+      return new Date().toISOString().split('T')[0];
+    }
+    
+    return dateObj.toISOString().split('T')[0];
+  } catch (error) {
+    console.error("Error creating ISO date string:", error);
+    // Fallback to today's date
+    return new Date().toISOString().split('T')[0];
+  }
+};
+
 // Helper function to calculate nights between dates
 const calculateNights = (arrivalDate: string, departureDate: string): number => {
   const arrival = new Date(arrivalDate);
@@ -424,15 +444,30 @@ export default function TripItinerary({
           } else {
             // Use fallback if date is invalid
             const dateObj = new Date(currentStop.arrivalDate);
-            dateObj.setDate(dateObj.getDate() + 1);
-            currentStop.departureDate = dateObj.toISOString().split('T')[0];
+            if (isNaN(dateObj.getTime())) {
+              // Invalid date - use today as fallback
+              currentStop.departureDate = safeISODateString(new Date());
+            } else {
+              dateObj.setDate(dateObj.getDate() + 1);
+              currentStop.departureDate = safeISODateString(dateObj);
+            }
           }
         } catch (error) {
           console.error("Error calculating departure date:", error);
           // Fallback: set departure to day after arrival
-          const dateObj = new Date(currentStop.arrivalDate);
-          dateObj.setDate(dateObj.getDate() + 1);
-          currentStop.departureDate = dateObj.toISOString().split('T')[0];
+          try {
+            const dateObj = new Date(currentStop.arrivalDate);
+            if (isNaN(dateObj.getTime())) {
+              // Invalid date - use today as fallback
+              currentStop.departureDate = safeISODateString(new Date());
+            } else {
+              dateObj.setDate(dateObj.getDate() + 1);
+              currentStop.departureDate = safeISODateString(dateObj);
+            }
+          } catch (e) {
+            // Ultimate fallback - just use today's date
+            currentStop.departureDate = safeISODateString(new Date());
+          }
         }
       }
       
@@ -474,7 +509,7 @@ export default function TripItinerary({
           const firstStopNights = updatedStops[i].nights || 1;
           const departureDate = new Date(tripStartDate);
           departureDate.setDate(departureDate.getDate() + firstStopNights);
-          updatedStops[i].departureDate = departureDate.toISOString().split('T')[0];
+          updatedStops[i].departureDate = safeISODateString(departureDate);
         }
       } else {
       const previousStop = updatedStops[i - 1];
@@ -493,7 +528,7 @@ export default function TripItinerary({
         }
         
         // Set arrival date
-        currentStop.arrivalDate = newArrival.toISOString().split('T')[0];
+        currentStop.arrivalDate = safeISODateString(newArrival);
         
         // Set departure date based on current stop type
         if (currentStop.isStopover) {
@@ -501,7 +536,7 @@ export default function TripItinerary({
         } else {
           const currNights = currentStop.nights || 1;
           const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
-          currentStop.departureDate = newDeparture.toISOString().split('T')[0];
+          currentStop.departureDate = safeISODateString(newDeparture);
         }
       }
     }
@@ -548,8 +583,7 @@ export default function TripItinerary({
         } else {
           const currNights = updatedStops[i].nights || 1;
           const startDate = new Date(updatedStops[i].arrivalDate);
-          updatedStops[i].departureDate = new Date(startDate.getTime() + (currNights * 24 * 60 * 60 * 1000))
-            .toISOString().split('T')[0];
+          updatedStops[i].departureDate = safeISODateString(new Date(startDate.getTime() + (currNights * 24 * 60 * 60 * 1000)));
         }
       } else {
       const previousStop = updatedStops[i - 1];
@@ -568,7 +602,7 @@ export default function TripItinerary({
         }
         
         // Set arrival date
-        currentStop.arrivalDate = newArrival.toISOString().split('T')[0];
+        currentStop.arrivalDate = safeISODateString(newArrival);
         
         // Set departure date based on current stop type
         if (currentStop.isStopover) {
@@ -576,7 +610,7 @@ export default function TripItinerary({
         } else {
           const currNights = currentStop.nights || 1;
           const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
-          currentStop.departureDate = newDeparture.toISOString().split('T')[0];
+          currentStop.departureDate = safeISODateString(newDeparture);
         }
       }
     }

@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { cities } from "@/lib/cities";
 import Link from "next/link";
+import Image from "next/image";
+import { ArrowRightIcon, GlobeEuropeAfricaIcon, MapIcon, TicketIcon, StarIcon } from "@heroicons/react/24/outline";
 
 // Dynamically import the map component to avoid server-side rendering issues
 const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
@@ -18,265 +20,220 @@ const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
 });
 
 export default function Home() {
-  const [trips, setTrips] = useState<FormTrip[]>([]);
-  const [selectedTrip, setSelectedTrip] = useState<FormTrip | null>(null);
-  const [selectedStopIndex, setSelectedStopIndex] = useState(-1);
-  const [isClient, setIsClient] = useState(false);
-  const [showNewTripForm, setShowNewTripForm] = useState(false);
-  const router = useRouter();
-
-  // New trip state
-  const [newTripName, setNewTripName] = useState("");
-  const [newTripStartDate, setNewTripStartDate] = useState("");
-  const [newTripEndDate, setNewTripEndDate] = useState("");
-
-  useEffect(() => {
-    // This will only run on the client
-    setIsClient(true);
-    
-    // Set default dates for new trip
-    const today = new Date();
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    
-    setNewTripStartDate(today.toISOString().split('T')[0]);
-    setNewTripEndDate(nextWeek.toISOString().split('T')[0]);
-    
-    // Load trips from localStorage on component mount
-    const savedTrips = localStorage.getItem('trips');
-    if (savedTrips) {
-      const parsedTrips = JSON.parse(savedTrips);
-      setTrips(parsedTrips);
-      
-      // Select the first trip if available
-      if (parsedTrips.length > 0) {
-        setSelectedTrip(parsedTrips[0]);
-      }
-    }
-    
-    // Listen for addCityToTrip event
-    const handleAddCityToTrip = (event: any) => {
-      const { cityId } = event.detail;
-      if (selectedTrip && cityId) {
-        addCityToTrip(cityId);
-      }
-    };
-    
-    window.addEventListener('addCityToTrip', handleAddCityToTrip);
-    
-    return () => {
-      window.removeEventListener('addCityToTrip', handleAddCityToTrip);
-    };
-  }, [selectedTrip]);
-
-  // Function to add a city to the selected trip
-  const addCityToTrip = (cityId: string) => {
-    if (!selectedTrip) return;
-    
-    // Find the city from our cities list
-    const cityToAdd = cities.find(city => city.id === cityId);
-    if (!cityToAdd) return;
-    
-    // Check if city is already in the trip
-    const isAlreadyInTrip = selectedTrip.stops.some(stop => stop.cityId === cityId);
-    if (isAlreadyInTrip) {
-      alert(`${cityToAdd.name} is already in your trip.`);
-      return;
-    }
-    
-    // Estimate the arrival date based on the last stop or trip start date
-    let arrivalDateStr: string;
-    if (selectedTrip.stops.length > 0) {
-      // Get the last stop's departure date or add 1 day to arrival if no departure
-      const lastStop = selectedTrip.stops[selectedTrip.stops.length - 1];
-      arrivalDateStr = lastStop.departureDate || selectedTrip.startDate;
-    } else {
-      arrivalDateStr = selectedTrip.startDate;
-    }
-    
-    // Create a departure date 1 day after arrival
-    const arrivalDate = new Date(arrivalDateStr);
-    const departureDate = new Date(arrivalDate);
-    departureDate.setDate(arrivalDate.getDate() + 1);
-    
-    // Create the new stop
-    const newStop: FormTripStop = {
-      cityId: cityToAdd.id,
-      arrivalDate: arrivalDate.toISOString().split('T')[0],
-      departureDate: departureDate.toISOString().split('T')[0],
-      accommodation: '',
-      notes: '',
-      nights: 1,  // Add default value for nights
-      isStopover: false  // Initialize as not a stopover
-    };
-    
-    // Add the stop to the trip
-    const updatedTrip: FormTrip = {
-      ...selectedTrip,
-      stops: [...selectedTrip.stops, newStop]
-    };
-    
-    // Update the trip
-    handleUpdateTrip(updatedTrip);
-    
-    // Select the new stop
-    setSelectedStopIndex(updatedTrip.stops.length - 1);
-  };
-
-  // Create a new trip
-  const handleCreateTrip = () => {
-    if (!newTripName) return;
-    
-    const newTrip: FormTrip = {
-      _id: Date.now().toString(),
-      name: newTripName,
-      startDate: newTripStartDate,
-      endDate: newTripEndDate,
-      notes: "",
-      stops: []
-    };
-    
-    const updatedTrips = [...trips, newTrip];
-    setTrips(updatedTrips);
-    setSelectedTrip(newTrip);
-    setShowNewTripForm(false);
-    
-    // Save to localStorage
-    localStorage.setItem('trips', JSON.stringify(updatedTrips));
-  };
-
-  // Handle trip deletion
-  const handleDeleteTrip = (id: string) => {
-    const updatedTrips = trips.filter(trip => trip._id !== id);
-    setTrips(updatedTrips);
-    
-    // Update localStorage
-    localStorage.setItem('trips', JSON.stringify(updatedTrips));
-    
-    // Update selected trip
-    if (updatedTrips.length > 0) {
-      setSelectedTrip(updatedTrips[0]);
-    } else {
-      setSelectedTrip(null);
-    }
-  };
-
-  // Handle trip update
-  const handleUpdateTrip = (updatedTrip: FormTrip) => {
-    const updatedTrips = trips.map(trip => 
-      trip._id === updatedTrip._id ? updatedTrip : trip
-    );
-    
-    setTrips(updatedTrips);
-    setSelectedTrip(updatedTrip);
-    
-    // Update localStorage
-    localStorage.setItem('trips', JSON.stringify(updatedTrips));
-  };
-
-  // Handle city clicks from the map
-  const handleCityClick = (cityId: string) => {
-    if (!selectedTrip) return;
-    
-    // Find the stop index for this city
-    const stopIndex = selectedTrip.stops.findIndex(stop => stop.cityId === cityId);
-    
-    if (stopIndex !== -1) {
-      setSelectedStopIndex(stopIndex);
-    }
-  };
-
   return (
-    <div className="h-[calc(100vh-4rem)]">
-      {isClient && (
-        <SplitView
-          mapSection={
-            <div className="h-full relative">
-              <InterrailMap
-                selectedTrip={selectedTrip}
-                onCityClick={handleCityClick}
-              />
-              {showNewTripForm && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
-                  <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                    <h2 className="text-xl font-bold text-[#264653] mb-4">Create New Trip</h2>
-                    <div className="space-y-4">
-                      <div>
-                        <label htmlFor="tripName" className="block text-sm font-medium text-gray-700">Trip Name</label>
-                        <input
-                          type="text"
-                          id="tripName"
-                          value={newTripName}
-                          onChange={(e) => setNewTripName(e.target.value)}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#06D6A0] focus:ring-[#06D6A0] sm:text-sm"
-                          placeholder="Enter trip name"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
-                        <input
-                          type="date"
-                          id="startDate"
-                          value={newTripStartDate}
-                          onChange={(e) => setNewTripStartDate(e.target.value)}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#06D6A0] focus:ring-[#06D6A0] sm:text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
-                        <input
-                          type="date"
-                          id="endDate"
-                          value={newTripEndDate}
-                          onChange={(e) => setNewTripEndDate(e.target.value)}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#06D6A0] focus:ring-[#06D6A0] sm:text-sm"
-                        />
-                      </div>
-                      <div className="flex justify-end space-x-3">
-                        <button
-                          onClick={() => setShowNewTripForm(false)}
-                          className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleCreateTrip}
-                          className="px-4 py-2 text-sm font-medium bg-[#06D6A0] text-white rounded-md hover:bg-[#05C090]"
-                        >
-                          Create Trip
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {!selectedTrip && !showNewTripForm && (
-                <div className="absolute top-4 right-4">
-                  <button
-                    onClick={() => setShowNewTripForm(true)}
-                    className="bg-[#FFD166] text-[#264653] px-4 py-2 rounded-md shadow hover:bg-[#FFC233] flex items-center"
-                  >
-                    <PlusIcon className="h-5 w-5 mr-1" />
-                    Create New Trip
-                  </button>
-                </div>
-              )}
+    <div className="max-w-7xl mx-auto">
+      {/* Hero Section */}
+      <section className="relative">
+        <div className="h-[600px] relative overflow-hidden rounded-2xl">
+          <Image
+            src="/Photos/classic-capitals.jpg"
+            alt="European railway scene"
+            fill
+            style={{ objectFit: "cover" }}
+            priority
+            className="brightness-[0.85]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex flex-col justify-center p-8 md:p-16">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+              Explore Europe <br />
+              <span className="text-[#FFD166]">by Rail</span>
+            </h1>
+            <p className="text-lg md:text-xl text-white max-w-lg mb-8">
+              Plan your perfect European rail adventure with our interactive trip planner, 
+              rail pass guides, and expert recommendations.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/trips/new"
+                className="bg-[#06D6A0] hover:bg-[#05c091] text-white px-6 py-3 rounded-lg font-medium text-center sm:text-left flex items-center justify-center sm:justify-start gap-2 max-w-xs"
+              >
+                Plan Your Journey
+                <ArrowRightIcon className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/recommended-trips"
+                className="bg-white hover:bg-gray-100 text-[#264653] px-6 py-3 rounded-lg font-medium text-center sm:text-left max-w-xs"
+              >
+                See Recommended Routes
+              </Link>
             </div>
-          }
-          contentSection={
-            <div className="h-full flex flex-col">
-              <TripItinerary
-                trip={selectedTrip}
-                onDeleteTrip={handleDeleteTrip}
-                selectedStopIndex={selectedStopIndex}
-                onSelectStop={setSelectedStopIndex}
-                onUpdateTrip={handleUpdateTrip}
-              />
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16">
+        <h2 className="text-3xl font-bold text-center text-[#264653] mb-12">
+          Plan Your European Adventure with Ease
+        </h2>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-[#FFD166]/20 flex items-center justify-center rounded-lg mb-4">
+              <MapIcon className="w-6 h-6 text-[#FFD166]" />
             </div>
-          }
-          mapWidth="60%"
-        />
-      )}
+            <h3 className="text-xl font-semibold mb-2 text-[#264653]">Interactive Map</h3>
+            <p className="text-gray-600">
+              Visualize your journey on our interactive map. Add stops, view train routes, and optimize your itinerary.
+            </p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-[#06D6A0]/20 flex items-center justify-center rounded-lg mb-4">
+              <TicketIcon className="w-6 h-6 text-[#06D6A0]" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-[#264653]">Rail Pass Advisor</h3>
+            <p className="text-gray-600">
+              Find the perfect rail pass for your trip. Our advisor helps you choose between Eurail, Interrail, and point-to-point tickets.
+            </p>
+          </div>
+          
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-[#EF476F]/20 flex items-center justify-center rounded-lg mb-4">
+              <GlobeEuropeAfricaIcon className="w-6 h-6 text-[#EF476F]" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-[#264653]">Smart Trip Assistant</h3>
+            <p className="text-gray-600">
+              Get personalized recommendations for accommodations, activities, and weather advice for each stop on your journey.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Destinations */}
+      <section className="py-16">
+        <div className="flex justify-between items-baseline mb-8">
+          <h2 className="text-3xl font-bold text-[#264653]">
+            Popular Destinations
+          </h2>
+          <Link 
+            href="/country-guides" 
+            className="text-[#06D6A0] hover:text-[#05c091] font-medium flex items-center gap-1"
+          >
+            View All
+            <ArrowRightIcon className="w-4 h-4" />
+          </Link>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { city: "Paris", country: "france" },
+            { city: "Barcelona", country: "spain" },
+            { city: "Amsterdam", country: "netherlands" },
+            { city: "Rome", country: "italy" }
+          ].map((item) => (
+            <Link 
+              key={item.city} 
+              href={`/country-guides/${item.country}`}
+              className="group relative h-72 overflow-hidden rounded-xl"
+            >
+              <Image
+                src={`/Photos/${item.city.toLowerCase()}.jpg`}
+                alt={item.city}
+                fill
+                style={{ objectFit: "cover" }}
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end">
+                <div className="p-4">
+                  <h3 className="text-xl font-semibold text-white">{item.city}</h3>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Recommended Trips */}
+      <section className="py-16">
+        <div className="flex justify-between items-baseline mb-8">
+          <h2 className="text-3xl font-bold text-[#264653]">
+            Recommended Trips
+          </h2>
+          <Link 
+            href="/recommended-trips" 
+            className="text-[#06D6A0] hover:text-[#05c091] font-medium flex items-center gap-1"
+          >
+            View All
+            <ArrowRightIcon className="w-4 h-4" />
+          </Link>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              title: "Classic European Capitals",
+              duration: "14 days",
+              cities: ["London", "Paris", "Brussels", "Amsterdam", "Berlin"],
+              image: "/Photos/classic-capitals.jpg",
+              id: "classic-european-capitals"
+            },
+            {
+              title: "Mediterranean Explorer",
+              duration: "12 days",
+              cities: ["Barcelona", "Marseille", "Nice", "Florence", "Rome"],
+              image: "/Photos/barcelona.jpg",
+              id: "mediterranean-explorer"
+            },
+            {
+              title: "Alpine Adventure",
+              duration: "10 days",
+              cities: ["Zurich", "Lucerne", "Interlaken", "Geneva", "Lyon"],
+              image: "/Photos/alpine.jpg",
+              id: "alpine-adventure"
+            }
+          ].map((trip, index) => (
+            <Link 
+              key={index}
+              href={`/recommended-trips/${trip.id}`}
+              className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+            >
+              <div className="h-48 relative overflow-hidden">
+                <Image
+                  src={trip.image}
+                  alt={trip.title}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  className="group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-[#264653]">{trip.title}</h3>
+                <div className="flex items-center gap-1 text-yellow-500 mb-2">
+                  <StarIcon className="w-5 h-5 fill-current" />
+                  <StarIcon className="w-5 h-5 fill-current" />
+                  <StarIcon className="w-5 h-5 fill-current" />
+                  <StarIcon className="w-5 h-5 fill-current" />
+                  <StarIcon className="w-5 h-5 fill-current text-gray-300" />
+                </div>
+                <p className="text-gray-700 mb-2">{trip.duration}</p>
+                <p className="text-gray-500">
+                  {trip.cities.slice(0, 3).join(" • ")} {trip.cities.length > 3 ? "..." : ""}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16">
+        <div className="bg-[#264653] rounded-2xl p-8 md:p-16 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Start Your Journey?
+          </h2>
+          <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
+            Create your personalized rail trip itinerary today and experience the best of Europe by train.
+          </p>
+          <Link
+            href="/trips/new"
+            className="inline-flex items-center bg-[#FFD166] hover:bg-[#FFC233] text-[#264653] px-8 py-4 rounded-lg font-medium gap-2"
+          >
+            Plan Your Trip Now
+            <ArrowRightIcon className="w-5 h-5" />
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

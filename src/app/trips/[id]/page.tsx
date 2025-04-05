@@ -70,8 +70,8 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       if (foundTrip) {
         setTrip(foundTrip);
       } else {
-        // Trip not found, redirect to home
-        router.push('/');
+        // Trip not found, redirect to trips page instead of home
+        router.push('/trips');
       }
     }
     
@@ -105,8 +105,8 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       // Update localStorage
       localStorage.setItem('trips', JSON.stringify(updatedTrips));
       
-      // Redirect to home
-      router.push('/');
+      // Redirect to trips page instead of home
+      router.push('/trips');
     }
   };
 
