@@ -1,60 +1,100 @@
-# Interrail Planner
+# GoEuroRail - European Rail Travel Assistant
 
-A web application for planning and visualizing Interrail journeys across Europe. Plan your trips, add stops, and see your route on a map.
+GoEuroRail is a comprehensive web application designed to help travelers plan their European rail journeys. It provides weather forecasts, budget estimations, train pass recommendations, attraction suggestions, and accommodation options.
 
 ## Features
 
-- Create and manage multiple trips
-- Add cities as stops on your journey
-- Track arrival and departure dates
-- Add accommodation details and notes for each stop
-- Visualize your journey on an interactive map
-- Store trip data locally in your browser
+- **Smart Trip Assistant**: Get personalized recommendations based on your itinerary
+- **Interactive Map**: Visualize your trip across Europe
+- **Weather Forecasts**: Plan for weather conditions at each destination
+- **Budget Estimation**: Calculate your trip costs based on real-time cost of living data
+- **Train Pass Calculator**: Find the most cost-effective rail pass options
+- **Attraction Recommendations**: Discover popular sights and activities at each stop
+- **Accommodation Suggestions**: Find lodging options that match your budget and preferences
 
-## Technology Stack
+## Tech Stack
 
-- **Next.js**: React framework with App Router
-- **TypeScript**: For type safety
-- **TailwindCSS**: For styling
-- **React Hook Form**: For form management
-- **Leaflet/React-Leaflet**: For interactive maps
-- **date-fns**: For date handling
-- **Heroicons**: For UI icons
+- Next.js 14
+- TypeScript
+- React
+- Tailwind CSS
+- Leaflet for mapping
+- MongoDB for data storage
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ and npm
+- MongoDB (optional, for data storage)
 
 ### Installation
 
-1. Clone the repository
-2. Install dependencies:
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/goeurorail.git
+cd goeurorail
+```
 
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Run the development server:
+3. Set up environment variables:
+```bash
+cp .env.local.example .env.local
+```
+Then edit `.env.local` with your API keys and configuration.
 
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Project Structure
+## Deployment on Vercel
 
-- `/src/app`: Next.js App Router pages
-- `/src/components`: Reusable React components
-- `/src/lib`: Utility functions and data
-- `/src/types`: TypeScript type definitions
+The application is optimized for deployment on Vercel:
 
-## Data Storage
+1. Install Vercel CLI:
+```bash
+npm install -g vercel
+```
 
-This application uses browser localStorage to store trip data. No server or external database is required.
+2. Login to Vercel:
+```bash
+vercel login
+```
+
+3. Deploy:
+```bash
+vercel
+```
+
+Alternatively, connect your GitHub repository to Vercel for automatic deployments.
+
+### Environment Variables
+
+Ensure you set the following environment variables in your Vercel project:
+
+- `NEXT_PUBLIC_OPENWEATHERMAP_API_KEY`: For weather forecasts
+- `NEXT_PUBLIC_RAPIDAPI_KEY`: For TripAdvisor data
+- `MONGODB_URI` (optional): For database connection
+
+## Data Sources
+
+- Weather data: OpenWeatherMap API
+- Attraction data: TripAdvisor API
+- Cost of living data: Local database
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Data sources and API providers
+- The Next.js and React communities for their excellent documentation
+- European rail networks for inspiring this application
