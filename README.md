@@ -10,6 +10,7 @@ GoEuroRail is a comprehensive web application designed to help travelers plan th
 - **Budget Estimation**: Calculate your trip costs based on real-time cost of living data
 - **Train Pass Calculator**: Find the most cost-effective rail pass options
 - **Attraction Recommendations**: Discover popular sights and activities at each stop
+- **Bookable Activities**: Book tours and activities through GetYourGuide integration
 - **Accommodation Suggestions**: Find lodging options that match your budget and preferences
 
 ## Tech Stack
@@ -20,6 +21,7 @@ GoEuroRail is a comprehensive web application designed to help travelers plan th
 - Tailwind CSS
 - Leaflet for mapping
 - MongoDB for data storage
+- GetYourGuide Partner API for activities
 
 ## Getting Started
 
@@ -81,6 +83,7 @@ Ensure you set the following environment variables in your Vercel project:
 
 - `NEXT_PUBLIC_OPENWEATHERMAP_API_KEY`: For weather forecasts
 - `NEXT_PUBLIC_RAPIDAPI_KEY`: For TripAdvisor data
+- `NEXT_PUBLIC_GETYOURGUIDE_PARTNER_ID`: For bookable activities
 - `MONGODB_URI` (optional): For database connection
 
 ## Data Sources
@@ -88,6 +91,7 @@ Ensure you set the following environment variables in your Vercel project:
 - Weather data: OpenWeatherMap API
 - Attraction data: TripAdvisor API
 - Cost of living data: Local database
+- Activities and tours: GetYourGuide
 
 ## License
 

@@ -3,6 +3,7 @@ export * from './weatherService';
 export * from './accommodationService';
 export * from './attractionsService';
 export * from './budgetService';
+export * from './getYourGuideService';
 
 /**
  * This file exports all our API services that provide real data

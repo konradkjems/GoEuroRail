@@ -10,6 +10,7 @@ This guide explains how to deploy the GoEuroRail application to Vercel.
   - OpenWeatherMap
   - RapidAPI (for TripAdvisor)
   - Google Places (optional)
+  - GetYourGuide Partner ID (for bookable activities)
 
 ## Deployment Options
 
@@ -59,6 +60,7 @@ Set these environment variables in your Vercel project settings:
 NEXT_PUBLIC_OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
 NEXT_PUBLIC_RAPIDAPI_KEY=your_rapidapi_key
 NEXT_PUBLIC_GOOGLEPLACES_API_KEY=your_googleplaces_api_key
+NEXT_PUBLIC_GETYOURGUIDE_PARTNER_ID=your_getyourguide_partner_id
 
 # API URLs
 NEXT_PUBLIC_OPENWEATHERMAP_BASE_URL=https://api.openweathermap.org/data/2.5

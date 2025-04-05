@@ -96,11 +96,20 @@ export interface TripBudget {
  * Budget parameters
  */
 export interface BudgetParams {
-  cityName: string;
+  // Original format parameters
+  cityName?: string;
   country?: string;
-  days: number;
-  travelers: number;
+  days?: number;
+  travelers?: number;
   preferredCategory?: BudgetCategory;
+  
+  // New format with stops
+  stops?: Array<{
+    city: string;
+    country: string;
+    nights: number;
+  }>;
+  budgetLevel?: 'budget' | 'moderate' | 'luxury';
 }
 
 /**
@@ -426,39 +435,77 @@ async function getCostIndicesFromDatabase(cityName: string): Promise<CostIndices
 }
 
 /**
- * Get budget estimate for a trip
+ * Get trip budget estimation
  */
 export async function getTripBudget(params: BudgetParams): Promise<TripBudget> {
-  const cacheKey = `budget:${params.cityName}:${params.days}:${params.travelers}`;
+  const cacheKey = `budget_${JSON.stringify(params)}`;
   
   // Check if we have cached data
-  const cachedData = getCachedData(cacheKey);
+  const cachedData = await getCachedData(cacheKey);
   if (cachedData) {
-    console.log(`Using cached budget data for ${params.cityName}`);
-    return cachedData;
+    return cachedData as TripBudget;
   }
   
   try {
+    // Handle new format with stops array
+    if (params.stops && params.stops.length > 0) {
+      // For now, use the first city as the primary
+      const firstStop = params.stops[0];
+      
+      // Calculate total days from all stops
+      const totalNights = params.stops.reduce((total, stop) => total + stop.nights, 0);
+      
+      // Convert budget level to preferred category
+      let preferredCategory: BudgetCategory;
+      if (params.budgetLevel === 'budget') {
+        preferredCategory = BudgetCategory.BUDGET;
+      } else if (params.budgetLevel === 'luxury') {
+        preferredCategory = BudgetCategory.LUXURY;
+      } else {
+        preferredCategory = BudgetCategory.MODERATE;
+      }
+      
+      // Create a compatible params object for our existing functions
+      const compatParams: BudgetParams = {
+        cityName: firstStop.city,
+        country: firstStop.country,
+        days: totalNights + 1, // Add one for the last day
+        travelers: params.travelers || 1,
+        preferredCategory
+      };
+      
+      return await getTripBudget(compatParams);
+    }
+    
+    // Handle original format
     // Try to get cost indices from our database
-    let costIndices = await getCostIndicesFromDatabase(params.cityName);
+    let costIndices = await getCostIndicesFromDatabase(params.cityName || '');
     
     // If not found in database, use fallback data
     if (!costIndices) {
-      console.log(`No database data found for ${params.cityName}, using fallback data`);
-      costIndices = getFallbackCostIndices(params.cityName);
+      costIndices = getFallbackCostIndices(params.cityName || '');
     }
     
     // Calculate budget based on cost indices
-    const budget = calculateBudget(costIndices, params);
+    const budget = calculateBudget(costIndices, {
+      ...params,
+      cityName: params.cityName || '',
+      days: params.days || 1,
+      travelers: params.travelers || 1
+    });
     
-    // Cache the data
-    setCachedData(cacheKey, budget, CACHE_TTL);
+    // Cache the result
+    await setCachedData(cacheKey, budget, CACHE_TTL);
     
     return budget;
   } catch (error) {
-    console.error(`Error calculating budget for ${params.cityName}:`, error);
-    // Fall back to estimated data
-    return getFallbackBudget(params);
+    console.error('Error calculating trip budget:', error);
+    return getFallbackBudget({
+      ...params,
+      cityName: params.cityName || '', 
+      days: params.days || 1,
+      travelers: params.travelers || 1
+    });
   }
 }
 
@@ -466,7 +513,10 @@ export async function getTripBudget(params: BudgetParams): Promise<TripBudget> {
  * Calculate a comprehensive budget based on cost indices and trip parameters
  */
 function calculateBudget(costs: CostIndices, params: BudgetParams): TripBudget {
-  const { days, travelers } = params;
+  // Ensure we have default values for undefined parameters
+  const days = params.days || 1;
+  const travelers = params.travelers || 1;
+  const cityName = params.cityName || 'Unknown City';
   
   // Adjust prices for number of travelers
   const accommodationPerNight = {
@@ -549,7 +599,7 @@ function calculateBudget(costs: CostIndices, params: BudgetParams): TripBudget {
   };
   
   return {
-    cityName: params.cityName,
+    cityName: cityName,
     country: costs.country,
     currency: costs.currency,
     exchangeRate: 1.0, // Assuming EUR as default
@@ -671,6 +721,6 @@ function getCountryFromCity(cityName: string): string | null {
  * Get fallback budget for trip
  */
 function getFallbackBudget(params: BudgetParams): TripBudget {
-  const costs = getFallbackCostIndices(params.cityName);
+  const costs = getFallbackCostIndices(params.cityName || 'Unknown City');
   return calculateBudget(costs, params);
 } 

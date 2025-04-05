@@ -55,4 +55,4 @@ next-env.d.ts
 data/
 cities_cost_of_living.csv
 cities.xlsx
-
+.env.local.example

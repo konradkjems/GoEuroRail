@@ -17,12 +17,11 @@ import {
   BuildingOfficeIcon,
   CurrencyEuroIcon,
   MapPinIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  CalendarIcon,
+  ArrowTrendingUpIcon
 } from "@heroicons/react/24/outline";
-import { getWeatherForecast, WeatherForecast } from "@/lib/api/weatherService";
-import { getTripBudget, BudgetCategory } from "@/lib/api/budgetService";
-import { getAccommodations, Accommodation as ApiAccommodation, AccommodationSearchParams } from "@/lib/api/accommodationService";
-import { getAttractions, Attraction as ApiAttraction, AttractionSearchParams } from "@/lib/api/attractionsService";
+import { getWeatherForecast, WeatherForecast, getTripBudget, BudgetCategory, getAccommodations, Accommodation as ApiAccommodation, AccommodationSearchParams, getAttractions, Attraction as ApiAttraction, AttractionSearchParams, getActivities, getActivityWidgetHtml } from "@/lib/api";
 
 interface SmartTripAssistantProps {
   trip: FormTrip;
@@ -355,58 +354,74 @@ const DEFAULT_ACCOMMODATIONS: Record<string, Accommodation[]> = {
   ]
 };
 
+// Map of city names to GetYourGuide location ID codes
+const getYourGuideLocationIds: Record<string, string> = {
+  'Barcelona': '45',
+  'Paris': '16',
+  'Rome': '33',
+  'Amsterdam': '36',
+  'Berlin': '17',
+  'London': '1',
+  'Venice': '105',
+  'Prague': '10212',
+  'Madrid': '51',
+  'Florence': '43',
+  'Vienna': '39',
+  'Athens': '496',
+  'Lisbon': '94',
+  'Budapest': '25',
+  'Dublin': '55',
+  'Zurich': '105',
+  'Brussels': '108',
+  'Munich': '1316',
+  'Milan': '87',
+};
+
 export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [budgetLevel, setBudgetLevel] = useState<'budget' | 'moderate' | 'luxury'>('moderate');
   
-  // Add new state for the real data
-  const [weatherData, setWeatherData] = useState<Record<string, WeatherForecast>>({});
+  // State for API data
+  const [weatherData, setWeatherData] = useState<Record<string, any>>({});
   const [budgetData, setBudgetData] = useState<any>(null);
-  const [accommodationsData, setAccommodationsData] = useState<Record<string, ApiAccommodation[]>>({});
-  const [attractionsData, setAttractionsData] = useState<Record<string, ApiAttraction[]>>({});
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({
-    weather: false,
-    budget: false,
-    accommodations: false,
-    attractions: false
-  });
+  const [accommodationsData, setAccommodationsData] = useState<Record<string, any[]>>({});
+  const [attractionsData, setAttractionsData] = useState<Record<string, any[]>>({});
+  const [activitiesData, setActivitiesData] = useState<Record<string, any[]>>({});
+  
+  // Loading states
+  const [isLoadingWeather, setIsLoadingWeather] = useState(false);
+  const [isLoadingBudget, setIsLoadingBudget] = useState(false);
+  const [isLoadingAccommodations, setIsLoadingAccommodations] = useState(false);
+  const [isLoadingAttractions, setIsLoadingAttractions] = useState(false);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
 
   // Set up effect to fetch data when the trip changes or expandedSection changes
   useEffect(() => {
     if (!trip || !trip.stops || trip.stops.length === 0) return;
     
-    const fetchData = async () => {
-      // Only fetch data for the expanded section to avoid unnecessary API calls
-      if (expandedSection === 'weather' && Object.keys(weatherData).length === 0) {
-        await fetchWeatherData();
-      }
-      
-      if (expandedSection === 'budget' && !budgetData) {
-        await fetchBudgetData();
-      }
-      
-      if (expandedSection === 'accommodations' && Object.keys(accommodationsData).length === 0) {
-        await fetchAccommodationsData();
-      }
-      
-      if (expandedSection === 'attractions' && Object.keys(attractionsData).length === 0) {
-        await fetchAttractionsData();
-      }
-    };
-    
-    fetchData();
-  }, [trip, expandedSection]);
+    // Only fetch data for the currently expanded section
+    if (expandedSection === 'weather' && !weatherData) {
+      fetchWeatherData();
+    } else if (expandedSection === 'budget' && !budgetData) {
+      fetchBudgetData();
+    } else if (expandedSection === 'accommodations' && Object.keys(accommodationsData).length === 0) {
+      fetchAccommodationsData();
+    } else if (expandedSection === 'attractions' && Object.keys(attractionsData).length === 0) {
+      fetchAttractionsData();
+    } else if (expandedSection === 'activities' && Object.keys(activitiesData).length === 0) {
+      fetchActivitiesData();
+    }
+  }, [expandedSection, trip]);
 
   // Fetch weather data for all stops
   const fetchWeatherData = async () => {
     if (!trip.stops || trip.stops.length === 0) return;
     
-    setIsLoading(prev => ({ ...prev, weather: true }));
+    setIsLoadingWeather(true);
     
-    const newWeatherData: Record<string, WeatherForecast> = {};
+    const newWeatherData: Record<string, any> = {};
     
     try {
-      // Fetch weather for each stop
       for (const stop of trip.stops) {
         const city = cities.find(c => c.id === stop.cityId);
         if (!city) continue;
@@ -416,37 +431,18 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
         // Check if we already have data for this city+date
         if (weatherData[stopKey]) continue;
         
-        try {
-          const forecast = await getWeatherForecast(city.name, stop.arrivalDate);
+        // Get weather forecast
+        const forecast = await getWeatherForecast(city.name, stop.arrivalDate);
+        if (forecast) {
           newWeatherData[stopKey] = forecast;
-        } catch (error) {
-          console.error(`Error fetching weather for ${city.name}:`, error);
-          // Use fallback data
-          const region = getRegion(city);
-          const arrivalDate = new Date(stop.arrivalDate);
-          const month = arrivalDate.toLocaleString('en-US', { month: 'short' });
-          const mockWeather = WEATHER_DATA[region][month as keyof typeof WEATHER_DATA[typeof region]];
-          
-          newWeatherData[stopKey] = {
-            cityName: city.name,
-            date: stop.arrivalDate,
-            temp: {
-              day: mockWeather.temp,
-              min: mockWeather.temp - 3,
-              max: mockWeather.temp + 3
-            },
-            condition: mockWeather.condition,
-            icon: mockWeather.icon,
-            rainLevel: mockWeather.rain
-          };
         }
       }
       
-      setWeatherData(prev => ({ ...prev, ...newWeatherData }));
-    } catch (error) {
+      setWeatherData((prev: Record<string, any>) => ({ ...prev, ...newWeatherData }));
+    } catch (error: any) {
       console.error('Error fetching weather data:', error);
     } finally {
-      setIsLoading(prev => ({ ...prev, weather: false }));
+      setIsLoadingWeather(false);
     }
   };
 
@@ -454,43 +450,37 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const fetchBudgetData = async () => {
     if (!trip.stops || trip.stops.length === 0) return;
     
-    setIsLoading(prev => ({ ...prev, budget: true }));
+    setIsLoadingBudget(true);
     
     try {
-      // Get the first city for the budget estimation
-      const firstCity = cities.find(c => c.id === trip.stops[0].cityId);
-      if (!firstCity) throw new Error('No valid city found for budget estimation');
-      
-      // Calculate trip duration
-      const startDate = new Date(trip.startDate);
-      const endDate = new Date(trip.endDate);
-      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      
-      // Get travelers count
-      const travelers = trip.travelers && Array.isArray(trip.travelers) ? trip.travelers.length : 1;
-      
-      // Map our UI budget level to API budget category
-      const budgetCategoryMap = {
-        'budget': BudgetCategory.BUDGET,
-        'moderate': BudgetCategory.MODERATE,
-        'luxury': BudgetCategory.LUXURY
+      // Calculate budget based on trip details
+      const budgetParams = {
+        stops: trip.stops.map(stop => {
+          const city = cities.find(c => c.id === stop.cityId);
+          return {
+            city: city ? city.name : '',
+            country: city ? city.country : '',
+            nights: stop.nights || 0
+          };
+        }),
+        budgetLevel,
+        travelers: typeof trip.travelers === 'number' ? trip.travelers : 1
       };
       
-      const budget = await getTripBudget({
-        cityName: firstCity.name,
-        country: firstCity.country,
-        days,
-        travelers,
-        preferredCategory: budgetCategoryMap[budgetLevel]
-      });
+      // Try to get real budget data
+      const realBudgetData = await getTripBudget(budgetParams);
+      if (realBudgetData) {
+        setBudgetData(realBudgetData);
+        return;
+      }
       
-      setBudgetData(budget);
-    } catch (error) {
+      // Fallback to local calculation
+      setBudgetData(calculateBudget());
+    } catch (error: any) {
       console.error('Error fetching budget data:', error);
-      // Fall back to the calculateBudget function from the original component
       setBudgetData(calculateBudget());
     } finally {
-      setIsLoading(prev => ({ ...prev, budget: false }));
+      setIsLoadingBudget(false);
     }
   };
 
@@ -498,7 +488,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const fetchAccommodationsData = async () => {
     if (!trip.stops || trip.stops.length === 0) return;
     
-    setIsLoading(prev => ({ ...prev, accommodations: true }));
+    setIsLoadingAccommodations(true);
     
     const newAccommodationsData: Record<string, ApiAccommodation[]> = {};
     
@@ -563,7 +553,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     } catch (error) {
       console.error('Error fetching accommodations data:', error);
     } finally {
-      setIsLoading(prev => ({ ...prev, accommodations: false }));
+      setIsLoadingAccommodations(false);
     }
   };
 
@@ -571,7 +561,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const fetchAttractionsData = async () => {
     if (!trip.stops || trip.stops.length === 0) return;
     
-    setIsLoading(prev => ({ ...prev, attractions: true }));
+    setIsLoadingAttractions(true);
     
     const newAttractionsData: Record<string, ApiAttraction[]> = {};
     
@@ -600,7 +590,63 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     } catch (error) {
       console.error('Error fetching attractions data:', error);
     } finally {
-      setIsLoading(prev => ({ ...prev, attractions: false }));
+      setIsLoadingAttractions(false);
+    }
+  };
+
+  // Add this new function to fetch activities from GetYourGuide
+  const fetchActivitiesData = async () => {
+    if (!trip || !trip.stops || trip.stops.length === 0) return;
+    
+    setIsLoadingActivities(true);
+    
+    try {
+      const activities: Record<string, any[]> = {};
+      
+      for (const stop of trip.stops) {
+        if (stop.isStopover) continue; // Skip stopovers
+        
+        const city = cities.find(c => c.id === stop.cityId);
+        if (!city) continue;
+        
+        // Get the dates for this stop
+        const arrivalDate = stop.arrivalDate;
+        let departureDate;
+        
+        try {
+          // Calculate departure date if it's not provided but we have nights
+          if (stop.departureDate) {
+            departureDate = stop.departureDate;
+          } else if (stop.arrivalDate && stop.nights) {
+            const arrivalDateTime = new Date(stop.arrivalDate);
+            
+            // Verify arrival date is valid
+            if (!isNaN(arrivalDateTime.getTime())) {
+              // Add nights to get the departure date
+              const departureDateObj = new Date(arrivalDateTime.getTime() + stop.nights * 24 * 60 * 60 * 1000);
+              departureDate = departureDateObj.toISOString().split('T')[0];
+            } else {
+              console.warn(`Invalid arrival date: ${stop.arrivalDate}, using only arrival date for activities`);
+              departureDate = undefined;
+            }
+          } else {
+            departureDate = undefined;
+          }
+        } catch (error) {
+          console.warn(`Error calculating departure date: ${error}`, error);
+          departureDate = undefined;
+        }
+        
+        // Get activities from GetYourGuide
+        const cityActivities = await getActivities(city.name, 5, arrivalDate, departureDate);
+        activities[city.name] = cityActivities;
+      }
+      
+      setActivitiesData(activities);
+    } catch (error) {
+      console.error('Error fetching GetYourGuide activities:', error);
+    } finally {
+      setIsLoadingActivities(false);
     }
   };
 
@@ -965,7 +1011,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
               timeNeeded: '2',
               category: attraction.type,
               rating: attraction.rating || 4.0,
-              mustSee: attraction.tags.some(tag => tag.toLowerCase().includes('popular') || tag.toLowerCase().includes('must see')),
+              mustSee: attraction.tags.some((tag: string) => tag.toLowerCase().includes('popular') || tag.toLowerCase().includes('must see')),
               avgTime
             });
             remainingHours -= avgTime;
@@ -1210,6 +1256,71 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const trainPassAdvice = calculateTrainPass();
   const attractionRecommendations = getAttractionRecommendations();
   const accommodationSuggestions = getAccommodationSuggestions();
+
+  // Format tag display
+  const getTagDisplay = (tag: string) => {
+    return (
+      <span 
+        key={tag} 
+        className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full mr-1 mb-1"
+      >
+        {tag}
+      </span>
+    );
+  };
+
+  // Add a helper function to map country names to country codes
+  const getActivityCountry = (country: string): string => {
+    const countryMap: Record<string, string> = {
+      'Spain': 'spain',
+      'France': 'france',
+      'Italy': 'italy',
+      'Germany': 'germany',
+      'Netherlands': 'netherlands',
+      'United Kingdom': 'united-kingdom',
+      'Portugal': 'portugal',
+      'Greece': 'greece',
+      'Austria': 'austria',
+      'Switzerland': 'switzerland',
+      'Belgium': 'belgium',
+      'Czech Republic': 'czech-republic',
+      'Hungary': 'hungary',
+      'Sweden': 'sweden',
+      'Denmark': 'denmark',
+      'Norway': 'norway',
+      'Finland': 'finland',
+      'Poland': 'poland',
+      'Ireland': 'ireland',
+      'Croatia': 'croatia'
+    };
+    
+    return countryMap[country] || '';
+  };
+
+  // Add the date formatting function
+  const formatDateForGetYourGuide = (dateString: string): string => {
+    if (!dateString) return '';
+    
+    try {
+      // Check if the date string is valid
+      const date = new Date(dateString);
+      
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.warn(`Invalid date string in SmartTripAssistant: ${dateString}, using today's date as fallback`);
+        // Use current date as fallback
+        const today = new Date();
+        return today.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+      }
+      
+      return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+    } catch (error) {
+      console.warn(`Error formatting date in SmartTripAssistant: ${dateString}, using today's date as fallback`, error);
+      // Use current date as fallback
+      const today = new Date();
+      return today.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md mb-4">
@@ -1615,6 +1726,144 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+      </div>
+      
+      {/* GetYourGuide Activities */}
+      <div className="border-b border-gray-200">
+        <button 
+          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
+          onClick={() => toggleSection('activities')}
+        >
+          <div className="flex items-center">
+            <TicketIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
+            <span className="font-medium text-[#264653]">Bookable Activities</span>
+          </div>
+          {expandedSection === 'activities' ? 
+            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
+            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+          }
+        </button>
+        
+        {expandedSection === 'activities' && (
+          <div className="p-4 bg-gray-50">
+            {isLoadingActivities ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#06D6A0]"></div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-medium text-[#264653] mb-4">Book Experiences with GetYourGuide</h3>
+                
+                {trip && trip.stops && trip.stops.length > 0 ? (
+                  <div className="space-y-6">
+                    {trip.stops
+                      .filter(stop => !stop.isStopover)
+                      .map(stop => {
+                        const city = cities.find(c => c.id === stop.cityId);
+                        if (!city) return null;
+                        
+                        const cityActivities = activitiesData[city.name] || [];
+                        
+                        return (
+                          <div key={`activity-${stop.cityId}-${stop.arrivalDate}`} className="bg-white p-4 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h4 className="font-medium text-[#264653]">{city.name}, {city.country}</h4>
+                                <div className="text-sm text-gray-500">
+                                  {stop.nights} {stop.nights === 1 ? 'night' : 'nights'} · Popular experiences
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {cityActivities.length > 0 ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                {cityActivities.map((activity, index) => (
+                                  <div key={activity.id} className="border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                                    <div className="aspect-[4/3] relative">
+                                      <img 
+                                        src={activity.image || `https://via.placeholder.com/400x300?text=${encodeURIComponent(activity.title)}`}
+                                        alt={activity.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    <div className="p-3">
+                                      <h5 className="font-medium text-[#264653] mb-1 line-clamp-2">{activity.title}</h5>
+                                      <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center text-sm text-amber-500">
+                                          {'★'.repeat(Math.round(activity.rating))}
+                                          <span className="text-gray-500 ml-1">({activity.reviewCount})</span>
+                                        </div>
+                                        <div className="text-sm text-gray-500">{activity.duration}</div>
+                                      </div>
+                                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{activity.description}</p>
+                                      <div className="flex items-center justify-between">
+                                        <div className="font-bold text-[#264653]">
+                                          From {activity.price.amount} {activity.price.currency}
+                                        </div>
+                                        <a 
+                                          href={activity.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="px-3 py-1 bg-[#06D6A0] text-white text-sm rounded-full hover:bg-[#06D6A0]/90 transition-colors"
+                                        >
+                                          Book Now
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="p-4 text-center text-gray-500">
+                                <p className="mb-2">Loading activities for {city.name}...</p>
+                                <p className="text-xs text-gray-400 mb-4">Note: Some activities show placeholder data while waiting for API approval</p>
+                                <div 
+                                  className="mt-4"
+                                  dangerouslySetInnerHTML={{ 
+                                    __html: getActivityWidgetHtml(city.name, 4, stop.arrivalDate)
+                                  }}
+                                />
+                              </div>
+                            )}
+                            
+                            <div className="mt-2 text-center">
+                              <a 
+                                href={`https://www.getyourguide.com/s/?q=${encodeURIComponent(city.name)}&date=${stop.arrivalDate ? formatDateForGetYourGuide(stop.arrivalDate) : ''}&partner_id=${process.env.NEXT_PUBLIC_GETYOURGUIDE_PARTNER_ID || 'QUGIHFI'}`}
+                                target="_blank"
+                                rel="noopener noreferrer" 
+                                className="text-[#06D6A0] hover:underline text-sm font-medium"
+                              >
+                                See all {city.name} activities on GetYourGuide →
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">Add some stops to your trip to see bookable activities.</p>
+                )}
+                
+                <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <img 
+                      src="https://cdn.getyourguide.com/tf/assets/static/logos/gyg-logo.svg" 
+                      alt="GetYourGuide" 
+                      className="h-5 mr-2"
+                    />
+                    <h4 className="font-medium text-blue-800">GetYourGuide Benefits</h4>
+                  </div>
+                  <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                    <li>24/7 customer service in multiple languages</li>
+                    <li>Free cancellation up to 24 hours before most activities</li>
+                    <li>Skip-the-line tickets to popular attractions</li>
+                    <li>Verified customer reviews and ratings</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
