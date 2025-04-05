@@ -1,9 +1,11 @@
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { cities } from "@/lib/cities";
 import { City } from "@/types";
 import dynamic from "next/dynamic";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import L from "leaflet";
+import RailLegend from './RailLegend';
 
 const MapWithNoSSR = dynamic(() => Promise.resolve(MapDisplay), {
   ssr: false,
@@ -29,6 +31,7 @@ function MapDisplay() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<City[]>([]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [isLegendOpen, setIsLegendOpen] = useState(true);
 
   // Filter cities to only show major ones and transport hubs
   const visibleCities = useMemo(() => {
@@ -59,7 +62,7 @@ function MapDisplay() {
   return (
     <div className="relative w-full h-full">
       {/* Search input */}
-      <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-2 w-64">
+      <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-2 w-64">
         <input
           type="text"
           placeholder="Search for a city..."
@@ -117,6 +120,11 @@ function MapDisplay() {
           </CircleMarker>
         ))}
       </MapContainer>
+      
+      {/* Rail Legend Component as direct DOM overlay */}
+      <div className="absolute top-4 left-4 z-[9999]">
+        <RailLegend isOpen={isLegendOpen} onToggle={() => setIsLegendOpen(!isLegendOpen)} />
+      </div>
     </div>
   );
 }

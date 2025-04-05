@@ -1,0 +1,44 @@
+﻿country_codes;;;;cost_of_living;;;;cost_examples;;;;
+id;name;iso_code;currency;id;country_id;category;average_cost_eur;id;country_id;item_name;price_eur;category
+1;Germany;DE;EUR;1;1;Food;250.00;1;1;Bratwurst;3.50;Food
+2;France;FR;EUR;2;1;Accommodation;700.00;2;1;Hostel Dorm Bed;25.00;Accommodation
+3;Italy;IT;EUR;3;1;Experiences;150.00;3;1;Museum Entry;12.00;Experiences
+4;Spain;ES;EUR;4;2;Food;300.00;4;2;Baguette Sandwich;5.00;Food
+5;Netherlands;NL;EUR;5;2;Accommodation;850.00;5;2;Budget Hotel Room;80.00;Accommodation
+6;Belgium;BE;EUR;6;2;Experiences;200.00;6;2;Eiffel Tower Ticket;25.00;Experiences
+7;Austria;AT;EUR;7;3;Food;275.00;7;3;Margherita Pizza;7.00;Food
+8;Portugal;PT;EUR;8;3;Accommodation;750.00;8;3;Hostel Dorm Bed;30.00;Accommodation
+9;Greece;GR;EUR;9;3;Experiences;180.00;9;3;Colosseum Entry;16.00;Experiences
+10;Poland;PL;PLN;10;4;Food;225.00;10;4;Tapas Plate;12.00;Food
+11;Czechia;CZ;CZK;11;4;Accommodation;600.00;11;4;Budget Hotel Room;60.00;Accommodation
+12;Hungary;HU;HUF;12;4;Experiences;160.00;12;4;Flamenco Show Ticket;20.00;Experiences
+13;Sweden;SE;SEK;13;5;Food;275.00;13;5;Stroopwafel;2.50;Food
+14;Denmark;DK;DKK;14;5;Accommodation;800.00;14;5;Hostel Dorm Bed;35.00;Accommodation
+15;Finland;FI;EUR;15;5;Experiences;170.00;15;5;Canal Cruise;15.00;Experiences
+16;Ireland;IE;EUR;16;6;Food;260.00;16;6;Waffle;3.00;Food
+17;Romania;RO;RON;17;6;Accommodation;750.00;17;6;Budget Hotel Room;75.00;Accommodation
+18;Bulgaria;BG;BGN;18;6;Experiences;165.00;18;6;Atomium Entry;16.00;Experiences
+19;Croatia;HR;EUR;19;7;Food;240.00;19;7;Wiener Schnitzel;15.00;Food
+20;Slovakia;SK;EUR;20;7;Accommodation;700.00;20;7;Hostel Dorm Bed;28.00;Accommodation
+;;;;21;7;Experiences;155.00;21;7;Opera Ticket;40.00;Experiences
+;;;;22;8;Food;230.00;22;8;Pastel de Nata;1.50;Food
+;;;;23;8;Accommodation;650.00;23;8;Budget Hotel Room;50.00;Accommodation
+;;;;24;8;Experiences;150.00;24;8;Fado Show;20.00;Experiences
+;;;;25;9;Food;220.00;25;9;Souvlaki;3.00;Food
+;;;;26;9;Accommodation;600.00;26;9;Hostel Dorm Bed;20.00;Accommodation
+;;;;27;9;Experiences;140.00;27;9;Acropolis Entry;20.00;Experiences
+;;;;28;10;Food;200.00;28;10;Pierogi Plate;6.00;Food
+;;;;29;10;Accommodation;500.00;29;10;Budget Hotel Room;40.00;Accommodation
+;;;;30;10;Experiences;130.00;30;10;Castle Tour;10.00;Experiences
+;;;;31;11;Food;210.00;31;11;Goulash;7.00;Food
+;;;;32;11;Accommodation;550.00;32;11;Hostel Dorm Bed;25.00;Accommodation
+;;;;33;11;Experiences;135.00;33;11;Astronomical Clock Tour;8.00;Experiences
+;;;;34;12;Food;190.00;34;12;Langos;4.00;Food
+;;;;35;12;Accommodation;450.00;35;12;Budget Hotel Room;35.00;Accommodation
+;;;;36;12;Experiences;125.00;36;12;Thermal Bath Entry;18.00;Experiences
+;;;;37;13;Food;280.00;37;13;Meatballs;10.00;Food
+;;;;38;13;Accommodation;850.00;38;13;Hostel Dorm Bed;40.00;Accommodation
+;;;;39;13;Experiences;175.00;39;13;Vasa Museum Entry;15.00;Experiences
+;;;;40;14;Food;300.00;40;14;Smørrebrød;12.00;Food
+;;;;41;14;Accommodation;900.00;41;14;Budget Hotel Room;100.00;Accommodation
+;;;;42;14;Experiences;180.00;42;14;Tivoli Gardens Ticket;;

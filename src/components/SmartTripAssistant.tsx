@@ -19,6 +19,10 @@ import {
   MapPinIcon,
   UserGroupIcon
 } from "@heroicons/react/24/outline";
+import { getWeatherForecast, WeatherForecast } from "@/lib/api/weatherService";
+import { getTripBudget, BudgetCategory } from "@/lib/api/budgetService";
+import { getAccommodations, Accommodation as ApiAccommodation, AccommodationSearchParams } from "@/lib/api/accommodationService";
+import { getAttractions, Attraction as ApiAttraction, AttractionSearchParams } from "@/lib/api/attractionsService";
 
 interface SmartTripAssistantProps {
   trip: FormTrip;
@@ -354,6 +358,251 @@ const DEFAULT_ACCOMMODATIONS: Record<string, Accommodation[]> = {
 export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [budgetLevel, setBudgetLevel] = useState<'budget' | 'moderate' | 'luxury'>('moderate');
+  
+  // Add new state for the real data
+  const [weatherData, setWeatherData] = useState<Record<string, WeatherForecast>>({});
+  const [budgetData, setBudgetData] = useState<any>(null);
+  const [accommodationsData, setAccommodationsData] = useState<Record<string, ApiAccommodation[]>>({});
+  const [attractionsData, setAttractionsData] = useState<Record<string, ApiAttraction[]>>({});
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({
+    weather: false,
+    budget: false,
+    accommodations: false,
+    attractions: false
+  });
+
+  // Set up effect to fetch data when the trip changes or expandedSection changes
+  useEffect(() => {
+    if (!trip || !trip.stops || trip.stops.length === 0) return;
+    
+    const fetchData = async () => {
+      // Only fetch data for the expanded section to avoid unnecessary API calls
+      if (expandedSection === 'weather' && Object.keys(weatherData).length === 0) {
+        await fetchWeatherData();
+      }
+      
+      if (expandedSection === 'budget' && !budgetData) {
+        await fetchBudgetData();
+      }
+      
+      if (expandedSection === 'accommodations' && Object.keys(accommodationsData).length === 0) {
+        await fetchAccommodationsData();
+      }
+      
+      if (expandedSection === 'attractions' && Object.keys(attractionsData).length === 0) {
+        await fetchAttractionsData();
+      }
+    };
+    
+    fetchData();
+  }, [trip, expandedSection]);
+
+  // Fetch weather data for all stops
+  const fetchWeatherData = async () => {
+    if (!trip.stops || trip.stops.length === 0) return;
+    
+    setIsLoading(prev => ({ ...prev, weather: true }));
+    
+    const newWeatherData: Record<string, WeatherForecast> = {};
+    
+    try {
+      // Fetch weather for each stop
+      for (const stop of trip.stops) {
+        const city = cities.find(c => c.id === stop.cityId);
+        if (!city) continue;
+        
+        const stopKey = `${city.name}-${stop.arrivalDate}`;
+        
+        // Check if we already have data for this city+date
+        if (weatherData[stopKey]) continue;
+        
+        try {
+          const forecast = await getWeatherForecast(city.name, stop.arrivalDate);
+          newWeatherData[stopKey] = forecast;
+        } catch (error) {
+          console.error(`Error fetching weather for ${city.name}:`, error);
+          // Use fallback data
+          const region = getRegion(city);
+          const arrivalDate = new Date(stop.arrivalDate);
+          const month = arrivalDate.toLocaleString('en-US', { month: 'short' });
+          const mockWeather = WEATHER_DATA[region][month as keyof typeof WEATHER_DATA[typeof region]];
+          
+          newWeatherData[stopKey] = {
+            cityName: city.name,
+            date: stop.arrivalDate,
+            temp: {
+              day: mockWeather.temp,
+              min: mockWeather.temp - 3,
+              max: mockWeather.temp + 3
+            },
+            condition: mockWeather.condition,
+            icon: mockWeather.icon,
+            rainLevel: mockWeather.rain
+          };
+        }
+      }
+      
+      setWeatherData(prev => ({ ...prev, ...newWeatherData }));
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, weather: false }));
+    }
+  };
+
+  // Fetch budget data
+  const fetchBudgetData = async () => {
+    if (!trip.stops || trip.stops.length === 0) return;
+    
+    setIsLoading(prev => ({ ...prev, budget: true }));
+    
+    try {
+      // Get the first city for the budget estimation
+      const firstCity = cities.find(c => c.id === trip.stops[0].cityId);
+      if (!firstCity) throw new Error('No valid city found for budget estimation');
+      
+      // Calculate trip duration
+      const startDate = new Date(trip.startDate);
+      const endDate = new Date(trip.endDate);
+      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      
+      // Get travelers count
+      const travelers = trip.travelers && Array.isArray(trip.travelers) ? trip.travelers.length : 1;
+      
+      // Map our UI budget level to API budget category
+      const budgetCategoryMap = {
+        'budget': BudgetCategory.BUDGET,
+        'moderate': BudgetCategory.MODERATE,
+        'luxury': BudgetCategory.LUXURY
+      };
+      
+      const budget = await getTripBudget({
+        cityName: firstCity.name,
+        country: firstCity.country,
+        days,
+        travelers,
+        preferredCategory: budgetCategoryMap[budgetLevel]
+      });
+      
+      setBudgetData(budget);
+    } catch (error) {
+      console.error('Error fetching budget data:', error);
+      // Fall back to the calculateBudget function from the original component
+      setBudgetData(calculateBudget());
+    } finally {
+      setIsLoading(prev => ({ ...prev, budget: false }));
+    }
+  };
+
+  // Fetch accommodations data
+  const fetchAccommodationsData = async () => {
+    if (!trip.stops || trip.stops.length === 0) return;
+    
+    setIsLoading(prev => ({ ...prev, accommodations: true }));
+    
+    const newAccommodationsData: Record<string, ApiAccommodation[]> = {};
+    
+    try {
+      // Only fetch accommodations for non-stopover cities
+      const stopsWithAccommodation = trip.stops.filter(stop => !stop.isStopover);
+      
+      for (const stop of stopsWithAccommodation) {
+        const city = cities.find(c => c.id === stop.cityId);
+        if (!city) continue;
+        
+        try {
+          // Calculate check-in and check-out dates
+          const checkIn = stop.arrivalDate;
+          
+          // For check-out, find the next stop's arrival date or use default nights
+          let checkOut = '';
+          const stopIndex = trip.stops.findIndex(s => s.cityId === stop.cityId && s.arrivalDate === stop.arrivalDate);
+          if (stopIndex >= 0 && stopIndex < trip.stops.length - 1) {
+            checkOut = trip.stops[stopIndex + 1].arrivalDate;
+          } else {
+            // If it's the last stop, use nights to calculate
+            const checkInDate = new Date(checkIn);
+            checkInDate.setDate(checkInDate.getDate() + (stop.nights || 1));
+            checkOut = checkInDate.toISOString().split('T')[0];
+          }
+          
+          // Get travelers count
+          const adults = trip.travelers && Array.isArray(trip.travelers) ? trip.travelers.length : 1;
+          
+          // Set price range based on budget level
+          let priceMin = 0;
+          let priceMax = 1000;
+          
+          if (budgetLevel === 'budget') {
+            priceMax = 80;
+          } else if (budgetLevel === 'moderate') {
+            priceMin = 60;
+            priceMax = 150;
+          } else if (budgetLevel === 'luxury') {
+            priceMin = 130;
+          }
+          
+          const accommodations = await getAccommodations({
+            cityName: city.name,
+            checkIn,
+            checkOut,
+            adults,
+            priceMin,
+            priceMax,
+            limit: 5
+          });
+          
+          newAccommodationsData[city.name] = accommodations;
+        } catch (error) {
+          console.error(`Error fetching accommodations for ${city.name}:`, error);
+          // Use fallback data
+        }
+      }
+      
+      setAccommodationsData(prev => ({ ...prev, ...newAccommodationsData }));
+    } catch (error) {
+      console.error('Error fetching accommodations data:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, accommodations: false }));
+    }
+  };
+
+  // Fetch attractions data
+  const fetchAttractionsData = async () => {
+    if (!trip.stops || trip.stops.length === 0) return;
+    
+    setIsLoading(prev => ({ ...prev, attractions: true }));
+    
+    const newAttractionsData: Record<string, ApiAttraction[]> = {};
+    
+    try {
+      for (const stop of trip.stops) {
+        const city = cities.find(c => c.id === stop.cityId);
+        if (!city) continue;
+        
+        try {
+          const categories = ['museums', 'landmarks', 'nature', 'entertainment'];
+          
+          const attractions = await getAttractions({
+            cityName: city.name,
+            categories,
+            limit: 10
+          });
+          
+          newAttractionsData[city.name] = attractions;
+        } catch (error) {
+          console.error(`Error fetching attractions for ${city.name}:`, error);
+          // Use fallback data
+        }
+      }
+      
+      setAttractionsData(prev => ({ ...prev, ...newAttractionsData }));
+    } catch (error) {
+      console.error('Error fetching attractions data:', error);
+    } finally {
+      setIsLoading(prev => ({ ...prev, attractions: false }));
+    }
+  };
 
   const toggleSection = (section: string) => {
     if (expandedSection === section) {
@@ -445,6 +694,14 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     const city = cities.find(c => c.id === stop.cityId);
     if (!city) return null;
     
+    const stopKey = `${city.name}-${stop.arrivalDate}`;
+    
+    // Check if we have real data for this stop
+    if (weatherData[stopKey]) {
+      return weatherData[stopKey];
+    }
+    
+    // Fall back to mock data
     const region = getRegion(city);
     const arrivalDate = new Date(stop.arrivalDate);
     const month = arrivalDate.toLocaleString('en-US', { month: 'short' });
@@ -453,17 +710,34 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   };
 
   // Get weather icon component
-  const getWeatherIcon = (icon: string) => {
+  const getWeatherIcon = (weather: any) => {
+    // Handle both real API response and mock data formats
+    const icon = typeof weather === 'string' ? weather : (weather?.icon || 'cloud');
+    
     switch (icon) {
       case 'sun':
+      case '01d':
+      case '01n':
         return <SunIcon className="h-8 w-8 text-yellow-500" />;
       case 'cloud-sun':
+      case '02d':
+      case '02n':
+      case '03d':
+      case '03n':
         return <CloudIcon className="h-8 w-8 text-gray-400" />;
       case 'cloud':
+      case '04d':
+      case '04n':
         return <CloudIcon className="h-8 w-8 text-gray-600" />;
       case 'cloud-rain':
+      case '09d':
+      case '09n':
+      case '10d':
+      case '10n':
         return <CloudIcon className="h-8 w-8 text-blue-500" />;
       case 'snow':
+      case '13d':
+      case '13n':
         return <CloudIcon className="h-8 w-8 text-blue-300" />;
       default:
         return <CloudIcon className="h-8 w-8 text-gray-400" />;
@@ -486,15 +760,55 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     }).filter(item => item.weather !== null);
     
     // Find extreme weather conditions
-    const extremeWeather = weatherByStop.filter(item => 
-      item.weather?.condition.includes('very cold') || 
-      item.weather?.condition.includes('hot') ||
-      item.weather?.rain === 'high' ||
-      item.weather?.rain === 'very high'
-    );
+    const extremeWeather = weatherByStop.filter(item => {
+      const weather = item.weather;
+      
+      if (!weather) return false;
+      
+      // Check if we're dealing with API or mock data
+      if ('temp' in weather && 'rainLevel' in weather) {
+        // API data (WeatherForecast type)
+        const temp = typeof weather.temp === 'number' 
+          ? weather.temp 
+          : (weather.temp?.day || 0);
+        
+        return temp < 0 || 
+               temp > 30 || 
+               weather.rainLevel === 'heavy' || 
+               weather.condition === 'snow' || 
+               weather.condition === 'thunderstorm';
+      } else {
+        // Mock data
+        return (weather.condition?.includes('very cold') || false) || 
+               (weather.condition?.includes('hot') || false) ||
+               (weather.rain === 'high') ||
+               (weather.rain === 'very high');
+      }
+    });
     
     // Find average temperature across all stops
-    const avgTemp = weatherByStop.reduce((sum, item) => sum + (item.weather?.temp || 0), 0) / weatherByStop.length;
+    const avgTemp = weatherByStop.reduce((sum, item) => {
+      const weather = item.weather;
+      
+      if (!weather) return sum;
+      
+      // Check if we're dealing with API or mock data
+      if ('temp' in weather) {
+        // API data
+        if (typeof weather.temp === 'number') {
+          return sum + weather.temp;
+        } else if (weather.temp && typeof weather.temp === 'object' && 'day' in weather.temp) {
+          return sum + (weather.temp.day || 0);
+        } else {
+          return sum;
+        }
+      } else if (typeof (weather as any).temp === 'number') {
+        // Mock data
+        return sum + ((weather as any).temp || 0);
+      } else {
+        return sum;
+      }
+    }, 0) / (weatherByStop.length || 1); // Avoid division by zero
     
     // General packing advice based on average temp
     let packingAdvice = '';
@@ -622,17 +936,67 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
       const city = cities.find(c => c.id === stop.cityId);
       if (!city) return null;
       
-      // Get attractions for this city or use defaults
-      const cityAttractions = TOP_ATTRACTIONS[city.name] || DEFAULT_ATTRACTIONS;
-      
       // Calculate how many days the traveler has in this city
       const days = stop.isStopover ? 0.5 : (stop.nights || 1);
       
       // Calculate how many hours available for sightseeing (assuming 8 hours per day)
       const hoursAvailable = days * 8;
       
+      // Try to use real attractions data if available
+      const cityAttractions = attractionsData[city.name] || [];
+      
+      if (cityAttractions.length > 0) {
+        // Sort by rating (highest first)
+        const sortedAttractions = [...cityAttractions].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        
+        // Fit attractions into available time (estimate 2 hours per attraction as average)
+        let remainingHours = hoursAvailable;
+        const recommendedAttractions = [];
+        const additionalAttractions = [];
+        
+        for (const attraction of sortedAttractions) {
+          // Estimate 2 hours per attraction as a default
+          const avgTime = 2;
+          
+          if (remainingHours >= avgTime) {
+            recommendedAttractions.push({
+              name: attraction.name,
+              description: attraction.description || '',
+              timeNeeded: '2',
+              category: attraction.type,
+              rating: attraction.rating || 4.0,
+              mustSee: attraction.tags.some(tag => tag.toLowerCase().includes('popular') || tag.toLowerCase().includes('must see')),
+              avgTime
+            });
+            remainingHours -= avgTime;
+          } else {
+            additionalAttractions.push({
+              name: attraction.name,
+              description: attraction.description || '',
+              timeNeeded: '2',
+              category: attraction.type,
+              rating: attraction.rating || 4.0,
+              mustSee: false,
+              avgTime
+            });
+          }
+        }
+        
+        return {
+          city: city.name,
+          country: city.country,
+          days,
+          hoursAvailable,
+          recommendedAttractions,
+          additionalAttractions
+        };
+      }
+      
+      // Fall back to original mock data if no real data
+      const mockAttractions = TOP_ATTRACTIONS[city.name] || DEFAULT_ATTRACTIONS;
+      
       // Sort attractions by rating and must-see status
-      const sortedAttractions = [...cityAttractions].sort((a, b) => {
+      const sortedAttractions = [...mockAttractions].sort((a, b) => {
         if (a.mustSee && !b.mustSee) return -1;
         if (!a.mustSee && b.mustSee) return 1;
         return b.rating - a.rating;
@@ -675,9 +1039,9 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
       country: string;
       days: number;
       hoursAvailable: number;
-      recommendedAttractions: Array<Attraction & { avgTime: number }>;
-      additionalAttractions: Array<Attraction & { avgTime: number }>;
-    }>; // Remove nulls and add type assertion
+      recommendedAttractions: Array<any>;
+      additionalAttractions: Array<any>;
+    }>;
     
     return recommendationsByCity;
   };
@@ -700,7 +1064,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     }
   };
 
-  // Get accommodation suggestions based on budget level
+  // Get accommodation suggestions using the real accommodations data
   const getAccommodationSuggestions = () => {
     if (!trip || !trip.stops || trip.stops.length === 0) return null;
     
@@ -710,7 +1074,57 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
         const city = cities.find(c => c.id === stop.cityId);
         if (!city) return null;
         
-        // Get accommodations for this city by budget level or use defaults
+        // Try to use real accommodations data if available
+        if (accommodationsData[city.name] && accommodationsData[city.name].length > 0) {
+          const apiAccommodations = accommodationsData[city.name];
+          
+          // Transform API accommodations to the format needed by the component
+          const suggestions = apiAccommodations.map(acc => {
+            // Determine budget level based on price
+            let forBudgetLevel: 'budget' | 'moderate' | 'luxury' | ('budget' | 'moderate' | 'luxury')[];
+            let priceRange = '';
+            
+            if (acc.price.amount < 60) {
+              forBudgetLevel = 'budget';
+              priceRange = '€';
+            } else if (acc.price.amount < 130) {
+              forBudgetLevel = 'moderate';
+              priceRange = '€€';
+            } else {
+              forBudgetLevel = 'luxury';
+              priceRange = acc.price.amount < 200 ? '€€€' : '€€€€';
+            }
+            
+            return {
+              type: acc.type,
+              name: acc.name,
+              description: acc.address,
+              priceRange,
+              forBudgetLevel,
+              amenities: acc.amenities,
+              bestFor: acc.type === 'hostel' 
+                ? ['Solo travelers', 'Budget travelers'] 
+                : (acc.type === 'apartment' 
+                  ? ['Families', 'Extended stays'] 
+                  : ['Couples', 'Business travelers']),
+              neighborhood: acc.address.split(',')[0]
+            };
+          });
+          
+          // Calculate number of people if available
+          const numTravelers = trip.travelers && Array.isArray(trip.travelers) ? trip.travelers.length : 1;
+          const stayType = numTravelers === 1 ? 'solo' : (numTravelers === 2 ? 'couple' : 'group');
+          
+          return {
+            city: city.name,
+            country: city.country,
+            nights: stop.nights || 1,
+            suggestions,
+            stayType
+          };
+        }
+        
+        // Fall back to original accommodation suggestions
         const cityAccommodations = ACCOMMODATIONS[city.name];
         let suggestions: Accommodation[] = [];
         
@@ -752,7 +1166,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
         city: string;
         country: string;
         nights: number;
-        suggestions: Accommodation[];
+        suggestions: any[];
         stayType: string;
       }>;
   };
@@ -943,8 +1357,18 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                     </div>
                     <div className="flex items-center">
                       <div className="text-right mr-3">
-                        <div className="font-bold">{item.weather?.temp}°C</div>
-                        <div className="text-sm capitalize">{item.weather?.condition}</div>
+                        <div className="font-bold">
+                          {item.weather ? (
+                            'temp' in item.weather ? (
+                              typeof item.weather.temp === 'number' 
+                                ? item.weather.temp 
+                                : (item.weather.temp && typeof item.weather.temp === 'object' && 'day' in item.weather.temp 
+                                    ? item.weather.temp.day 
+                                    : 0)
+                            ) : ((item.weather as any).temp || 0)
+                          ) : 0}°C
+                        </div>
+                        <div className="text-sm capitalize">{item.weather?.condition || ''}</div>
                       </div>
                       {getWeatherIcon(item.weather?.icon || 'cloud')}
                     </div>
@@ -961,7 +1385,13 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                       <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
                         {weatherAdvice.extremeWeather.map((item, index) => (
                           <li key={index}>
-                            {item.city} - {item.weather?.condition} conditions with {item.weather?.rain} chance of rain
+                            {item.city} - {item.weather?.condition || ''} conditions with {
+                              item.weather ? (
+                                'rainLevel' in item.weather 
+                                  ? item.weather.rainLevel 
+                                  : ('rain' in item.weather ? item.weather.rain : 'unknown')
+                              ) : 'unknown'
+                            } chance of rain
                           </li>
                         ))}
                       </ul>
@@ -1275,7 +1705,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                             
                             <div className="mt-2">
                               <div className="flex flex-wrap gap-1 mb-2">
-                                {accommodation.amenities.slice(0, 4).map((amenity, i) => (
+                                {accommodation.amenities.slice(0, 4).map((amenity: string, i: number) => (
                                   <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
                                     {amenity}
                                   </span>

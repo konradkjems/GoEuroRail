@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# data
+data/
+cities_cost_of_living.csv
+cities.xlsx
+

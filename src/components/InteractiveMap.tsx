@@ -6,6 +6,7 @@ import MarkerClusterGroup from '@changey/react-leaflet-markercluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@changey/react-leaflet-markercluster/dist/styles.css';
+import RailLegend from './RailLegend';
 
 // Fix for default marker icons with webpack
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -46,6 +47,7 @@ const InteractiveMap: React.FC<MapProps> = ({ onCitySelect, selectedCity }) => {
     region: '',
     minPopulation: 0
   });
+  const [isLegendOpen, setIsLegendOpen] = useState(true);
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -164,6 +166,7 @@ const InteractiveMap: React.FC<MapProps> = ({ onCitySelect, selectedCity }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        
         <MarkerClusterGroup>
           {cities.map((city) => (
             <Marker
@@ -190,6 +193,11 @@ const InteractiveMap: React.FC<MapProps> = ({ onCitySelect, selectedCity }) => {
           ))}
         </MarkerClusterGroup>
       </MapContainer>
+      
+      {/* Rail Legend Component as direct DOM overlay */}
+      <div className="absolute top-4 left-4 z-[9999]">
+        <RailLegend isOpen={isLegendOpen} onToggle={() => setIsLegendOpen(!isLegendOpen)} />
+      </div>
     </div>
   );
 };
