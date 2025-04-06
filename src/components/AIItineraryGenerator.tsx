@@ -168,7 +168,7 @@ export default function AIItineraryGenerator({
     if (typeof window !== 'undefined') {
       try {
         // Dynamic import for html2pdf
-        import('html2pdf.js').then(html2pdf => {
+        import('html2pdf.js').then((html2pdfModule: any) => {
           // Create an element to render the HTML
           const element = document.createElement('div');
           element.innerHTML = htmlContent;
@@ -176,23 +176,27 @@ export default function AIItineraryGenerator({
           element.style.position = 'absolute';
           element.style.left = '-9999px';
           
-          // Generate PDF
+          // Generate PDF using a simpler approach to avoid TypeScript errors
+          const html2pdf = html2pdfModule.default;
           const opt = {
-            margin:       [10, 10],
-            filename:     `${trip.name || 'Trip'}_Itinerary.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            margin: [10, 10],
+            filename: `${trip.name || 'Trip'}_Itinerary.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
           };
           
-          html2pdf.default()
-            .from(element)
-            .set(opt)
-            .save()
-            .then(() => {
-              // Remove the element after PDF generation
-              document.body.removeChild(element);
-            });
+          if (typeof html2pdf === 'function') {
+            html2pdf(element, opt)
+              .save()
+              .then(() => {
+                // Remove the element after PDF generation
+                document.body.removeChild(element);
+              });
+          } else {
+            console.error('html2pdf is not a function', html2pdf);
+            provideHtmlDownload(htmlContent);
+          }
         }).catch(error => {
           console.error('Failed to load html2pdf:', error);
           // Fallback to providing HTML file

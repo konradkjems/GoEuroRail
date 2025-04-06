@@ -334,8 +334,8 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
         )}
       </div>
 
-      {/* Toggle rail connections */}
-      <div className="absolute top-16 left-4 z-[1000] bg-white rounded-lg shadow-lg p-2">
+      {/* Toggle rail connections - moved below search results */}
+      <div className="absolute top-32 left-4 z-[1000] bg-white rounded-lg shadow-lg p-2">
         <button
           onClick={toggleRailConnections}
           className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none"

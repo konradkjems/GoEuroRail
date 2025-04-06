@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['react-leaflet', 'leaflet'],
   reactStrictMode: true,
   swcMinify: true,
   output: 'standalone',
@@ -35,6 +36,9 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  env: {
+    NODE_TLS_REJECT_UNAUTHORIZED: '0',
   },
 };
 

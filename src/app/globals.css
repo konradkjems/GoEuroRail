@@ -70,8 +70,20 @@ form h4 {
 }
 
 /* Ensure text in colored backgrounds remains visible */
-.bg-blue-600 *, .bg-red-600 *, .bg-green-600 * {
-  color: white;
+.bg-blue-600 *, 
+.bg-red-600 *, 
+.bg-green-600 *,
+.bg-blue-500 *, 
+.bg-red-500 *, 
+.bg-green-500 * {
+  color: white !important;
+}
+
+/* Dark background color selectors */
+[class*="bg-[#264653]"] *, 
+[class*="bg-[#2A9D8F]"] *,
+.bg-gradient-to-r * {
+  color: white !important;
 }
 
 /* Fix for form input values and placeholders */

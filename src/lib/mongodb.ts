@@ -54,6 +54,12 @@ const MONGODB_OPTIONS = {
   connectTimeoutMS: 15000, // Increased from 10 to 15 seconds
   socketTimeoutMS: 60000, // Increased from 45 to 60 seconds
   dbName: DB_NAME, // Explicitly set the database name
+  // Disable transaction support for standalone MongoDB
+  autoIndex: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  // Don't try to use transactions
+  retryWrites: false
 };
 
 /**

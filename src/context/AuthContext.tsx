@@ -55,21 +55,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loadUser = async () => {
       try {
         setIsLoading(true);
+        
         const response = await fetch('/api/user/profile');
+        
+        // Handle 204 No Content (user not authenticated)
+        if (response.status === 204) {
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
         
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
         } else if (response.status === 401) {
-          // This is expected when not logged in, so don't show an error
+          // Still handle 401 for backwards compatibility
           setUser(null);
         } else {
-          // Only log actual errors, not expected auth failures
-          console.error(`Failed to load user: ${response.status} ${response.statusText}`);
+          // Only log actual errors
+          console.error(`Failed to load user: ${response.status}`);
           setUser(null);
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        // Only log unexpected errors
+        if (!(error instanceof Error && error.name === 'AbortError')) {
+          console.error('Error fetching user profile:', error);
+        }
         setUser(null);
       } finally {
         setIsLoading(false);

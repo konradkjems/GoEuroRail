@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import City from '@/models/City';
-import { authMiddleware, AuthUser } from '@/lib/auth';
+import { authMiddleware, AuthUser, verifyAuth } from '@/lib/auth';
 
 async function handler(req: NextRequest, user: AuthUser): Promise<NextResponse> {
   try {
@@ -52,7 +52,60 @@ async function handler(req: NextRequest, user: AuthUser): Promise<NextResponse> 
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  return authMiddleware(req, handler);
+  // Check if user is authenticated first
+  const user = await verifyAuth();
+  
+  // If not authenticated, return 204 No Content instead of 401
+  // This will prevent console errors while still indicating no user is found
+  if (!user) {
+    return new NextResponse(null, { status: 204 });
+  }
+  
+  // User is authenticated, proceed with handler
+  try {
+    await connectDB();
+    
+    // Find user by ID
+    const userDoc = await User.findById(user.userId)
+      .select('-password') // Exclude password
+      .populate('home_city') // Populate home city reference
+      .populate({
+        path: 'saved_routes',
+        select: 'trip_name start_date end_date', // Only include basic trip info
+      });
+    
+    if (!userDoc) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Format user data
+    const userData = {
+      id: userDoc._id,
+      email: userDoc.email,
+      homeCity: userDoc.home_city,
+      savedRoutes: userDoc.saved_routes,
+      travelPreferences: {
+        preferNightTrains: userDoc.travel_preferences.prefer_night_trains,
+        scenicRoutes: userDoc.travel_preferences.scenic_routes,
+        lowBudget: userDoc.travel_preferences.low_budget
+      },
+      interrailPassType: userDoc.interrail_pass_type,
+      language: userDoc.language,
+      notificationsEnabled: userDoc.notifications_enabled,
+      createdAt: userDoc.createdAt
+    };
+    
+    return NextResponse.json({ user: userData });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve user profile' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(req: NextRequest): Promise<NextResponse> {
