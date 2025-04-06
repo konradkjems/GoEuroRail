@@ -23,9 +23,6 @@
     }
   ],
   "functions": {
-    ".next/server/app/api/**/*": {
-      "maxDuration": 60
-    }
   },
   "build": {
     "env": {
