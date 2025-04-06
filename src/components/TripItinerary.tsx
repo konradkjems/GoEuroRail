@@ -158,6 +158,12 @@ export default function TripItinerary({
   const [newDestinationInput, setNewDestinationInput] = useState("");
   const [activeSidebarTab, setActiveSidebarTab] = useState<'summary' | 'assistant'>('summary');
   const [isLegendOpen, setIsLegendOpen] = useState(true);
+  
+  // New state variables for editing trip details
+  const [isEditingTripName, setIsEditingTripName] = useState(false);
+  const [isEditingTravelers, setIsEditingTravelers] = useState(false);
+  const [tempTripName, setTempTripName] = useState("");
+  const [tempTravelers, setTempTravelers] = useState<number>(1);
 
   // New state for city info modal
   const [selectedCityInfo, setSelectedCityInfo] = useState<City | null>(null);
@@ -165,6 +171,10 @@ export default function TripItinerary({
   // Update editedTrip when trip changes
   useEffect(() => {
     setEditedTrip(trip);
+    if (trip) {
+      setTempTripName(trip.name);
+      setTempTravelers(trip.travelers || 1);
+    }
   }, [trip]);
   
   // Handle start date change
@@ -373,142 +383,15 @@ export default function TripItinerary({
   const handleUpdateStop = (index: number, updatedStop: Partial<FormTripStop>) => {
     if (!editedTrip) return;
     
-    // Create a new array of stops
-    const newStops = [...editedTrip.stops];
-    
-    // Update the specific stop with new values while preserving existing values
-    newStops[index] = { ...newStops[index], ...updatedStop };
-    
-    // Don't recalculate dates unless specifically changing nights or isStopover
-    const shouldRecalculateDates = 
-      updatedStop.nights !== undefined || 
-      updatedStop.isStopover !== undefined ||
-      updatedStop.cityId !== undefined;
-    
-    // Only recalculate subsequent stops if we're changing something that affects dates
-    if (shouldRecalculateDates) {
-      // If city was changed, update dates for this stop and subsequent stops
-      if (updatedStop.cityId && updatedStop.cityId !== editedTrip.stops[index].cityId) {
-        // Get the new city details
-        const newCity = cities.find(c => c.id === updatedStop.cityId);
-        
-        if (!newCity) return; // Safety check
-        
-        // Find the previous stop for arrival date calculation
-        const prevStop = index > 0 ? newStops[index - 1] : null;
-        
-        // Handle arrival date calculation
-        if (prevStop && prevStop.departureDate) {
-          try {
-            // Calculate new arrival date based on previous stop
-            if (prevStop.isStopover) {
-              // If previous is a stopover, arrive on the same day
-              newStops[index].arrivalDate = prevStop.arrivalDate;
-            } else {
-              // Otherwise, arrive after the previous stop's nights
-              const prevArrival = new Date(prevStop.arrivalDate);
-              const prevNights = prevStop.nights || 1;
-              const newArrival = new Date(prevArrival.getTime() + (prevNights * 24 * 60 * 60 * 1000));
-              newStops[index].arrivalDate = safeISODateString(newArrival);
-            }
-          } catch (error) {
-            console.error("Error calculating arrival date:", error);
-            // Use fallback
-            newStops[index].arrivalDate = prevStop.departureDate;
-          }
-        }
-      }
-      
-      // Calculate departure date based on whether current stop is a stopover
-      const currentStop = newStops[index];
-      if (currentStop.isStopover) {
-        // For stopovers, departure is same day as arrival
-        currentStop.departureDate = currentStop.arrivalDate;
-      } else if (currentStop.arrivalDate) {
-        try {
-          // For regular stops, add the nights value to the arrival date
-          const arrivalDate = new Date(currentStop.arrivalDate);
-          const nights = currentStop.nights || 1; // Default to 1 night if not specified
-          
-          // Calculate departure date
-          const departureDate = new Date(arrivalDate);
-          departureDate.setDate(departureDate.getDate() + nights);
-          
-          // Ensure the date is valid before converting to ISO string
-          if (!isNaN(departureDate.getTime())) {
-            currentStop.departureDate = departureDate.toISOString().split('T')[0];
-          } else {
-            // Use fallback if date is invalid
-            const dateObj = new Date(currentStop.arrivalDate);
-            if (isNaN(dateObj.getTime())) {
-              // Invalid date - use today as fallback
-              currentStop.departureDate = safeISODateString(new Date());
-            } else {
-              dateObj.setDate(dateObj.getDate() + 1);
-              currentStop.departureDate = safeISODateString(dateObj);
-            }
-          }
-        } catch (error) {
-          console.error("Error calculating departure date:", error);
-          // Fallback
-          try {
-            const dateObj = new Date(currentStop.arrivalDate);
-            if (isNaN(dateObj.getTime())) {
-              currentStop.departureDate = safeISODateString(new Date());
-            } else {
-              dateObj.setDate(dateObj.getDate() + 1);
-              currentStop.departureDate = safeISODateString(dateObj);
-            }
-          } catch (e) {
-            currentStop.departureDate = safeISODateString(new Date());
-          }
-        }
-      }
-      
-      // Update dates for all subsequent stops
-      for (let i = index + 1; i < newStops.length; i++) {
-        const previousStop = newStops[i - 1];
-        const currentStop = newStops[i];
-        
-        // Calculate arrival based on previous stop type
-        let newArrival;
-        if (previousStop.isStopover) {
-          // If previous is a stopover, arrive on the same day
-          newArrival = new Date(previousStop.arrivalDate);
-        } else {
-          // Otherwise, add nights to previous arrival
-          const prevDate = new Date(previousStop.arrivalDate);
-          const prevNights = previousStop.nights || 1;
-          newArrival = new Date(prevDate.getTime() + (prevNights * 24 * 60 * 60 * 1000));
-        }
-        
-        // Set arrival date
-        currentStop.arrivalDate = safeISODateString(newArrival);
-        
-        // Set departure date based on current stop type
-        if (currentStop.isStopover) {
-          currentStop.departureDate = currentStop.arrivalDate;
-        } else {
-          const currNights = currentStop.nights || 1;
-          const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
-          currentStop.departureDate = safeISODateString(newDeparture);
-        }
-      }
-    }
-
-    // Update end date
-    const lastStop = newStops[newStops.length - 1];
-    const endDate = lastStop.departureDate;
-    
-    // Create the updated trip with the new stops
-    const updatedTrip = {
-      ...editedTrip,
-      stops: newStops,
-      endDate: endDate
+    const stops = [...editedTrip.stops];
+    stops[index] = {
+      ...stops[index],
+      ...updatedStop
     };
     
-    // Update state and notify parent
+    const updatedTrip = { ...editedTrip, stops };
     setEditedTrip(updatedTrip);
+    
     if (onUpdateTrip) {
       onUpdateTrip(updatedTrip);
     }
@@ -681,6 +564,51 @@ export default function TripItinerary({
     };
   };
 
+  // New functions for editing trip name and travelers
+  const handleEditTripName = () => {
+    setIsEditingTripName(true);
+    setTempTripName(editedTrip?.name || "");
+  };
+
+  const handleSaveTripName = () => {
+    if (!editedTrip || !tempTripName.trim()) return;
+    
+    const updatedTrip = { ...editedTrip, name: tempTripName.trim() };
+    setEditedTrip(updatedTrip);
+    setIsEditingTripName(false);
+    
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+  };
+
+  const handleCancelTripNameEdit = () => {
+    setIsEditingTripName(false);
+    setTempTripName(editedTrip?.name || "");
+  };
+
+  const handleEditTravelers = () => {
+    setIsEditingTravelers(true);
+    setTempTravelers(editedTrip?.travelers || 1);
+  };
+
+  const handleSaveTravelers = () => {
+    if (!editedTrip) return;
+    
+    const updatedTrip = { ...editedTrip, travelers: tempTravelers };
+    setEditedTrip(updatedTrip);
+    setIsEditingTravelers(false);
+    
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+  };
+
+  const handleCancelTravelersEdit = () => {
+    setIsEditingTravelers(false);
+    setTempTravelers(editedTrip?.travelers || 1);
+  };
+
   // If no trip is selected
   if (!trip) {
     return (
@@ -730,7 +658,40 @@ export default function TripItinerary({
               <div className="p-4 border-b border-gray-200">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h1 className="text-2xl font-bold text-[#264653]">{editedTrip?.name}</h1>
+                    {isEditingTripName ? (
+                      <div className="flex items-center gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={tempTripName}
+                          onChange={(e) => setTempTripName(e.target.value)}
+                          className="bg-white text-black px-2 py-1 rounded text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-[#06D6A0]"
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleSaveTripName}
+                          className="text-[#06D6A0] hover:text-[#05C090]"
+                        >
+                          <CheckIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={handleCancelTripNameEdit}
+                          className="text-[#F94144] hover:text-[#E53E41]"
+                        >
+                          <XMarkIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
+                        {editedTrip?.name}
+                        <button
+                          onClick={handleEditTripName}
+                          className="text-gray-400 hover:text-[#06D6A0]"
+                          title="Edit trip name"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </button>
+                      </h1>
+                    )}
                   </div>
                   <div className="flex items-center space-x-2">
                     {onDeleteTrip && editedTrip && (
@@ -755,10 +716,45 @@ export default function TripItinerary({
                   />
                   <span className="mx-2">to</span>
                   <span>{formatDate(editedTrip?.endDate || "")}</span>
-                  {editedTrip?.travelers && (
-            <div className="flex items-center ml-4">
-              <UsersIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-                      <span>{editedTrip.travelers} {editedTrip.travelers === 1 ? 'person' : 'people'}</span>
+        </div>
+
+        {/* Travelers section with edit capability */}
+        <div className="flex items-center text-sm text-[#264653] mt-2">
+          <UsersIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+          {isEditingTravelers ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={tempTravelers}
+                min={1}
+                max={20}
+                onChange={(e) => setTempTravelers(parseInt(e.target.value) || 1)}
+                className="w-16 border-none bg-transparent focus:outline-none focus:ring-1 focus:ring-[#06D6A0] rounded px-1"
+              />
+              <span>traveler{tempTravelers !== 1 ? 's' : ''}</span>
+              <button
+                onClick={handleSaveTravelers}
+                className="text-[#06D6A0] hover:text-[#05C090]"
+              >
+                <CheckIcon className="h-4 w-4" />
+              </button>
+              <button
+                onClick={handleCancelTravelersEdit}
+                className="text-[#F94144] hover:text-[#E53E41]"
+              >
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center">
+              <span>{editedTrip?.travelers || 1} traveler{(editedTrip?.travelers || 1) > 1 ? 's' : ''}</span>
+              <button
+                onClick={handleEditTravelers}
+                className="text-gray-400 hover:text-[#06D6A0] ml-2"
+                title="Edit number of travelers"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
@@ -872,7 +868,7 @@ export default function TripItinerary({
         {/* Trip stops - improved card width */}
         <div className="flex-1 overflow-auto bg-gray-50 relative">
           {editedTrip && editedTrip.stops.length > 0 ? (
-            <div className="p-4 space-y-4 max-w-4xl mx-auto">
+            <div className="p-4 space-y-4 max-w-5xl mx-auto">
               {editedTrip.stops.map((stop, index) => (
                 <div key={`${stop.cityId}-${index}`} className="flex flex-col">
               <StopCard 
@@ -1060,12 +1056,36 @@ const StopCard = ({
   const [showTrainSchedule, setShowTrainSchedule] = useState(false);
   const [replacementCityId, setReplacementCityId] = useState("");
   const [newDestinationInput, setNewDestinationInput] = useState("");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [tempNotes, setTempNotes] = useState(stop.notes || "");
 
   // Calculate dates based on nights
   const arrivalDate = stop.arrivalDate;
   const departureDate = stop.isStopover 
     ? stop.arrivalDate // Same day for stopovers
     : new Date(new Date(stop.arrivalDate).getTime() + ((stop.nights || 0) * 24 * 60 * 60 * 1000));
+
+  // Handle notes editing
+  const handleEditNotes = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditingNotes(true);
+    setTempNotes(stop.notes || "");
+  };
+
+  const handleSaveNotes = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onUpdate({
+      ...stop,
+      notes: tempNotes
+    });
+    setIsEditingNotes(false);
+  };
+
+  const handleCancelNotesEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditingNotes(false);
+    setTempNotes(stop.notes || "");
+  };
 
   const handleNightsChange = (delta: number) => {
     const currentNights = stop.nights || 1;
@@ -1296,11 +1316,49 @@ const StopCard = ({
             </div>
             
             {/* Notes section if present */}
-            {stop.notes && (
-              <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
-                {stop.notes}
-        </div>
-      )}
+            {isEditingNotes ? (
+              <div className="mt-2">
+                <textarea
+                  value={tempNotes}
+                  onChange={(e) => setTempNotes(e.target.value)}
+                  placeholder="Add notes about this destination..."
+                  className="w-full border border-gray-200 rounded p-2 text-xs text-gray-600 focus:ring-2 focus:ring-[#06D6A0] focus:border-transparent"
+                  rows={3}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <div className="flex justify-end mt-1 space-x-2">
+                  <button
+                    onClick={handleCancelNotesEdit}
+                    className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 border border-gray-200 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveNotes}
+                    className="px-2 py-1 text-xs bg-[#06D6A0] text-white hover:bg-[#05C090] rounded"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-2 flex justify-between items-center">
+                {stop.notes ? (
+                  <div className="p-2 bg-gray-50 rounded text-xs text-gray-600 w-full">
+                    {stop.notes}
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-400 italic">No notes added</div>
+                )}
+                <button
+                  onClick={handleEditNotes}
+                  className="ml-2 text-[#2A9D8F] hover:text-[#05C090] p-1 rounded-full flex-shrink-0"
+                  title="Edit notes"
+                >
+                  <PencilIcon className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

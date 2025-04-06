@@ -59,7 +59,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/recommended-trips"
-                className="bg-white hover:bg-gray-100 text-[#264653] px-6 py-3 rounded-lg font-medium text-center sm:text-left max-w-xs"
+                className="bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-lg font-medium text-center sm:text-left max-w-xs"
               >
                 See Recommended Routes
               </Link>
