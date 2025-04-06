@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { IUser } from '../types/models';
 
+// Define the user schema
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -70,6 +71,8 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model<IUser>('User', userSchema);
+// Check if the model exists before creating a new one
+// This prevents "Cannot overwrite model" errors during hot reload in development
+const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 
 export default User; 

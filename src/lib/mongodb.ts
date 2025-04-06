@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ensureModelsRegistered } from './models';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/goeurotrail';
 const ENV_DB_NAME = process.env.DB_NAME || 'goeurotrail';
@@ -68,6 +69,8 @@ if (!cached.mongoose) {
 
 async function connectDB() {
   if (cached.mongoose.conn) {
+    // Make sure models are registered even when reusing the connection
+    ensureModelsRegistered();
     return cached.mongoose.conn;
   }
 
@@ -77,6 +80,8 @@ async function connectDB() {
     cached.mongoose.promise = mongoose.connect(MONGODB_URI, opts)
       .then((mongoose) => {
         console.log(`MongoDB connected successfully to database: ${mongoose.connection.db.databaseName}`);
+        // Ensure all models are registered
+        ensureModelsRegistered();
         return mongoose;
       })
       .catch((error) => {

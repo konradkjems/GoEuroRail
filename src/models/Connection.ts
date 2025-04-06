@@ -61,6 +61,8 @@ connectionSchema.pre('save', function(next) {
   next();
 });
 
-const Connection = mongoose.model<IConnection>('Connection', connectionSchema);
+// Check if the model exists before creating a new one
+// This prevents "Cannot overwrite model" errors during hot reload in development
+const Connection = mongoose.models.Connection || mongoose.model<IConnection>('Connection', connectionSchema);
 
 export default Connection; 

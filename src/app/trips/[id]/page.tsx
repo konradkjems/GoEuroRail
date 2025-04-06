@@ -258,7 +258,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       <SplitView 
         mapSection={mapSection}
         contentSection={contentSection}
-        mapWidth="70%"
+        mapWidth="60%"
       />
     </Layout>
   );

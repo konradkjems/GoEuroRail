@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FormTrip, FormTripStop, City } from "@/types";
 import { cities } from "@/lib/cities";
+import AIItineraryGenerator from './AIItineraryGenerator';
 import {
   BanknotesIcon,
   CloudIcon,
@@ -19,7 +20,11 @@ import {
   MapPinIcon,
   UserGroupIcon,
   CalendarIcon,
-  ArrowTrendingUpIcon
+  ArrowTrendingUpIcon,
+  DocumentTextIcon,
+  ArrowDownTrayIcon,
+  SparklesIcon,
+  InformationCircleIcon
 } from "@heroicons/react/24/outline";
 import { getWeatherForecast, WeatherForecast, getTripBudget, BudgetCategory, getAccommodations, Accommodation as ApiAccommodation, AccommodationSearchParams, getAttractions, Attraction as ApiAttraction, AttractionSearchParams, getActivities, getActivityWidgetHtml } from "@/lib/api";
 
@@ -72,62 +77,62 @@ const RAIL_PASSES = {
 };
 
 // Mock weather data by month and region
-const WEATHER_DATA = {
+const WEATHER_DATA: Record<string, Record<string, any>> = {
   'Western Europe': {
-    Jan: { temp: 3, condition: 'cold', rain: 'moderate', icon: 'cloud' },
-    Feb: { temp: 4, condition: 'cold', rain: 'moderate', icon: 'cloud' },
-    Mar: { temp: 8, condition: 'cool', rain: 'moderate', icon: 'cloud-sun' },
-    Apr: { temp: 12, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    May: { temp: 16, condition: 'mild', rain: 'low', icon: 'sun' },
-    Jun: { temp: 19, condition: 'warm', rain: 'low', icon: 'sun' },
-    Jul: { temp: 22, condition: 'warm', rain: 'low', icon: 'sun' },
-    Aug: { temp: 22, condition: 'warm', rain: 'low', icon: 'sun' },
-    Sep: { temp: 18, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Oct: { temp: 13, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Nov: { temp: 8, condition: 'cool', rain: 'high', icon: 'cloud-rain' },
-    Dec: { temp: 4, condition: 'cold', rain: 'moderate', icon: 'cloud' }
+    Jan: { temp: 5, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 80, wind_speed: 5.2, uvi: 1.5, rainLevel: 'moderate' },
+    Feb: { temp: 6, condition: 'cloudy', rain: 'light', icon: 'cloud', humidity: 75, wind_speed: 5.0, uvi: 2.0, rainLevel: 'light' },
+    Mar: { temp: 9, condition: 'partly cloudy', rain: 'light', icon: 'cloud-sun', humidity: 70, wind_speed: 4.8, uvi: 3.0, rainLevel: 'light' },
+    Apr: { temp: 12, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 65, wind_speed: 4.5, uvi: 4.0, rainLevel: 'moderate' },
+    May: { temp: 16, condition: 'mostly sunny', rain: 'light', icon: 'sun', humidity: 60, wind_speed: 4.0, uvi: 5.0, rainLevel: 'light' },
+    Jun: { temp: 20, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 55, wind_speed: 3.8, uvi: 6.5, rainLevel: 'none' },
+    Jul: { temp: 23, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 50, wind_speed: 3.5, uvi: 7.0, rainLevel: 'none' },
+    Aug: { temp: 22, condition: 'sunny', rain: 'light', icon: 'sun', humidity: 55, wind_speed: 3.6, uvi: 6.5, rainLevel: 'light' },
+    Sep: { temp: 19, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 60, wind_speed: 4.0, uvi: 5.0, rainLevel: 'moderate' },
+    Oct: { temp: 14, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 70, wind_speed: 4.5, uvi: 3.0, rainLevel: 'moderate' },
+    Nov: { temp: 9, condition: 'cloudy', rain: 'high', icon: 'cloud-rain', humidity: 75, wind_speed: 5.0, uvi: 2.0, rainLevel: 'heavy' },
+    Dec: { temp: 6, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 80, wind_speed: 5.5, uvi: 1.0, rainLevel: 'moderate' }
   },
   'Eastern Europe': {
-    Jan: { temp: -2, condition: 'very cold', rain: 'low', icon: 'snow' },
-    Feb: { temp: 0, condition: 'very cold', rain: 'low', icon: 'snow' },
-    Mar: { temp: 5, condition: 'cold', rain: 'low', icon: 'cloud' },
-    Apr: { temp: 12, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    May: { temp: 17, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Jun: { temp: 21, condition: 'warm', rain: 'moderate', icon: 'sun' },
-    Jul: { temp: 24, condition: 'hot', rain: 'low', icon: 'sun' },
-    Aug: { temp: 23, condition: 'warm', rain: 'low', icon: 'sun' },
-    Sep: { temp: 18, condition: 'mild', rain: 'low', icon: 'sun' },
-    Oct: { temp: 12, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Nov: { temp: 5, condition: 'cold', rain: 'moderate', icon: 'cloud' },
-    Dec: { temp: 0, condition: 'very cold', rain: 'low', icon: 'snow' }
+    Jan: { temp: 0, condition: 'snow', rain: 'light', icon: 'snow', humidity: 85, wind_speed: 4.0, uvi: 1.0, rainLevel: 'light' },
+    Feb: { temp: 1, condition: 'snow', rain: 'light', icon: 'snow', humidity: 80, wind_speed: 4.2, uvi: 1.5, rainLevel: 'light' },
+    Mar: { temp: 5, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 75, wind_speed: 4.5, uvi: 2.5, rainLevel: 'moderate' },
+    Apr: { temp: 10, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 70, wind_speed: 4.0, uvi: 3.5, rainLevel: 'moderate' },
+    May: { temp: 15, condition: 'partly cloudy', rain: 'light', icon: 'cloud-sun', humidity: 65, wind_speed: 3.8, uvi: 5.0, rainLevel: 'light' },
+    Jun: { temp: 20, condition: 'mostly sunny', rain: 'light', icon: 'sun', humidity: 60, wind_speed: 3.5, uvi: 6.0, rainLevel: 'light' },
+    Jul: { temp: 23, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 55, wind_speed: 3.0, uvi: 7.0, rainLevel: 'none' },
+    Aug: { temp: 22, condition: 'sunny', rain: 'light', icon: 'sun', humidity: 60, wind_speed: 3.2, uvi: 6.5, rainLevel: 'light' },
+    Sep: { temp: 17, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 65, wind_speed: 3.8, uvi: 5.0, rainLevel: 'moderate' },
+    Oct: { temp: 11, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 70, wind_speed: 4.0, uvi: 3.0, rainLevel: 'moderate' },
+    Nov: { temp: 5, condition: 'cloudy', rain: 'high', icon: 'cloud-rain', humidity: 80, wind_speed: 4.5, uvi: 1.5, rainLevel: 'heavy' },
+    Dec: { temp: 1, condition: 'snow', rain: 'moderate', icon: 'snow', humidity: 85, wind_speed: 4.2, uvi: 1.0, rainLevel: 'moderate' }
   },
   'Southern Europe': {
-    Jan: { temp: 9, condition: 'cool', rain: 'high', icon: 'cloud-rain' },
-    Feb: { temp: 10, condition: 'cool', rain: 'high', icon: 'cloud-rain' },
-    Mar: { temp: 12, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Apr: { temp: 15, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    May: { temp: 19, condition: 'warm', rain: 'low', icon: 'sun' },
-    Jun: { temp: 23, condition: 'warm', rain: 'low', icon: 'sun' },
-    Jul: { temp: 26, condition: 'hot', rain: 'very low', icon: 'sun' },
-    Aug: { temp: 26, condition: 'hot', rain: 'very low', icon: 'sun' },
-    Sep: { temp: 23, condition: 'warm', rain: 'low', icon: 'sun' },
-    Oct: { temp: 18, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Nov: { temp: 14, condition: 'mild', rain: 'high', icon: 'cloud-rain' },
-    Dec: { temp: 10, condition: 'cool', rain: 'high', icon: 'cloud-rain' }
+    Jan: { temp: 10, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 75, wind_speed: 4.0, uvi: 2.5, rainLevel: 'moderate' },
+    Feb: { temp: 11, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 70, wind_speed: 4.2, uvi: 3.0, rainLevel: 'moderate' },
+    Mar: { temp: 14, condition: 'mostly sunny', rain: 'light', icon: 'sun', humidity: 65, wind_speed: 4.0, uvi: 4.0, rainLevel: 'light' },
+    Apr: { temp: 16, condition: 'mostly sunny', rain: 'light', icon: 'sun', humidity: 60, wind_speed: 3.8, uvi: 5.0, rainLevel: 'light' },
+    May: { temp: 20, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 55, wind_speed: 3.5, uvi: 7.0, rainLevel: 'none' },
+    Jun: { temp: 24, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 50, wind_speed: 3.0, uvi: 8.0, rainLevel: 'none' },
+    Jul: { temp: 28, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 45, wind_speed: 3.0, uvi: 9.0, rainLevel: 'none' },
+    Aug: { temp: 28, condition: 'sunny', rain: 'none', icon: 'sun', humidity: 45, wind_speed: 3.2, uvi: 8.5, rainLevel: 'none' },
+    Sep: { temp: 24, condition: 'mostly sunny', rain: 'light', icon: 'sun', humidity: 50, wind_speed: 3.5, uvi: 7.0, rainLevel: 'light' },
+    Oct: { temp: 20, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 60, wind_speed: 3.8, uvi: 5.0, rainLevel: 'moderate' },
+    Nov: { temp: 15, condition: 'partly cloudy', rain: 'moderate', icon: 'cloud-sun', humidity: 70, wind_speed: 4.0, uvi: 3.0, rainLevel: 'moderate' },
+    Dec: { temp: 11, condition: 'cloudy', rain: 'high', icon: 'cloud-rain', humidity: 75, wind_speed: 4.2, uvi: 2.0, rainLevel: 'heavy' }
   },
   'Northern Europe': {
-    Jan: { temp: -3, condition: 'very cold', rain: 'moderate', icon: 'snow' },
-    Feb: { temp: -3, condition: 'very cold', rain: 'moderate', icon: 'snow' },
-    Mar: { temp: 1, condition: 'very cold', rain: 'moderate', icon: 'snow' },
-    Apr: { temp: 6, condition: 'cold', rain: 'moderate', icon: 'cloud' },
-    May: { temp: 12, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Jun: { temp: 16, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Jul: { temp: 19, condition: 'mild', rain: 'moderate', icon: 'sun' },
-    Aug: { temp: 18, condition: 'mild', rain: 'moderate', icon: 'sun' },
-    Sep: { temp: 14, condition: 'mild', rain: 'moderate', icon: 'cloud-sun' },
-    Oct: { temp: 8, condition: 'cool', rain: 'high', icon: 'cloud-rain' },
-    Nov: { temp: 3, condition: 'cold', rain: 'high', icon: 'cloud-rain' },
-    Dec: { temp: -1, condition: 'very cold', rain: 'moderate', icon: 'snow' }
+    Jan: { temp: -3, condition: 'snow', rain: 'light', icon: 'snow', humidity: 85, wind_speed: 5.0, uvi: 0.5, rainLevel: 'light' },
+    Feb: { temp: -2, condition: 'snow', rain: 'light', icon: 'snow', humidity: 80, wind_speed: 4.8, uvi: 1.0, rainLevel: 'light' },
+    Mar: { temp: 1, condition: 'snow', rain: 'light', icon: 'snow', humidity: 75, wind_speed: 4.5, uvi: 1.5, rainLevel: 'light' },
+    Apr: { temp: 5, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 70, wind_speed: 4.2, uvi: 2.5, rainLevel: 'moderate' },
+    May: { temp: 10, condition: 'partly cloudy', rain: 'light', icon: 'cloud-sun', humidity: 65, wind_speed: 4.0, uvi: 4.0, rainLevel: 'light' },
+    Jun: { temp: 15, condition: 'partly cloudy', rain: 'light', icon: 'cloud-sun', humidity: 60, wind_speed: 3.8, uvi: 5.0, rainLevel: 'light' },
+    Jul: { temp: 18, condition: 'mostly sunny', rain: 'none', icon: 'sun', humidity: 55, wind_speed: 3.5, uvi: 5.5, rainLevel: 'none' },
+    Aug: { temp: 17, condition: 'partly cloudy', rain: 'light', icon: 'cloud-sun', humidity: 60, wind_speed: 3.8, uvi: 4.5, rainLevel: 'light' },
+    Sep: { temp: 12, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 65, wind_speed: 4.0, uvi: 3.0, rainLevel: 'moderate' },
+    Oct: { temp: 7, condition: 'cloudy', rain: 'moderate', icon: 'cloud', humidity: 70, wind_speed: 4.2, uvi: 2.0, rainLevel: 'moderate' },
+    Nov: { temp: 2, condition: 'snow', rain: 'moderate', icon: 'snow', humidity: 80, wind_speed: 4.5, uvi: 1.0, rainLevel: 'moderate' },
+    Dec: { temp: -1, condition: 'snow', rain: 'light', icon: 'snow', humidity: 85, wind_speed: 5.0, uvi: 0.5, rainLevel: 'light' }
   }
 };
 
@@ -378,40 +383,72 @@ const getYourGuideLocationIds: Record<string, string> = {
 };
 
 export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  // State for budget level
   const [budgetLevel, setBudgetLevel] = useState<'budget' | 'moderate' | 'luxury'>('moderate');
   
-  // State for API data
-  const [weatherData, setWeatherData] = useState<Record<string, any>>({});
-  const [budgetData, setBudgetData] = useState<any>(null);
-  const [accommodationsData, setAccommodationsData] = useState<Record<string, any[]>>({});
-  const [attractionsData, setAttractionsData] = useState<Record<string, any[]>>({});
-  const [activitiesData, setActivitiesData] = useState<Record<string, any[]>>({});
-  
-  // Loading states
+  // State for weather data
+  const [weatherData, setWeatherData] = useState<Record<string, WeatherForecast>>({});
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
+  
+  // State for budget data
+  const [budgetData, setBudgetData] = useState<any>(null);
   const [isLoadingBudget, setIsLoadingBudget] = useState(false);
+  
+  // State for accommodations data
+  const [accommodationsData, setAccommodationsData] = useState<Record<string, ApiAccommodation[]>>({});
   const [isLoadingAccommodations, setIsLoadingAccommodations] = useState(false);
+  
+  // State for attractions data
+  const [attractionsData, setAttractionsData] = useState<Record<string, ApiAttraction[]>>({});
   const [isLoadingAttractions, setIsLoadingAttractions] = useState(false);
+  
+  // State for activities data
+  const [activitiesData, setActivitiesData] = useState<Record<string, any>>({});
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
 
-  // Set up effect to fetch data when the trip changes or expandedSection changes
+  // State for managing which sections are open
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    weather: true,
+    budget: false,
+    accommodation: false,
+    attractions: false,
+    railPass: false,
+    activities: false,
+    aiItinerary: false // Add this new section
+  });
+  
+  // Add new states for AI itinerary
+  const [itineraryMarkdown, setItineraryMarkdown] = useState<string>('');
+  const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
+  const [itineraryError, setItineraryError] = useState<string | null>(null);
+  const [itineraryGenerated, setItineraryGenerated] = useState(false);
+  const [additionalNotes, setAdditionalNotes] = useState('');
+
+  // Set up effect to fetch data when the trip changes or openSections changes
   useEffect(() => {
     if (!trip || !trip.stops || trip.stops.length === 0) return;
     
-    // Only fetch data for the currently expanded section
-    if (expandedSection === 'weather' && !weatherData) {
+    // Fetch data for sections that are open and don't have data yet
+    if (openSections.weather && Object.keys(weatherData).length === 0) {
       fetchWeatherData();
-    } else if (expandedSection === 'budget' && !budgetData) {
+    }
+    
+    if (openSections.budget && !budgetData) {
       fetchBudgetData();
-    } else if (expandedSection === 'accommodations' && Object.keys(accommodationsData).length === 0) {
+    }
+    
+    if (openSections.accommodation && Object.keys(accommodationsData).length === 0) {
       fetchAccommodationsData();
-    } else if (expandedSection === 'attractions' && Object.keys(attractionsData).length === 0) {
+    }
+    
+    if (openSections.attractions && Object.keys(attractionsData).length === 0) {
       fetchAttractionsData();
-    } else if (expandedSection === 'activities' && Object.keys(activitiesData).length === 0) {
+    }
+    
+    if (openSections.activities && Object.keys(activitiesData).length === 0) {
       fetchActivitiesData();
     }
-  }, [expandedSection, trip]);
+  }, [openSections, trip, weatherData, budgetData, accommodationsData, attractionsData, activitiesData]);
 
   // Fetch weather data for all stops
   const fetchWeatherData = async () => {
@@ -650,12 +687,12 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     }
   };
 
+  // Update the toggleSection function to use openSections
   const toggleSection = (section: string) => {
-    if (expandedSection === section) {
-      setExpandedSection(null);
-    } else {
-      setExpandedSection(section);
-    }
+    setOpenSections({
+      ...openSections,
+      [section]: !openSections[section]
+    });
   };
 
   // Calculate the budget for the trip
@@ -788,6 +825,15 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
       default:
         return <CloudIcon className="h-8 w-8 text-gray-400" />;
     }
+  };
+
+  // Get UV index description based on numeric value
+  const getUVIndexDescription = (uvi: number): string => {
+    if (uvi < 3) return "Low";
+    if (uvi < 6) return "Moderate";
+    if (uvi < 8) return "High";
+    if (uvi < 11) return "Very High";
+    return "Extreme";
   };
 
   // Get weather advice for the trip
@@ -1322,668 +1368,710 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     }
   };
 
+  // Add function to generate the AI itinerary
+  const generateAIItinerary = async () => {
+    try {
+      setIsGeneratingItinerary(true);
+      setItineraryError(null);
+      
+      // Prepare the data for the AI
+      const budgetLevel = calculateBudget();
+      
+      // Collect attractions for each city in the trip
+      const tripAttractions: Record<string, any[]> = {};
+      trip.stops.forEach(stop => {
+        const city = cities.find(c => c.id === stop.cityId);
+        if (city) {
+          const cityName = city.name;
+          tripAttractions[cityName] = TOP_ATTRACTIONS[cityName] || DEFAULT_ATTRACTIONS;
+        }
+      });
+      
+      // Collect weather info for each city
+      const tripWeather: Record<string, any> = {};
+      trip.stops.forEach(stop => {
+        const city = cities.find(c => c.id === stop.cityId);
+        if (city) {
+          const cityName = city.name;
+          tripWeather[cityName] = getWeatherForStop(stop);
+        }
+      });
+      
+      // Call the API to generate the itinerary
+      const response = await fetch('/api/ai/generate-itinerary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trip,
+          attractions: tripAttractions,
+          weather: tripWeather,
+          budgetLevel,
+          additionalNotes: additionalNotes.trim() || undefined
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate itinerary');
+      }
+      
+      const data = await response.json();
+      setItineraryMarkdown(data.itinerary);
+      setItineraryGenerated(true);
+    } catch (error) {
+      console.error('Error generating itinerary:', error);
+      setItineraryError('Failed to generate the itinerary. Please try again later.');
+    } finally {
+      setIsGeneratingItinerary(false);
+    }
+  };
+  
+  // Add function to download the itinerary
+  const downloadItinerary = () => {
+    if (!itineraryMarkdown) return;
+    
+    // Create a blob with the markdown content
+    const blob = new Blob([itineraryMarkdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary download link
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${trip.name || 'Trip'}_Itinerary.md`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  
+  // Add function to reset the itinerary
+  const resetItinerary = () => {
+    setItineraryMarkdown('');
+    setItineraryGenerated(false);
+    setAdditionalNotes('');
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md mb-4">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-[#264653]">Smart Trip Assistant</h2>
-        <p className="text-sm text-gray-500">Intelligent suggestions to enhance your trip</p>
+    <div className="p-4 space-y-6">
+      <div className="text-xl font-semibold text-[#264653] mb-2">Smart Trip Assistant</div>
+      <p className="text-gray-600 text-sm mb-4">
+        Get personalized recommendations and insights for your trip based on your itinerary.
+      </p>
+      
+      {/* Weather Information */}
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
+          onClick={() => toggleSection('weather')}
+        >
+          <div className="flex items-center space-x-2">
+            <CloudIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">Weather & Packing</h3>
+          </div>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.weather ? 'rotate-180' : ''}`}
+          />
+        </div>
+        
+        {openSections.weather && (
+          <div className="p-4 bg-gray-50 border-t">
+            {isLoadingWeather ? (
+              <div className="flex justify-center py-6">
+                <svg className="animate-spin h-6 w-6 text-[#06D6A0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            ) : (
+              <>
+                <h4 className="font-medium text-[#264653] mb-3">Weather forecast for your trip:</h4>
+                
+                <div className="space-y-4 mb-6">
+                  {trip.stops.map((stop, idx) => {
+                    const city = cities.find(c => c.id === stop.cityId);
+                    const weather = getWeatherForStop(stop);
+                    
+                    if (!city || !weather) return null;
+                    
+                    // Get max temperature
+                    const maxTemp = typeof weather.temp === 'object' && weather.temp.max !== undefined 
+                      ? Math.round(weather.temp.max) 
+                      : (typeof weather.temp === 'number' ? Math.round(weather.temp) : 'N/A');
+
+                    // Get min temperature
+                    const minTemp = typeof weather.temp === 'object' && weather.temp.min !== undefined 
+                      ? Math.round(weather.temp.min) 
+                      : 'N/A';
+
+                    // Current/day temperature
+                    const dayTemp = typeof weather.temp === 'object' && weather.temp.day !== undefined 
+                      ? Math.round(weather.temp.day) 
+                      : (typeof weather.temp === 'number' ? Math.round(weather.temp) : 'N/A');
+                    
+                    return (
+                      <div key={idx} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div className="p-3">
+                          {/* Header with city and date */}
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <div className="font-medium text-lg text-[#264653]">{city.name}</div>
+                              <div className="text-sm text-gray-600">{stop.arrivalDate}</div>
+                            </div>
+                            <div className="flex items-center">
+                              {getWeatherIcon(weather)}
+                              <div className="text-sm ml-1 text-gray-700">{weather.condition || 'Unknown'}</div>
+                            </div>
+                          </div>
+                          
+                          {/* Temperature display */}
+                          <div className="flex justify-between items-center">
+                            <div className="text-4xl font-bold text-[#2A9D8F]">
+                              {maxTemp}°C
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-gray-600 flex items-center">
+                                <ChevronDownIcon className="h-3 w-3 text-blue-500 inline" />
+                                <span>Min: {minTemp !== 'N/A' ? `${minTemp}°C` : 'N/A'}</span>
+                              </div>
+                              <div className="text-xs text-gray-600 flex items-center mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Feels like: {typeof weather.temp === 'object' && weather.temp.day !== undefined ? `${Math.round(weather.temp.day)}°C` : (dayTemp !== 'N/A' ? `${dayTemp}°C` : 'N/A')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Additional weather details */}
+                        <div className="px-3 py-2 bg-gray-50 text-xs text-gray-600 grid grid-cols-2 gap-2">
+                          <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                            <span>Humidity: {weather.humidity !== undefined ? `${weather.humidity}%` : 'N/A'}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                            <span>Wind: {weather.wind_speed !== undefined ? `${Math.round(weather.wind_speed * 3.6)} km/h` : 'N/A'}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <span>UV: {weather.uvi !== undefined ? getUVIndexDescription(weather.uvi) : 'N/A'}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M12 3v18" />
+                            </svg>
+                            <span>Rain: {weather.rainLevel || 'none'}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Fallback data indicator */}
+                        {weather.isFromFallback && (
+                          <div className="text-center py-1 bg-amber-50 text-amber-700 text-xs border-t border-amber-100">
+                            <InformationCircleIcon className="h-3 w-3 inline mr-1" />
+                            Estimated weather data
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {weatherAdvice && (
+                  <div className="mt-4">
+                    <h4 className="font-medium text-[#264653] mb-2">Packing Recommendation:</h4>
+                    <div className="p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+                      {weatherAdvice.packingAdvice}
+                    </div>
+                    
+                    {weatherAdvice.extremeWeather.length > 0 && (
+                      <div className="mt-3 p-3 bg-amber-50 text-amber-700 rounded-lg text-sm">
+                        <div className="font-medium mb-1">Weather Alerts:</div>
+                        <ul className="list-disc ml-4">
+                          {weatherAdvice.extremeWeather.map((item, idx) => (
+                            <li key={idx}>
+                              {item.city} ({item.date}): {item.weather?.condition || 'Extreme weather'} 
+                              {item.weather?.temp && ` (${typeof item.weather.temp === 'number' ? Math.round(item.weather.temp) : Math.round(item.weather.temp.day)}°C)`}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
       
       {/* Budget Estimation */}
-      <div className="border-b border-gray-200">
-        <button 
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
           onClick={() => toggleSection('budget')}
         >
-          <div className="flex items-center">
-            <BanknotesIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
-            <span className="font-medium text-[#264653]">Budget Estimation</span>
+          <div className="flex items-center space-x-2">
+            <BanknotesIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">Budget Calculator</h3>
           </div>
-          {expandedSection === 'budget' ? 
-            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-          }
-        </button>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.budget ? 'rotate-180' : ''}`}
+          />
+        </div>
         
-        {expandedSection === 'budget' && (
-          <div className="p-4 bg-gray-50">
-            {/* Budget Level Selector */}
+        {openSections.budget && (
+          <div className="p-4 bg-gray-50 border-t">
+            {isLoadingBudget ? (
+              <div className="flex justify-center py-6">
+                <svg className="animate-spin h-6 w-6 text-[#06D6A0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            ) : budget ? (
+              <>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Travel Style</label>
-              <div className="flex border border-gray-300 rounded-md overflow-hidden">
+                  <h4 className="font-medium text-[#264653] mb-3">Budget Level:</h4>
+                  <div className="flex space-x-2">
                 <button 
+                      className={`px-3 py-2 rounded-lg text-sm ${budgetLevel === 'budget' ? 'bg-[#06D6A0] text-white' : 'bg-gray-100 text-gray-700'}`}
                   onClick={() => setBudgetLevel('budget')}
-                  className={`flex-1 py-2 text-sm font-medium ${budgetLevel === 'budget' 
-                    ? 'bg-[#06D6A0] text-white' 
-                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                 >
                   Budget
                 </button>
                 <button 
+                      className={`px-3 py-2 rounded-lg text-sm ${budgetLevel === 'moderate' ? 'bg-[#06D6A0] text-white' : 'bg-gray-100 text-gray-700'}`}
                   onClick={() => setBudgetLevel('moderate')}
-                  className={`flex-1 py-2 text-sm font-medium ${budgetLevel === 'moderate' 
-                    ? 'bg-[#06D6A0] text-white' 
-                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                 >
-                  Mid-range
+                      Moderate
                 </button>
                 <button 
+                      className={`px-3 py-2 rounded-lg text-sm ${budgetLevel === 'luxury' ? 'bg-[#06D6A0] text-white' : 'bg-gray-100 text-gray-700'}`}
                   onClick={() => setBudgetLevel('luxury')}
-                  className={`flex-1 py-2 text-sm font-medium ${budgetLevel === 'luxury' 
-                    ? 'bg-[#06D6A0] text-white' 
-                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                 >
                   Luxury
                 </button>
               </div>
             </div>
             
-            {budget ? (
-              <div>
-                <div className="mb-4">
-                  <div className="text-2xl font-bold text-[#264653] text-center">
-                    {formatCurrency(budget.totalCost)}
-                  </div>
-                  <div className="text-sm text-gray-500 text-center">
-                    Estimated total for {trip.travelers && Array.isArray(trip.travelers) ? trip.travelers.length : 1} {(trip.travelers && Array.isArray(trip.travelers) ? trip.travelers.length : 1) === 1 ? 'person' : 'people'}
+                <h4 className="font-medium text-[#264653] mb-3">Estimated Trip Cost:</h4>
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
+                  <div className="p-4 border-b">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Total</span>
+                      <span className="text-xl font-bold text-[#264653]">{formatCurrency(budget.totalCost)}</span>
                   </div>
                 </div>
                 
-                <div className="space-y-3 mb-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Accommodation:</span>
-                    <span className="font-medium">{formatCurrency(budget.accommodation)}</span>
+                  <div className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Accommodation</span>
+                        <span>{formatCurrency(budget.accommodation)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Food:</span>
-                    <span className="font-medium">{formatCurrency(budget.food)}</span>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Food & Drinks</span>
+                        <span>{formatCurrency(budget.food)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Attractions:</span>
-                    <span className="font-medium">{formatCurrency(budget.activities)}</span>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Activities & Attractions</span>
+                        <span>{formatCurrency(budget.activities)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Transport:</span>
-                    <span className="font-medium">{formatCurrency(budget.transport)}</span>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Transportation</span>
+                        <span>{formatCurrency(budget.transport)}</span>
                   </div>
-                  <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
-                    <span className="font-medium text-gray-700">Total:</span>
-                    <span className="font-bold text-[#264653]">{formatCurrency(budget.totalCost)}</span>
+                    </div>
                   </div>
                 </div>
                 
-                {/* Budget breakdown */}
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Trip Details</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Nights:</span>
-                      <span className="font-medium">{budget.details.nights}</span>
+                <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-700">
+                  <p>This budget is based on {budget.details.nights} nights in {budget.details.cities} cities with {budget.details.travelDays} travel days.</p>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Cities:</span>
-                      <span className="font-medium">{budget.details.cities}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Travel days:</span>
-                      <span className="font-medium">{budget.details.travelDays}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              </>
             ) : (
-              <p className="text-gray-500 text-center py-4">Add some stops to your trip to see a budget estimate.</p>
+              <div className="text-center py-4">
+                <p className="text-gray-500">Could not calculate budget for this trip.</p>
+              </div>
             )}
           </div>
         )}
       </div>
       
-      {/* Weather Forecast */}
-      <div className="border-b border-gray-200">
-        <button 
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
-          onClick={() => toggleSection('weather')}
+      {/* Accommodations */}
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
+          onClick={() => toggleSection('accommodation')}
         >
-          <div className="flex items-center">
-            <CloudIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
-            <span className="font-medium text-[#264653]">Weather Forecast</span>
+          <div className="flex items-center space-x-2">
+            <HomeIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">Accommodation Suggestions</h3>
           </div>
-          {expandedSection === 'weather' ? 
-            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-          }
-        </button>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.accommodation ? 'rotate-180' : ''}`}
+          />
+        </div>
         
-        {expandedSection === 'weather' && weatherAdvice && (
-          <div className="p-4 bg-gray-50">
-            <div className="mb-4">
-              <h3 className="font-medium text-[#264653] mb-2">Expected Weather During Your Trip</h3>
-              
-              <div className="space-y-4 mb-6">
-                {weatherAdvice.weatherByStop.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+        {openSections.accommodation && (
+          <div className="p-4 bg-gray-50 border-t">
+            {isLoadingAccommodations ? (
+              <div className="flex justify-center py-6">
+                <svg className="animate-spin h-6 w-6 text-[#06D6A0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            ) : accommodationSuggestions && accommodationSuggestions.length > 0 ? (
+              <div className="space-y-6">
+                {accommodationSuggestions.map((cityAccommodation, idx) => (
+                  <div key={idx}>
+                    <h4 className="font-medium text-[#264653] mb-3">
+                      {cityAccommodation.city}, {cityAccommodation.country} ({cityAccommodation.nights} night{cityAccommodation.nights > 1 ? 's' : ''})
+                    </h4>
+                    
+                    <div className="space-y-3">
+                      {cityAccommodation.suggestions.slice(0, 3).map((suggestion, suggestionIdx) => (
+                        <div key={suggestionIdx} className="bg-white rounded-lg shadow-sm p-4">
+                          <div className="flex justify-between items-start">
                     <div>
-                      <div className="font-medium">{item.city}</div>
-                      <div className="text-sm text-gray-500">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                              <div className="flex items-center mb-1">
+                                {getAccommodationIcon(suggestion.type)}
+                                <span className="font-medium ml-1">{suggestion.name}</span>
                     </div>
-                    <div className="flex items-center">
-                      <div className="text-right mr-3">
-                        <div className="font-bold">
-                          {item.weather ? (
-                            'temp' in item.weather ? (
-                              typeof item.weather.temp === 'number' 
-                                ? item.weather.temp 
-                                : (item.weather.temp && typeof item.weather.temp === 'object' && 'day' in item.weather.temp 
-                                    ? item.weather.temp.day 
-                                    : 0)
-                            ) : ((item.weather as any).temp || 0)
-                          ) : 0}°C
+                              <p className="text-sm text-gray-600 mb-2">{suggestion.description}</p>
+                              <div className="flex flex-wrap">
+                                {suggestion.amenities.slice(0, 3).map((amenity: string, amenityIdx: number) => (
+                                  getTagDisplay(amenity)
+                                ))}
                         </div>
-                        <div className="text-sm capitalize">{item.weather?.condition || ''}</div>
                       </div>
-                      {getWeatherIcon(item.weather?.icon || 'cloud')}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {weatherAdvice.extremeWeather.length > 0 && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                  <div className="flex">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400 mr-2" />
-                    <div>
-                      <p className="font-medium text-yellow-700">Weather Advisory</p>
-                      <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
-                        {weatherAdvice.extremeWeather.map((item, index) => (
-                          <li key={index}>
-                            {item.city} - {item.weather?.condition || ''} conditions with {
-                              item.weather ? (
-                                'rainLevel' in item.weather 
-                                  ? item.weather.rainLevel 
-                                  : ('rain' in item.weather ? item.weather.rain : 'unknown')
-                              ) : 'unknown'
-                            } chance of rain
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-800 mb-2">Packing Recommendation</h4>
-                <p className="text-blue-700">{weatherAdvice.packingAdvice}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      {/* Train Pass Calculator */}
-      <div className="border-b border-gray-200">
-        <button 
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
-          onClick={() => toggleSection('trainpass')}
-        >
-          <div className="flex items-center">
-            <TicketIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
-            <span className="font-medium text-[#264653]">Train Pass Calculator</span>
-          </div>
-          {expandedSection === 'trainpass' ? 
-            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-          }
-        </button>
-        
-        {expandedSection === 'trainpass' && trainPassAdvice && (
-          <div className="p-4 bg-gray-50">
-            <div className="mb-4">
-              <h3 className="font-medium text-[#264653] mb-2">Train Pass Analysis</h3>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <div className="text-sm text-gray-500">Travel Days</div>
-                  <div className="text-xl font-bold text-[#06D6A0]">{trainPassAdvice.travelDays}</div>
-                </div>
-                <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <div className="text-sm text-gray-500">Countries</div>
-                  <div className="text-xl font-bold text-[#06D6A0]">{trainPassAdvice.countriesCount}</div>
-                </div>
-                <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <div className="text-sm text-gray-500">Trip Duration</div>
-                  <div className="text-xl font-bold text-[#06D6A0]">{trainPassAdvice.tripDuration} days</div>
-                </div>
-                <div className="bg-white p-3 rounded-lg shadow-sm">
-                  <div className="text-sm text-gray-500">Individual Tickets</div>
-                  <div className="text-xl font-bold text-[#06D6A0]">{formatCurrency(trainPassAdvice.individualTicketCost)}</div>
-                </div>
-              </div>
-              
-              <h4 className="font-medium text-[#264653] mb-2">Countries Visited</h4>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {trainPassAdvice.countriesList.map((country, index) => (
-                  <span key={index} className="bg-[#06D6A0]/10 text-[#06D6A0] px-2 py-1 rounded-full text-sm">
-                    {country}
-                  </span>
-                ))}
-              </div>
-              
-              <h4 className="font-medium text-[#264653] mb-2">Recommended Rail Passes</h4>
-              
-              {trainPassAdvice.suitablePasses.length > 0 ? (
-                <div className="space-y-3">
-                  {trainPassAdvice.suitablePasses.map((pass, index) => (
-                    <div 
-                      key={index} 
-                      className={`p-3 rounded-lg shadow-sm border ${pass.recommended ? 'border-[#06D6A0] bg-[#06D6A0]/5' : 'border-gray-200 bg-white'}`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-medium text-[#264653]">{pass.name}</div>
-                          <div className="text-sm text-gray-500">Price: {formatCurrency(pass.price)}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className={`font-bold ${pass.savings > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {pass.savings > 0 ? 'Save ' + formatCurrency(pass.savings) : 'Costs ' + formatCurrency(-pass.savings) + ' more'}
-                          </div>
-                          {pass.recommended && (
-                            <div className="mt-1 text-xs bg-[#06D6A0] text-white px-2 py-0.5 rounded-full inline-block">
-                              Recommended
+                            <div>
+                              {getPriceDisplay(suggestion.priceRange)}
                             </div>
-                          )}
-                        </div>
-                      </div>
                     </div>
-                  ))}
-                  
-                  <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                    <h4 className="font-medium text-blue-800 mb-2">Rail Pass Benefits</h4>
-                    <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
-                      <li>Flexibility to change travel plans without buying new tickets</li>
-                      <li>Skip ticket lines at most stations</li>
-                      <li>Free or discounted travel on some scenic routes and ferries</li>
-                      <li>Access to lounges in major stations (1st class passes)</li>
-                    </ul>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
-                  <p className="text-gray-500">Individual tickets are likely more economical for your trip.</p>
+                ))}
+              </div>
+                  </div>
+                ))}
+                    </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-500">No accommodation suggestions available.</p>
+                  </div>
+            )}
                 </div>
               )}
-            </div>
-          </div>
-        )}
       </div>
       
-      {/* Attraction Recommendations */}
-      <div className="border-b border-gray-200">
-        <button 
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
+      {/* Attractions */}
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
           onClick={() => toggleSection('attractions')}
         >
-          <div className="flex items-center">
-            <PhotoIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
-            <span className="font-medium text-[#264653]">Attraction Recommendations</span>
-          </div>
-          {expandedSection === 'attractions' ? 
-            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-          }
-        </button>
+          <div className="flex items-center space-x-2">
+            <MapPinIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">Top Attractions</h3>
+              </div>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.attractions ? 'rotate-180' : ''}`}
+          />
+            </div>
         
-        {expandedSection === 'attractions' && attractionRecommendations && attractionRecommendations.length > 0 && (
-          <div className="p-4 bg-gray-50">
-            <div className="mb-4">
-              <h3 className="font-medium text-[#264653] mb-2">Top Attractions For Your Trip</h3>
-              
+        {openSections.attractions && (
+          <div className="p-4 bg-gray-50 border-t">
+            {isLoadingAttractions ? (
+              <div className="flex justify-center py-6">
+                <svg className="animate-spin h-6 w-6 text-[#06D6A0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+          </div>
+            ) : attractionRecommendations && attractionRecommendations.length > 0 ? (
               <div className="space-y-6">
-                {attractionRecommendations.map((cityRec, cityIndex) => (
-                  <div key={cityIndex} className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-medium text-[#264653]">{cityRec.city}, {cityRec.country}</h4>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <ClockIcon className="h-4 w-4 mr-1" />
-                          {cityRec.days < 1 ? 'Stopover' : `${cityRec.days} ${cityRec.days === 1 ? 'day' : 'days'} available`}
+                {attractionRecommendations.map((cityAttractions, idx) => (
+                  <div key={idx}>
+                    <h4 className="font-medium text-[#264653] mb-3">
+                      {cityAttractions.city}, {cityAttractions.country} ({cityAttractions.days} day{cityAttractions.days > 1 ? 's' : ''})
+                    </h4>
+                    
+                    <div className="space-y-3 mb-4">
+                      <h5 className="text-sm font-medium text-gray-600">Recommended for your time:</h5>
+                      {cityAttractions.recommendedAttractions.map((attraction, attrIdx) => (
+                        <div key={attrIdx} className="bg-white rounded-lg shadow-sm p-3">
+                          <div className="flex items-start">
+                            <div className="mt-1 mr-2">
+                              {getCategoryIcon(attraction.category)}
+                            </div>
+                            <div className="flex-grow">
+                              <div className="flex items-center">
+                                <span className="font-medium">{attraction.name}</span>
+                                {attraction.mustSee && (
+                                  <span className="ml-2 px-2 py-0.5 text-xs bg-amber-100 text-amber-800 rounded-full">Must See</span>
+        )}
+      </div>
+                              <p className="text-sm text-gray-600 mt-1">{attraction.description}</p>
+                              <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+          <div className="flex items-center">
+                                  <ClockIcon className="h-3.5 w-3.5 mr-1" />
+                                  <span>{attraction.timeNeeded} hours</span>
+          </div>
+                                <div className="flex items-center">
+                                  <StarIcon className="h-3.5 w-3.5 mr-1 text-amber-500" />
+                                  <span>{attraction.rating} / 5</span>
+                </div>
+                </div>
+                </div>
+                </div>
+              </div>
+                ))}
+              </div>
+              
+                    {cityAttractions.additionalAttractions.length > 0 && (
+                      <>
+                        <h5 className="text-sm font-medium text-gray-600 mb-2">Also worth considering:</h5>
+                        <div className="space-y-2">
+                          {cityAttractions.additionalAttractions.slice(0, 3).map((attraction, attrIdx) => (
+                            <div key={attrIdx} className="p-2 bg-white rounded-lg shadow-sm">
+                              <div className="flex items-center">
+                                <div className="mr-2">
+                                  {getCategoryIcon(attraction.category)}
+                                </div>
+                        <div>
+                                  <div className="font-medium text-sm">{attraction.name}</div>
+                                  <div className="text-xs text-gray-500 flex items-center">
+                                    <ClockIcon className="h-3 w-3 mr-1" />
+                                    <span>{attraction.timeNeeded} hours</span>
+                                    <StarIcon className="h-3 w-3 ml-2 mr-1 text-amber-500" />
+                                    <span>{attraction.rating}</span>
                         </div>
+                          </div>
+                            </div>
+                        </div>
+                          ))}
                       </div>
-                      {cityRec.days < 1 ? (
-                        <div className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                          Limited Time
+                      </>
+                    )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-500">No attraction recommendations available.</p>
+                </div>
+              )}
+          </div>
+        )}
+      </div>
+      
+      {/* Rail Pass */}
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
+          onClick={() => toggleSection('railPass')}
+        >
+          <div className="flex items-center space-x-2">
+            <TicketIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">Rail Pass Finder</h3>
+          </div>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.railPass ? 'rotate-180' : ''}`}
+          />
+        </div>
+        
+        {openSections.railPass && (
+          <div className="p-4 bg-gray-50 border-t">
+            {trainPassAdvice ? (
+              <>
+                <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+                  <h4 className="font-medium text-[#264653] mb-2">Trip Summary</h4>
+                  <div className="text-sm space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Countries visited:</span>
+                      <span className="font-medium">{trainPassAdvice.countriesCount}</span>
                         </div>
-                      ) : cityRec.days <= 2 ? (
-                        <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                          Quick Visit
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Travel days:</span>
+                      <span className="font-medium">{trainPassAdvice.travelDays}</span>
+                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Trip duration:</span>
+                      <span className="font-medium">{trainPassAdvice.tripDuration} days</span>
                         </div>
-                      ) : (
-                        <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                          Extended Stay
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Est. cost of point-to-point tickets:</span>
+                      <span className="font-medium">{formatCurrency(trainPassAdvice.individualTicketCost)}</span>
                         </div>
-                      )}
+                        </div>
                     </div>
                     
-                    <h5 className="text-sm font-medium text-gray-700 mb-2">Recommended Attractions</h5>
-                    {cityRec.recommendedAttractions.length > 0 ? (
-                      <div className="space-y-2 mb-4">
-                        {cityRec.recommendedAttractions.map((attraction, attrIndex) => (
-                          <div key={attrIndex} className="flex justify-between items-start p-2 border-b border-gray-100">
-                            <div className="flex-1">
-                              <div className="flex items-center">
-                                {getCategoryIcon(attraction.category)}
-                                <span className="ml-2 font-medium">{attraction.name}</span>
-                                {attraction.mustSee && (
-                                  <span className="ml-2 px-1.5 py-0.5 bg-red-100 text-red-800 text-xs rounded">
-                                    Must See
+                <h4 className="font-medium text-[#264653] mb-3">Recommended Passes</h4>
+                
+                {trainPassAdvice.suitablePasses.length > 0 ? (
+                  <div className="space-y-3">
+                    {trainPassAdvice.suitablePasses.map((pass, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`bg-white rounded-lg shadow-sm p-4 border-l-4 ${pass.recommended ? 'border-l-[#06D6A0]' : 'border-l-gray-200'}`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium">{pass.name}</div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Price: {formatCurrency(pass.price)}
+                              {pass.savings > 0 && (
+                                <span className="ml-2 text-green-600">
+                                  Save {formatCurrency(pass.savings)}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-gray-500 mt-1">{attraction.description}</p>
                             </div>
-                            <div className="flex items-center ml-4 text-sm">
-                              <ClockIcon className="h-4 w-4 text-gray-400 mr-1" />
-                              <span className="text-gray-600">{attraction.timeNeeded} hrs</span>
+                          {pass.recommended && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Recommended</span>
+                          )}
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-500 text-sm italic mb-4">Not enough time for attractions.</p>
-                    )}
-                    
-                    {cityRec.additionalAttractions.length > 0 && (
-                      <>
-                        <h5 className="text-sm font-medium text-gray-700 mb-2">If You Have More Time</h5>
-                        <div className="space-y-2">
-                          {cityRec.additionalAttractions.slice(0, 3).map((attraction, attrIndex) => (
-                            <div key={attrIndex} className="flex justify-between items-start p-2 border-b border-gray-100">
-                              <div className="flex-1">
-                                <div className="flex items-center">
-                                  {getCategoryIcon(attraction.category)}
-                                  <span className="ml-2 font-medium">{attraction.name}</span>
-                                </div>
-                                <p className="text-sm text-gray-500 mt-1">{attraction.description}</p>
-                              </div>
-                              <div className="flex items-center ml-4 text-sm">
-                                <ClockIcon className="h-4 w-4 text-gray-400 mr-1" />
-                                <span className="text-gray-600">{attraction.timeNeeded} hrs</span>
-                              </div>
-                            </div>
-                          ))}
+                  <div className="text-sm text-gray-600 p-3 bg-blue-50 rounded-lg">
+                    <p>For this trip, individual tickets may be more economical than a rail pass.</p>
+                  </div>
+                )}
+                
+                <div className="mt-4 text-xs text-gray-500">
+                  <p>Pricing is based on the standard adult fare. Youth (12-27) and senior (60+) discounts may apply.</p>
                         </div>
                       </>
-                    )}
-                  </div>
-                ))}
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-gray-500">Could not calculate rail pass recommendations for this trip.</p>
               </div>
-              
-              <div className="bg-blue-50 p-4 rounded-lg mt-6">
-                <h4 className="font-medium text-blue-800 mb-2">Planning Tip</h4>
-                <p className="text-sm text-blue-700">
-                  Consider purchasing "skip-the-line" tickets for popular attractions to maximize your time.
-                  Many museums offer reduced or free entry on certain days of the month.
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>
       
-      {/* GetYourGuide Activities */}
-      <div className="border-b border-gray-200">
-        <button 
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
+      {/* Activities */}
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
           onClick={() => toggleSection('activities')}
         >
-          <div className="flex items-center">
-            <TicketIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
-            <span className="font-medium text-[#264653]">Bookable Activities</span>
+          <div className="flex items-center space-x-2">
+            <TicketIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">Activities & Tours</h3>
           </div>
-          {expandedSection === 'activities' ? 
-            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-          }
-        </button>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.activities ? 'rotate-180' : ''}`}
+          />
+        </div>
         
-        {expandedSection === 'activities' && (
-          <div className="p-4 bg-gray-50">
+        {openSections.activities && (
+          <div className="p-4 bg-gray-50 border-t">
             {isLoadingActivities ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#06D6A0]"></div>
+              <div className="flex justify-center py-6">
+                <svg className="animate-spin h-6 w-6 text-[#06D6A0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
               </div>
             ) : (
-              <div>
-                <h3 className="font-medium text-[#264653] mb-4">Book Experiences with GetYourGuide</h3>
-                
-                {trip && trip.stops && trip.stops.length > 0 ? (
                   <div className="space-y-6">
-                    {trip.stops
-                      .filter(stop => !stop.isStopover)
-                      .map(stop => {
+                {trip.stops.filter(stop => !stop.isStopover).map((stop, idx) => {
                         const city = cities.find(c => c.id === stop.cityId);
                         if (!city) return null;
                         
+                  // Look up GetYourGuide location ID
+                  const locationId = getYourGuideLocationIds[city.name];
                         const cityActivities = activitiesData[city.name] || [];
                         
                         return (
-                          <div key={`activity-${stop.cityId}-${stop.arrivalDate}`} className="bg-white p-4 rounded-lg shadow-sm">
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <h4 className="font-medium text-[#264653]">{city.name}, {city.country}</h4>
-                                <div className="text-sm text-gray-500">
-                                  {stop.nights} {stop.nights === 1 ? 'night' : 'nights'} · Popular experiences
-                                </div>
-                              </div>
-                            </div>
+                    <div key={idx}>
+                      <h4 className="font-medium text-[#264653] mb-3">
+                        {city.name}, {city.country}
+                      </h4>
                             
                             {cityActivities.length > 0 ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                                {cityActivities.map((activity, index) => (
-                                  <div key={activity.id} className="border border-gray-100 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-                                    <div className="aspect-[4/3] relative">
-                                      <img 
-                                        src={activity.image || `https://via.placeholder.com/400x300?text=${encodeURIComponent(activity.title)}`}
-                                        alt={activity.title}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                    <div className="p-3">
-                                      <h5 className="font-medium text-[#264653] mb-1 line-clamp-2">{activity.title}</h5>
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center text-sm text-amber-500">
-                                          {'★'.repeat(Math.round(activity.rating))}
-                                          <span className="text-gray-500 ml-1">({activity.reviewCount})</span>
-                                        </div>
-                                        <div className="text-sm text-gray-500">{activity.duration}</div>
-                                      </div>
-                                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{activity.description}</p>
-                                      <div className="flex items-center justify-between">
-                                        <div className="font-bold text-[#264653]">
-                                          From {activity.price.amount} {activity.price.currency}
-                                        </div>
+                        <div className="space-y-3">
+                          {cityActivities.map((activity: any, activityIdx: number) => (
+                            <div key={activityIdx} className="bg-white rounded-lg shadow-sm p-4">
+                              <div className="font-medium mb-1">{activity.title}</div>
+                              <div className="text-sm text-gray-600 mb-2">{activity.description?.substring(0, 100)}...</div>
+                              <div className="flex justify-between items-center mt-2">
+                                <div className="text-sm font-medium">{activity.price?.formattedValue || 'Price unavailable'}</div>
                                         <a 
                                           href={activity.url}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="px-3 py-1 bg-[#06D6A0] text-white text-sm rounded-full hover:bg-[#06D6A0]/90 transition-colors"
+                                  className="text-sm text-[#06D6A0] hover:underline"
                                         >
-                                          Book Now
+                                  View Details
                                         </a>
-                                      </div>
                                     </div>
                                   </div>
                                 ))}
                               </div>
-                            ) : (
-                              <div className="p-4 text-center text-gray-500">
-                                <p className="mb-2">Loading activities for {city.name}...</p>
-                                <p className="text-xs text-gray-400 mb-4">Note: Some activities show placeholder data while waiting for API approval</p>
-                                <div 
-                                  className="mt-4"
-                                  dangerouslySetInnerHTML={{ 
-                                    __html: getActivityWidgetHtml(city.name, 4, stop.arrivalDate)
-                                  }}
-                                />
-                              </div>
-                            )}
-                            
-                            <div className="mt-2 text-center">
-                              <a 
-                                href={`https://www.getyourguide.com/s/?q=${encodeURIComponent(city.name)}&date=${stop.arrivalDate ? formatDateForGetYourGuide(stop.arrivalDate) : ''}&partner_id=${process.env.NEXT_PUBLIC_GETYOURGUIDE_PARTNER_ID || 'QUGIHFI'}`}
+                      ) : locationId ? (
+                        <div className="bg-white rounded-lg shadow-sm p-4 text-center">
+                          <p className="text-sm text-gray-600 mb-3">Explore top-rated tours and activities in {city.name}:</p>
+                          <a 
+                            href={`https://www.getyourguide.com/${getActivityCountry(city.country)}-l${locationId}/?partner_id=GOEURAIL`}
                                 target="_blank"
                                 rel="noopener noreferrer" 
-                                className="text-[#06D6A0] hover:underline text-sm font-medium"
+                            className="inline-block px-4 py-2 bg-[#06D6A0] text-white rounded-md text-sm hover:bg-[#05C090]"
                               >
-                                See all {city.name} activities on GetYourGuide →
+                            Browse Activities on GetYourGuide
                               </a>
                             </div>
+                      ) : (
+                        <div className="text-center py-4">
+                          <p className="text-gray-500">No activities found for {city.name}.</p>
+                        </div>
+                      )}
                           </div>
                         );
                       })}
                   </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-4">Add some stops to your trip to see bookable activities.</p>
-                )}
-                
-                <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-                  <div className="flex items-center mb-2">
-                    <img 
-                      src="https://cdn.getyourguide.com/tf/assets/static/logos/gyg-logo.svg" 
-                      alt="GetYourGuide" 
-                      className="h-5 mr-2"
-                    />
-                    <h4 className="font-medium text-blue-800">GetYourGuide Benefits</h4>
-                  </div>
-                  <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
-                    <li>24/7 customer service in multiple languages</li>
-                    <li>Free cancellation up to 24 hours before most activities</li>
-                    <li>Skip-the-line tickets to popular attractions</li>
-                    <li>Verified customer reviews and ratings</li>
-                  </ul>
-                </div>
-              </div>
             )}
           </div>
         )}
       </div>
       
-      {/* Accommodation Suggestions */}
-      <div className="border-b border-gray-200">
-        <button 
-          className="w-full p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
-          onClick={() => toggleSection('accommodations')}
+      {/* AI Itinerary Generator */}
+      <div className="border rounded-lg overflow-hidden">
+        <div
+          className="flex justify-between items-center p-4 bg-white cursor-pointer"
+          onClick={() => toggleSection('aiItinerary')}
         >
-          <div className="flex items-center">
-            <HomeIcon className="h-5 w-5 text-[#06D6A0] mr-2" />
-            <span className="font-medium text-[#264653]">Accommodation Suggestions</span>
+          <div className="flex items-center space-x-2">
+            <SparklesIcon className="h-5 w-5 text-[#06D6A0]" />
+            <h3 className="font-medium text-[#264653]">AI Itinerary Generator</h3>
           </div>
-          {expandedSection === 'accommodations' ? 
-            <ChevronUpIcon className="h-5 w-5 text-gray-400" /> : 
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-          }
-        </button>
-        
-        {expandedSection === 'accommodations' && accommodationSuggestions && accommodationSuggestions.length > 0 && (
-          <div className="p-4 bg-gray-50">
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium text-[#264653]">Where to Stay</h3>
-                
-                <div className="flex items-center space-x-2 bg-white rounded-lg p-1 border border-gray-200">
-                  <button 
-                    onClick={() => setBudgetLevel('budget')}
-                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                      budgetLevel === 'budget' ? 'bg-blue-100 text-blue-800' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    Budget
-                  </button>
-                  <button 
-                    onClick={() => setBudgetLevel('moderate')}
-                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                      budgetLevel === 'moderate' ? 'bg-blue-100 text-blue-800' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    Moderate
-                  </button>
-                  <button 
-                    onClick={() => setBudgetLevel('luxury')}
-                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                      budgetLevel === 'luxury' ? 'bg-blue-100 text-blue-800' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    Luxury
-                  </button>
-                </div>
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-500 transition-transform ${openSections.aiItinerary ? 'rotate-180' : ''}`}
+          />
               </div>
               
-              <div className="space-y-6">
-                {accommodationSuggestions.map((citySuggestion, cityIndex) => (
-                  <div key={cityIndex} className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-medium text-[#264653]">{citySuggestion.city}, {citySuggestion.country}</h4>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <ClockIcon className="h-4 w-4 mr-1" />
-                          {citySuggestion.nights} {citySuggestion.nights === 1 ? 'night' : 'nights'} stay
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {citySuggestion.suggestions.length > 0 ? (
-                      <div className="space-y-3">
-                        {citySuggestion.suggestions.map((accommodation, accIndex) => (
-                          <div key={accIndex} className="border border-gray-100 rounded-md p-3 hover:border-gray-300 transition-colors">
-                            <div className="flex justify-between items-start mb-2">
-                              <div className="flex items-center">
-                                {getAccommodationIcon(accommodation.type)}
-                                <span className="ml-2 font-medium">{accommodation.name}</span>
-                              </div>
-                              {getPriceDisplay(accommodation.priceRange)}
-                            </div>
-                            
-                            <p className="text-sm text-gray-600 mb-2">{accommodation.description}</p>
-                            
-                            {accommodation.neighborhood && (
-                              <div className="flex items-center text-xs text-gray-500 mb-2">
-                                <MapPinIcon className="h-3.5 w-3.5 mr-1" />
-                                <span>{accommodation.neighborhood}</span>
-                              </div>
-                            )}
-                            
-                            <div className="mt-2">
-                              <div className="flex flex-wrap gap-1 mb-2">
-                                {accommodation.amenities.slice(0, 4).map((amenity: string, i: number) => (
-                                  <span key={i} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                                    {amenity}
-                                  </span>
-                                ))}
-                              </div>
-                              
-                              <div className="text-xs text-gray-500">
-                                Best for: {accommodation.bestFor.join(', ')}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-sm italic">No specific accommodations found for this destination.</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              <div className="bg-blue-50 p-4 rounded-lg mt-6">
-                <h4 className="font-medium text-blue-800 mb-2">Booking Tips</h4>
-                <p className="text-sm text-blue-700">
-                  Consider booking accommodations well in advance, especially during peak tourist seasons.
-                  Many properties offer free cancellation closer to your arrival date.
-                </p>
-              </div>
-            </div>
-          </div>
+        {openSections.aiItinerary && (
+          <AIItineraryGenerator
+            trip={trip}
+            attractions={TOP_ATTRACTIONS}
+            getWeatherForStop={getWeatherForStop}
+            budgetLevel={budgetLevel}
+          />
         )}
       </div>
     </div>

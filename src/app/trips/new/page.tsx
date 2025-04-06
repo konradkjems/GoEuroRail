@@ -337,7 +337,7 @@ export default function NewTrip() {
         <SplitView 
           mapSection={mapSection}
           contentSection={contentSection}
-          mapWidth="70%"
+          mapWidth="60%"
         />
       )}
     </Layout>

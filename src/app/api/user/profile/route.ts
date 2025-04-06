@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+import City from '@/models/City';
 import { authMiddleware, AuthUser } from '@/lib/auth';
 
 async function handler(req: NextRequest, user: AuthUser): Promise<NextResponse> {

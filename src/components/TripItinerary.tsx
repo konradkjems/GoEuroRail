@@ -373,58 +373,54 @@ export default function TripItinerary({
   const handleUpdateStop = (index: number, updatedStop: Partial<FormTripStop>) => {
     if (!editedTrip) return;
     
-    // Create a new array of stops with the updated stop
+    // Create a new array of stops
     const newStops = [...editedTrip.stops];
     
-    // Update the specific stop with new values
-    const currentStop = { ...newStops[index], ...updatedStop };
-    newStops[index] = currentStop;
-
-    // If the city was changed, we need to update arrival/departure dates and train details
-    if (updatedStop.cityId && updatedStop.cityId !== editedTrip.stops[index].cityId) {
-      // Get the new city details
-      const newCity = cities.find(c => c.id === updatedStop.cityId);
-      
-      if (!newCity) return; // Safety check
-      
-      // We don't need to update currentStop.city since FormTripStop only has cityId
-      // The city object is resolved when needed from the cityId
-      
-      // Find the previous and next stops for train connection calculations
-      const prevStop = index > 0 ? newStops[index - 1] : null;
-      const nextStop = index < newStops.length - 1 ? newStops[index + 1] : null;
-      
-      // Handle arrival date calculation
-      let newArrival: Date | null = null;
-      
-      if (prevStop && prevStop.departureDate) {
-        try {
-          // Parse the previous stop's departure date
-          const prevDeparture = new Date(prevStop.departureDate);
-          
-          // Default travel time between cities (6 hours for now, adjust as needed)
-          const travelTimeHours = 6;
-          
-          // Calculate new arrival date by adding travel time to previous departure
-          newArrival = new Date(prevDeparture);
-          newArrival.setHours(newArrival.getHours() + travelTimeHours);
-          
-          // Ensure the date is valid before converting to ISO string
-          if (!isNaN(newArrival.getTime())) {
-            // Set arrival date
-            currentStop.arrivalDate = newArrival.toISOString().split('T')[0];
-          } else {
-            // Use fallback if date is invalid
-            currentStop.arrivalDate = prevStop.departureDate;
+    // Update the specific stop with new values while preserving existing values
+    newStops[index] = { ...newStops[index], ...updatedStop };
+    
+    // Don't recalculate dates unless specifically changing nights or isStopover
+    const shouldRecalculateDates = 
+      updatedStop.nights !== undefined || 
+      updatedStop.isStopover !== undefined ||
+      updatedStop.cityId !== undefined;
+    
+    // Only recalculate subsequent stops if we're changing something that affects dates
+    if (shouldRecalculateDates) {
+      // If city was changed, update dates for this stop and subsequent stops
+      if (updatedStop.cityId && updatedStop.cityId !== editedTrip.stops[index].cityId) {
+        // Get the new city details
+        const newCity = cities.find(c => c.id === updatedStop.cityId);
+        
+        if (!newCity) return; // Safety check
+        
+        // Find the previous stop for arrival date calculation
+        const prevStop = index > 0 ? newStops[index - 1] : null;
+        
+        // Handle arrival date calculation
+        if (prevStop && prevStop.departureDate) {
+          try {
+            // Calculate new arrival date based on previous stop
+            if (prevStop.isStopover) {
+              // If previous is a stopover, arrive on the same day
+              newStops[index].arrivalDate = prevStop.arrivalDate;
+            } else {
+              // Otherwise, arrive after the previous stop's nights
+              const prevArrival = new Date(prevStop.arrivalDate);
+              const prevNights = prevStop.nights || 1;
+              const newArrival = new Date(prevArrival.getTime() + (prevNights * 24 * 60 * 60 * 1000));
+              newStops[index].arrivalDate = safeISODateString(newArrival);
+            }
+          } catch (error) {
+            console.error("Error calculating arrival date:", error);
+            // Use fallback
+            newStops[index].arrivalDate = prevStop.departureDate;
           }
-        } catch (error) {
-          console.error("Error calculating arrival date:", error);
-          // Fallback: use previous stop's departure date
-          currentStop.arrivalDate = prevStop.departureDate;
         }
       }
       
       // Calculate departure date based on whether current stop is a stopover
+      const currentStop = newStops[index];
       if (currentStop.isStopover) {
         // For stopovers, departure is same day as arrival
         currentStop.departureDate = currentStop.arrivalDate;
@@ -454,39 +450,67 @@ export default function TripItinerary({
           }
         } catch (error) {
           console.error("Error calculating departure date:", error);
-          // Fallback: set departure to day after arrival
+          // Fallback
           try {
             const dateObj = new Date(currentStop.arrivalDate);
             if (isNaN(dateObj.getTime())) {
-              // Invalid date - use today as fallback
               currentStop.departureDate = safeISODateString(new Date());
             } else {
               dateObj.setDate(dateObj.getDate() + 1);
               currentStop.departureDate = safeISODateString(dateObj);
             }
           } catch (e) {
-            // Ultimate fallback - just use today's date
             currentStop.departureDate = safeISODateString(new Date());
           }
         }
       }
       
-      // Reset train details since the cities are different
-      currentStop.trainDetails = undefined; // Use undefined instead of null
+      // Update dates for all subsequent stops
+      for (let i = index + 1; i < newStops.length; i++) {
+        const previousStop = newStops[i - 1];
+        const currentStop = newStops[i];
+        
+        // Calculate arrival based on previous stop type
+        let newArrival;
+        if (previousStop.isStopover) {
+          // If previous is a stopover, arrive on the same day
+          newArrival = new Date(previousStop.arrivalDate);
+        } else {
+          // Otherwise, add nights to previous arrival
+          const prevDate = new Date(previousStop.arrivalDate);
+          const prevNights = previousStop.nights || 1;
+          newArrival = new Date(prevDate.getTime() + (prevNights * 24 * 60 * 60 * 1000));
+        }
+        
+        // Set arrival date
+        currentStop.arrivalDate = safeISODateString(newArrival);
+        
+        // Set departure date based on current stop type
+        if (currentStop.isStopover) {
+          currentStop.departureDate = currentStop.arrivalDate;
+        } else {
+          const currNights = currentStop.nights || 1;
+          const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
+          currentStop.departureDate = safeISODateString(newDeparture);
+        }
+      }
     }
 
-    // Update the entire trip with new stops
-    setEditedTrip({
-      ...editedTrip,
-      stops: newStops
-    });
+    // Update end date
+    const lastStop = newStops[newStops.length - 1];
+    const endDate = lastStop.departureDate;
     
-    // Notify parent component of the change
+    // Create the updated trip with the new stops
+    const updatedTrip = {
+      ...editedTrip,
+      stops: newStops,
+      endDate: endDate
+    };
+    
+    // Update state and notify parent
+    setEditedTrip(updatedTrip);
     if (onUpdateTrip) {
-      onUpdateTrip({
-        ...editedTrip,
-        stops: newStops
-      });
+      onUpdateTrip(updatedTrip);
     }
   };
 
@@ -635,21 +659,18 @@ export default function TripItinerary({
   const getTripStats = () => {
     if (!editedTrip || editedTrip.stops.length === 0) return null;
     
-    const startDate = new Date(editedTrip.startDate);
-    const endDate = new Date(editedTrip.endDate);
-    
-    // Ensure dates are valid
-    const startTime = startDate.getTime();
-    const endTime = endDate.getTime();
-    const totalDays = Math.max(1, Math.ceil((endTime - startTime) / (1000 * 60 * 60 * 24)) + 1);
-    
+    // Calculate nights from all stops
     const totalNights = editedTrip.stops.reduce((sum, stop) => sum + (stop.isStopover ? 0 : (stop.nights || 1)), 0);
-    const citiesCount = editedTrip.stops.length;
-    const stopoversCount = editedTrip.stops.filter(stop => stop.isStopover).length;
     
     // Calculate travel days - each transition between cities is a travel day
-    // Count transitions between cities (number of stops - 1)
     const travelDays = Math.max(1, editedTrip.stops.length - 1);
+    
+    // Total days is nights + 1 (for checkout day)
+    // This is the simplest and most reliable calculation
+    const totalDays = totalNights + 1;
+    
+    const citiesCount = editedTrip.stops.length;
+    const stopoversCount = editedTrip.stops.filter(stop => stop.isStopover).length;
     
     return {
       totalDays,
@@ -1080,10 +1101,10 @@ const StopCard = ({
   const handleTrainSelect = (train: TrainConnection) => {
     if (!nextStop) return;
     
-    // Update the departure time of current stop and arrival time of next stop
+    // Update the current stop with train details but don't modify departure date
+    // as that would affect the itinerary calculation
     onUpdate({
       ...stop,
-      departureDate: train.departureTime,
       trainDetails: {
         trainNumber: train.trains.map(t => `${t.type} ${t.number}`).join(', '),
         duration: train.duration,
@@ -1091,17 +1112,9 @@ const StopCard = ({
         price: train.price
       }
     });
-
-    // Update the next stop's arrival time
-    const nextStopIndex = index + 1;
-    if (nextStopIndex < editedTrip!.stops.length) {
-      onUpdate({
-        ...nextStop,
-        arrivalDate: train.arrivalTime
-      });
-    }
     
     // Modal will close itself via the onClose handler
+    setShowTrainSchedule(false);
   };
   
   return (
@@ -1158,7 +1171,7 @@ const StopCard = ({
                     >
                       <XMarkIcon className="h-3.5 w-3.5" />
               </button>
-              )}
+                  )}
             </div>
             
                 <div className="mb-2 max-h-36 overflow-y-auto rounded border border-gray-200">

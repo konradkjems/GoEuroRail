@@ -87,6 +87,8 @@ tripSchema.pre('save', function(next) {
   next();
 });
 
-const Trip = mongoose.model<ITrip>('Trip', tripSchema);
+// Check if the model exists before creating a new one
+// This prevents "Cannot overwrite model" errors during hot reload in development
+const Trip = mongoose.models.Trip || mongoose.model<ITrip>('Trip', tripSchema);
 
 export default Trip; 

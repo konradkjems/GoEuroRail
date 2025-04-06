@@ -55,6 +55,8 @@ attractionSchema.index({ city_id: 1 });
 attractionSchema.index({ category: 1 });
 attractionSchema.index({ coordinates: '2dsphere' });
 
-const Attraction = mongoose.model<IAttraction>('Attraction', attractionSchema);
+// Check if the model exists before creating a new one
+// This prevents "Cannot overwrite model" errors during hot reload in development
+const Attraction = mongoose.models.Attraction || mongoose.model<IAttraction>('Attraction', attractionSchema);
 
 export default Attraction; 

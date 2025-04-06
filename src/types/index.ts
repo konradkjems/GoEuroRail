@@ -9,8 +9,9 @@ export interface City {
   };
   region: string;
   population: number;
-  isTransportHub: boolean;
-  size: 'small' | 'medium' | 'large';
+  isTransportHub?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  altNames?: string[]; // Alternative names for the city
 }
 
 // Form interfaces (used in components)

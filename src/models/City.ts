@@ -60,6 +60,8 @@ citySchema.index({ region: 1 });
 citySchema.index({ latitude: 1, longitude: 1 });
 citySchema.index({ population: -1 });
 
-const City = mongoose.model<ICity>('City', citySchema);
+// Check if the model exists before creating a new one
+// This prevents "Cannot overwrite model" errors during hot reload in development
+const City = mongoose.models.City || mongoose.model<ICity>('City', citySchema);
 
 export default City; 

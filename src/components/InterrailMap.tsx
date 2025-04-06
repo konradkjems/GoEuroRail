@@ -7,6 +7,7 @@ import { City, Trip, FormTrip } from "@/types";
 import dynamic from "next/dynamic";
 import L from "leaflet";
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { railConnections, getRailSpeedColor, getRailSpeedDash, getConnectionsForTrip } from "@/lib/railConnections";
 
 const MapWithNoSSR = dynamic(() => Promise.resolve(MapDisplay), {
   ssr: false,
@@ -104,17 +105,25 @@ const CityInfoModal: React.FC<CityInfoModalProps> = ({ city, onClose, onAddToTri
 };
 
 // Get circle style based on city properties
-function getCircleStyle(city: City, isSelected: boolean, isInTrip: boolean) {
+function getCircleStyle(city: City, isSelected: boolean, isInTrip: boolean, isConnected = false) {
   // Base size determined by city importance
-  const baseRadius = city.size === 'large' ? 14 : city.size === 'medium' ? 10 : 7;
+  let baseRadius;
+  
+  if (isConnected && !city.isTransportHub && city.population < 1000000 && !isInTrip && !isSelected) {
+    // Smaller size for rail-connected cities that aren't otherwise important
+    baseRadius = 4;
+  } else {
+    baseRadius = city.size === 'large' ? 14 : city.size === 'medium' ? 10 : 7;
+  }
   
   // Modern color palette with white borders
   const colors = {
     default: { fill: '#10B981', stroke: '#FFFFFF' },         // Regular cities: Green
     selected: { fill: '#EF4444', stroke: '#FFFFFF' },        // Selected: Red
-    inTrip: { fill: '#F59E0B', stroke: '#FFFFFF' },         // In trip: Amber
-    majorCity: { fill: '#6366F1', stroke: '#FFFFFF' },      // Major cities: Indigo
-    transportHub: { fill: '#8B5CF6', stroke: '#FFFFFF' }     // Transport hubs: Purple
+    inTrip: { fill: '#F59E0B', stroke: '#FFFFFF' },          // In trip: Amber
+    majorCity: { fill: '#6366F1', stroke: '#FFFFFF' },       // Major cities: Indigo
+    transportHub: { fill: '#8B5CF6', stroke: '#FFFFFF' },    // Transport hubs: Purple
+    connectedCity: { fill: '#94A3B8', stroke: '#FFFFFF' }    // Rail connected: Slate
   };
 
   let style = colors.default;
@@ -126,6 +135,8 @@ function getCircleStyle(city: City, isSelected: boolean, isInTrip: boolean) {
     style = colors.transportHub;
   } else if (city.population >= 1000000) {
     style = colors.majorCity;
+  } else if (isConnected) {
+    style = colors.connectedCity;
   }
 
   return {
@@ -151,6 +162,51 @@ const pulsingCSS = `
   }
 `;
 
+// Define props interface for RailNetworkLayer
+interface RailNetworkLayerProps {
+  showAllConnections: boolean;
+  tripCityIds: string[];
+}
+
+// Add a Rail Network Layer to display the railway connections
+// This function will render all the rail connections based on their speed
+function RailNetworkLayer({ showAllConnections = false, tripCityIds = [] }: RailNetworkLayerProps) {
+  // Connections to render on the map
+  const connections = showAllConnections 
+    ? railConnections 
+    : getConnectionsForTrip(tripCityIds);
+  
+  // Get coordinates for a city by its ID
+  const getCoordinatesById = (cityId: string): [number, number] | null => {
+    const city = cities.find(c => c.id === cityId);
+    return city ? [city.coordinates.lat, city.coordinates.lng] : null;
+  };
+  
+  return (
+    <>
+      {connections.map((connection, index) => {
+        const fromCoords = getCoordinatesById(connection.fromCityId);
+        const toCoords = getCoordinatesById(connection.toCityId);
+        
+        if (!fromCoords || !toCoords) return null;
+        
+        return (
+          <Polyline
+            key={`${connection.fromCityId}-${connection.toCityId}-${index}`}
+            positions={[fromCoords, toCoords]}
+            pathOptions={{
+              color: getRailSpeedColor(connection.speed),
+              weight: 3,
+              dashArray: getRailSpeedDash(connection.speed) || undefined,
+              opacity: 0.8
+            }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<City[]>([]);
@@ -159,14 +215,30 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
   // Get trip city IDs to highlight them on the map
   const tripCityIds = selectedTrip?.stops.map(stop => stop.cityId) || [];
 
-  // Filter cities to only show major ones, transport hubs, and cities in the trip
+  // Whether to show all rail connections or only the trip's
+  const [showAllRailConnections, setShowAllRailConnections] = useState(true);
+
+  // Get all cities connected by rail
+  const connectedCityIds = useMemo(() => {
+    if (!showAllRailConnections) return [];
+    
+    const cityIds = new Set<string>();
+    railConnections.forEach(conn => {
+      cityIds.add(conn.fromCityId);
+      cityIds.add(conn.toCityId);
+    });
+    return Array.from(cityIds);
+  }, [showAllRailConnections]);
+
+  // Filter cities to show major ones, transport hubs, cities in the trip, and connected cities
   const visibleCities = useMemo(() => {
     return cities.filter(city => 
       city.isTransportHub || 
       city.population >= 1000000 || 
-      tripCityIds.includes(city.id)
+      tripCityIds.includes(city.id) ||
+      connectedCityIds.includes(city.id)
     );
-  }, [tripCityIds]);
+  }, [tripCityIds, connectedCityIds]);
 
   // Search functionality
   const handleSearch = useCallback((query: string) => {
@@ -221,6 +293,10 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
     };
   }, []);
 
+  const toggleRailConnections = useCallback(() => {
+    setShowAllRailConnections(prev => !prev);
+  }, []);
+
   return (
     <div className="relative w-full h-full">
       {/* Search input */}
@@ -258,6 +334,47 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
         )}
       </div>
 
+      {/* Toggle rail connections */}
+      <div className="absolute top-16 left-4 z-[1000] bg-white rounded-lg shadow-lg p-2">
+        <button
+          onClick={toggleRailConnections}
+          className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
+        >
+          {showAllRailConnections ? "Show Trip Lines Only" : "Show All Rail Lines"}
+        </button>
+      </div>
+
+      {/* Legend for rail speeds */}
+      <div className="absolute bottom-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-3">
+        <h3 className="text-sm font-semibold mb-2">High-speed railways</h3>
+        <div className="space-y-2 text-xs">
+          <div className="flex items-center">
+            <span className="block w-6 h-1 bg-[#8B5CF6] mr-2"></span>
+            <span>310-320 km/h</span>
+          </div>
+          <div className="flex items-center">
+            <span className="block w-6 h-1 bg-[#EF4444] mr-2"></span>
+            <span>270-300 km/h</span>
+          </div>
+          <div className="flex items-center">
+            <span className="block w-6 h-1 bg-[#F97316] mr-2"></span>
+            <span>240-260 km/h</span>
+          </div>
+          <div className="flex items-center">
+            <span className="block w-6 h-1 bg-[#FACC15] mr-2"></span>
+            <span>200-230 km/h</span>
+          </div>
+          <div className="flex items-center">
+            <span className="block w-6 h-1 bg-[#10B981] mr-2 border-b border-dashed"></span>
+            <span>Under construction</span>
+          </div>
+          <div className="flex items-center">
+            <span className="block w-6 h-1 bg-[#9CA3AF] mr-2"></span>
+            <span>Other railways (&lt; 200 km/h)</span>
+          </div>
+        </div>
+      </div>
+
       <MapContainer
         center={[48.8566, 2.3522]}
         zoom={5}
@@ -271,18 +388,25 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
+        {/* Add the rail network layer */}
+        <RailNetworkLayer 
+          showAllConnections={showAllRailConnections} 
+          tripCityIds={tripCityIds} 
+        />
+        
         {/* City markers */}
         {visibleCities.map((city) => {
           const isTripStop = tripCityIds.includes(city.id);
           const isSelected = selectedTrip && selectedTrip.stops.length > 0 
             ? selectedTrip.stops[0]?.cityId === city.id
             : false;
+          const isConnected = connectedCityIds.includes(city.id);
           
           return (
             <CircleMarker
               key={city.id}
               center={[city.coordinates.lat, city.coordinates.lng]}
-              {...getCircleStyle(city, isSelected, isTripStop)}
+              {...getCircleStyle(city, isSelected, isTripStop, isConnected)}
               eventHandlers={{
                 click: () => handleMarkerClick(city.id)
               }}
@@ -301,6 +425,9 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
                     )}
                     {isTripStop && (
                       <p className="text-sm text-amber-600 font-medium">📍 Part of Trip</p>
+                    )}
+                    {isConnected && !(city.isTransportHub || city.population >= 1000000 || isTripStop) && (
+                      <p className="text-sm text-slate-600 font-medium">🔄 Rail Connection Point</p>
                     )}
                   </div>
                   {selectedTrip && !isTripStop && (
@@ -324,10 +451,11 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
         {selectedTrip && routeCoordinates.length > 1 && (
           <Polyline
             positions={routeCoordinates}
-            color="#06D6A0"
-            weight={4}
-            opacity={0.7}
-            dashArray="10,10"
+            pathOptions={{
+              color: '#3B82F6',
+              weight: 4,
+              opacity: 1
+            }}
           />
         )}
       </MapContainer>
