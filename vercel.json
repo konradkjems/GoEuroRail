@@ -23,6 +23,9 @@
     }
   ],
   "functions": {
+    "api/**/*": {
+      "maxDuration": 60
+    }
   },
   "build": {
     "env": {
