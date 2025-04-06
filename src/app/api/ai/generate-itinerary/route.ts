@@ -125,8 +125,8 @@ async function generateItineraryWithAI(prompt: string): Promise<string> {
   // In a production environment, this would call the DeepSeek AI API
   // For now, we'll return a placeholder response
   
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // Simulate API delay - reduced from 2000ms to 500ms
+  await new Promise(resolve => setTimeout(resolve, 500));
   
   // Return a sample itinerary
   return `# ${prompt.split('\n')[2].replace('Trip Name: ', '')} - Travel Itinerary
@@ -176,13 +176,17 @@ function generateSampleItinerary(prompt: string): string {
   
   if (!cityMatches) return 'No destinations found in the itinerary.';
   
-  return cityMatches.map((cityBlock, index) => {
+  // Limit the number of days generated to avoid timeouts
+  const MAX_CITIES = 8;
+  const MAX_DAYS_PER_CITY = 2;
+  
+  return cityMatches.slice(0, MAX_CITIES).map((cityBlock, index) => {
     const cityMatch = cityBlock.match(/Stop \d+: (.*?), (.*?)\nArrival: (.*?)\nDeparture: (.*?)\nDuration: (.*?) night/);
     if (!cityMatch) return '';
     
     const [, city, country, arrival, departure, nights] = cityMatch;
     const isStopover = cityBlock.includes('(This is a short stopover)');
-    const daysCount = parseInt(nights);
+    const daysCount = Math.min(parseInt(nights), MAX_DAYS_PER_CITY);
     
     if (isStopover) {
       return `### Day ${index + 1}: ${city}, ${country} (Stopover)
@@ -192,11 +196,10 @@ function generateSampleItinerary(prompt: string): string {
 - Arrive at ${city} train station
 - Store luggage at the station lockers
 - Visit the main square for a quick orientation
-- Grab a coffee at a local café
 
 #### Afternoon
 - Visit the main attraction: Cathedral or Main Museum
-- Lunch at a local restaurant trying regional specialties
+- Lunch at a local restaurant
 - Quick souvenir shopping
 
 #### Evening
@@ -214,19 +217,16 @@ function generateSampleItinerary(prompt: string): string {
       itinerary += `#### Day ${index + day}: Exploring ${city}
 
 **Morning**
-- Breakfast at local café "Café ${city}"
-- Visit ${city} main attraction (allow 2-3 hours)
-- Explore the historic center on foot
+- Breakfast at local café
+- Visit ${city} main attraction
 
 **Afternoon**
-- Lunch at "${city} Traditional Restaurant"
-- Visit the local museum or art gallery
-- Relax at a city park or garden
+- Lunch at local restaurant
+- Visit a museum or relax in a park
 
 **Evening**
-- Dinner at "${city} Bistro" for authentic ${country} cuisine
-- Evening walk along the main promenade
-- Optional: Cultural performance or local entertainment
+- Dinner with local cuisine
+- Evening walk or entertainment
 
 `;
     }
@@ -235,4 +235,4 @@ function generateSampleItinerary(prompt: string): string {
   }).join('\n');
 }
 
-export const maxDuration = 300; // 5 minutes timeout 
+export const maxDuration = 60; // 60 seconds maximum for Vercel Hobby plan 
