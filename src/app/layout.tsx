@@ -8,9 +8,18 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: 'GoEuroRail - Plan Your European Rail Adventure',
-  description: 'Plan and organize your rail trip across Europe with GoEuroRail. Create itineraries, add stops, and visualize your journey on an interactive map.',
+  description: 'Plan your European rail journey with GoEuroRail. Explore train routes, schedules, and tickets for train travel across Europe.',
   icons: {
-    icon: '/photos/gur-logo2 icon transparent.png',
+    icon: [
+      {
+        url: '/favicon.ico',
+        sizes: '32x32',
+      },
+      {
+        url: '/icon.png',
+        sizes: '192x192',
+      }
+    ],
   },
 };
 

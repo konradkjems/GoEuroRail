@@ -51,11 +51,11 @@ function LoginForm({ onRedirectPathChange }: { onRedirectPathChange: (path: stri
   
   return (
     <>
-      {errorMessage && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
+      {errorMessage ? (
+        <div suppressHydrationWarning className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
           {errorMessage}
         </div>
-      )}
+      ) : null}
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

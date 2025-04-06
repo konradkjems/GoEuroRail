@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPinIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import Layout from '@/components/Layout';
+import LowercaseImage from '@/components/LowercaseImage';
 
 // Rail maps data
 const railMaps = [
@@ -167,7 +169,7 @@ const railMaps = [
     id: "europe-high-speed",
     name: "European High-Speed Network",
     description: "A comprehensive map of the high-speed rail corridors connecting major cities across Europe.",
-    image: "/photos/rail-maps/High_Speed_Railroad_Map_of_Europe.svg.png"
+    image: "/photos/rail-maps/high_speed_railroad_map_of_europe.svg.png"
   }
 ];
 
@@ -230,7 +232,7 @@ export default function RailMaps() {
     <div className="max-w-7xl mx-auto">
       <section className="relative">
         <div className="h-[400px] relative overflow-hidden rounded-2xl">
-          <Image
+          <LowercaseImage
             src="/photos/rail-maps/High_Speed_Railroad_Map_of_Europe.svg.png"
             alt="European High-Speed Rail Network"
             fill
@@ -296,7 +298,7 @@ export default function RailMaps() {
                     NEW
                   </div>
                 )}
-                <Image
+                <LowercaseImage
                   src={map.image}
                   alt={`${map.name} Rail Map`}
                   fill

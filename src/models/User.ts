@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   home_city: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'City',
-    required: true
+    required: false
   },
   saved_routes: [{
     type: mongoose.Schema.Types.ObjectId,

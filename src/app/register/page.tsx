@@ -49,6 +49,13 @@ function RegisterForm({ onRedirectPathChange }: { onRedirectPathChange: (path: s
       return;
     }
     
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Please enter a valid email address');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -75,10 +82,33 @@ function RegisterForm({ onRedirectPathChange }: { onRedirectPathChange: (path: s
           router.push(`/login?registered=true&redirect=${encodeURIComponent(redirectPath)}`);
         }
       } else {
-        setErrorMessage('Registration failed. The email might already be in use.');
+        // Try to determine if this is a known error (like email in use)
+        if (email.includes('@')) {
+          // Check if email domain is valid
+          const domain = email.split('@')[1];
+          if (!domain.includes('.')) {
+            setErrorMessage('Please enter a valid email address with a proper domain');
+          } else if (domain === 'gmail.com' || domain === 'yahoo.com' || domain === 'hotmail.com' || domain === 'outlook.com') {
+            setErrorMessage('Registration failed. This email might already be in use or there was a problem connecting to our service. Please try again in a moment.');
+          } else {
+            setErrorMessage('Registration failed. Please check your email address or try again later.');
+          }
+        } else {
+          setErrorMessage('Registration failed. Please try again later or contact support if the problem persists.');
+        }
       }
     } catch (error) {
-      setErrorMessage('An error occurred. Please try again.');
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('timed out')) {
+          setErrorMessage('Our service is taking longer than expected to respond. Please try again in a moment.');
+        } else if (error.message.includes('already exists')) {
+          setErrorMessage('An account with this email already exists. Please log in instead.');
+        } else {
+          setErrorMessage(`Error: ${error.message}`);
+        }
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again later.');
+      }
       console.error('Registration error:', error);
     } finally {
       setIsSubmitting(false);
@@ -87,11 +117,11 @@ function RegisterForm({ onRedirectPathChange }: { onRedirectPathChange: (path: s
   
   return (
     <>
-      {errorMessage && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
+      {errorMessage ? (
+        <div suppressHydrationWarning className="bg-red-50 text-red-600 p-3 rounded-lg mb-4">
           {errorMessage}
         </div>
-      )}
+      ) : null}
       
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
