@@ -23,7 +23,7 @@
     }
   ],
   "functions": {
-    "api/**/*.js": {
+    ".next/server/app/api/**/*": {
       "maxDuration": 60
     }
   },
