@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRightIcon, MapPinIcon, GlobeEuropeAfricaIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import LowercaseImage from "@/components/LowercaseImage";
+import { 
+  MapPinIcon, 
+  MapIcon, 
+  MagnifyingGlassIcon, 
+  ArrowRightIcon,
+  GlobeEuropeAfricaIcon 
+} from "@heroicons/react/24/outline";
 
 // Country data
 const countries = [
@@ -14,7 +20,7 @@ const countries = [
     capital: "Paris",
     language: "French",
     currency: "Euro (€)",
-    image: "/Photos/paris.jpg",
+    image: "/photos/paris.jpg",
     railNetwork: "Extensive high-speed TGV network",
     majorCities: ["Paris", "Lyon", "Marseille", "Bordeaux", "Nice"],
     mustVisit: ["Eiffel Tower", "Louvre Museum", "Mont Saint-Michel", "French Riviera", "Loire Valley Châteaux"],
@@ -32,7 +38,7 @@ const countries = [
     capital: "Rome",
     language: "Italian",
     currency: "Euro (€)",
-    image: "/Photos/rome.jpg",
+    image: "/photos/rome.jpg",
     railNetwork: "Well-connected with high-speed Frecciarossa trains",
     majorCities: ["Rome", "Florence", "Venice", "Milan", "Naples"],
     mustVisit: ["Colosseum", "Vatican City", "Venice Canals", "Florence Cathedral", "Amalfi Coast"],
@@ -50,7 +56,7 @@ const countries = [
     capital: "Berlin",
     language: "German",
     currency: "Euro (€)",
-    image: "/Photos/city walking tour.jpg",
+    image: "/photos/berlin.jpg",
     railNetwork: "Comprehensive ICE high-speed network",
     majorCities: ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"],
     mustVisit: ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral", "Black Forest", "Bavarian Alps"],
@@ -68,7 +74,7 @@ const countries = [
     capital: "Madrid",
     language: "Spanish",
     currency: "Euro (€)",
-    image: "/Photos/barcelona.jpg",
+    image: "/photos/barcelona.jpg",
     railNetwork: "Modern AVE high-speed trains",
     majorCities: ["Madrid", "Barcelona", "Seville", "Valencia", "Malaga"],
     mustVisit: ["Sagrada Familia", "Alhambra", "Plaza Mayor", "Park Güell", "Guggenheim Museum Bilbao"],
@@ -86,7 +92,7 @@ const countries = [
     capital: "Bern",
     language: "German, French, Italian, Romansh",
     currency: "Swiss Franc (CHF)",
-    image: "/Photos/alpine.jpg",
+    image: "/photos/alpine.jpg",
     railNetwork: "Comprehensive and punctual SBB network",
     majorCities: ["Zurich", "Geneva", "Bern", "Basel", "Lucerne"],
     mustVisit: ["Matterhorn", "Lake Geneva", "Swiss Alps", "Interlaken", "Rhine Falls"],
@@ -104,7 +110,7 @@ const countries = [
     capital: "Amsterdam",
     language: "Dutch",
     currency: "Euro (€)",
-    image: "/Photos/amsterdam.jpg",
+    image: "/photos/amsterdam.jpg",
     railNetwork: "Dense NS network covering the entire country",
     majorCities: ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven"],
     mustVisit: ["Amsterdam Canals", "Keukenhof Gardens", "Rijksmuseum", "Kinderdijk Windmills", "Rotterdam Architecture"],
@@ -122,7 +128,7 @@ const countries = [
     capital: "London",
     language: "English",
     currency: "Pound Sterling (£)",
-    image: "/Photos/classic-european-capitals.jpg",
+    image: "/photos/london.jpg",
     railNetwork: "Extensive network with high-speed services",
     majorCities: ["London", "Edinburgh", "Manchester", "Birmingham", "Glasgow"],
     mustVisit: ["Tower of London", "Edinburgh Castle", "Stonehenge", "Lake District", "Scottish Highlands"],
@@ -140,7 +146,7 @@ const countries = [
     capital: "Vienna",
     language: "German",
     currency: "Euro (€)",
-    image: "/Photos/bike tour.jpg",
+    image: "/photos/vienna.png",
     railNetwork: "Modern ÖBB network with efficient services",
     majorCities: ["Vienna", "Salzburg", "Innsbruck", "Graz", "Linz"],
     mustVisit: ["Schönbrunn Palace", "Historic Center of Vienna", "Salzburg Old Town", "Austrian Alps", "Hallstatt"],
@@ -189,8 +195,8 @@ export default function CountryGuides() {
     <div className="max-w-7xl mx-auto">
       <section className="relative">
         <div className="h-[400px] relative overflow-hidden rounded-2xl">
-          <Image
-            src="/Photos/classic-european-capitals.jpg"
+          <LowercaseImage
+            src="/photos/classic-european-capitals.jpg"
             alt="Map of Europe"
             fill
             style={{ objectFit: "cover" }}
@@ -248,7 +254,7 @@ export default function CountryGuides() {
               className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100"
             >
               <div className="relative h-48 w-full">
-                <Image
+                <LowercaseImage
                   src={country.image}
                   alt={country.name}
                   fill
@@ -293,6 +299,58 @@ export default function CountryGuides() {
         )}
       </section>
       
+      {/* Rail Maps Promo Section */}
+      <section className="py-8 mb-16">
+        <div className="bg-[#06D6A0]/10 rounded-xl p-8 relative overflow-hidden">
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 md:w-2/5 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#06D6A0]/10 z-10"></div>
+            <LowercaseImage 
+              src="/photos/rail-maps/High_Speed_Railroad_Map_of_Europe.svg.png"
+              alt="European High-Speed Rail Network"
+              fill
+              style={{ objectFit: "cover", objectPosition: "left" }}
+              className="opacity-40"
+            />
+          </div>
+          
+          <div className="relative z-10 max-w-3xl">
+            <div className="flex items-center mb-4">
+              <MapIcon className="h-6 w-6 text-[#06D6A0] mr-2" />
+              <h2 className="text-2xl font-bold text-[#264653]">Rail Maps Now Available</h2>
+            </div>
+            <p className="text-gray-700 mb-6">
+              Explore detailed rail maps for each country to help plan your train journey. 
+              View major routes, high-speed lines, and connections between cities to optimize your travel itinerary.
+              Our expanded collection now includes 28 maps covering almost every European country!
+            </p>
+            <div className="flex flex-wrap gap-3 mb-6">
+              {countries.slice(0, 5).map(country => (
+                <Link 
+                  key={country.id}
+                  href={`/rail-maps#${country.id}`}
+                  className="bg-white py-1 px-3 rounded-full text-sm font-medium text-[#264653] hover:bg-[#06D6A0] hover:text-white transition-colors shadow-sm"
+                >
+                  {country.name} Rail Map
+                </Link>
+              ))}
+              <Link 
+                href="/rail-maps"
+                className="bg-white py-1 px-3 rounded-full text-sm font-medium text-[#264653] hover:bg-[#06D6A0] hover:text-white transition-colors shadow-sm"
+              >
+                View All Maps →
+              </Link>
+            </div>
+            <Link
+              href="/rail-maps"
+              className="inline-flex items-center bg-[#06D6A0] hover:bg-[#05c091] text-white px-5 py-2 rounded-lg font-medium text-sm"
+            >
+              Explore All Rail Maps
+              <ArrowRightIcon className="ml-2 h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+      
       <section className="py-8 mb-16">
         <h2 className="text-3xl font-bold text-[#264653] mb-8">Rail Travel in Europe</h2>
         
@@ -330,24 +388,32 @@ export default function CountryGuides() {
       </section>
       
       <section className="py-8">
-        <div className="bg-[#264653] rounded-2xl p-8 md:p-16 flex flex-col md:flex-row items-center gap-8">
-          <div className="md:w-2/3">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Plan Your Rail Journey
-            </h2>
-            <p className="text-lg text-white/80 mb-8">
-              Ready to explore Europe by rail? Plan your perfect itinerary with our interactive trip builder and get personalized recommendations.
-            </p>
-            <Link
-              href="/trips/new"
-              className="inline-flex items-center bg-[#FFD166] hover:bg-[#FFC233] text-[#264653] px-8 py-4 rounded-lg font-medium gap-2"
-            >
-              Create Your Trip
-              <ArrowRightIcon className="w-5 h-5" />
-            </Link>
-          </div>
-          <div className="md:w-1/3 flex justify-center">
-            <GlobeEuropeAfricaIcon className="h-56 w-56 text-white/20" />
+        <div className="bg-gradient-to-r from-[#264653] to-[#2A9D8F] text-white p-8 rounded-xl relative overflow-hidden">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="md:w-2/3 relative z-10">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Planning a Rail Trip Across Europe?</h2>
+              <p className="text-lg mb-6">
+                Get personalized recommendations based on your interests, budget, and travel style.
+                Our rail pass comparison tool will help you choose the best option for your journey.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/passes"
+                  className="bg-[#FFD166] hover:bg-[#FFC233] text-[#264653] px-6 py-3 rounded-lg font-medium"
+                >
+                  Compare Rail Passes
+                </Link>
+                <Link
+                  href="/trips/new"
+                  className="bg-white hover:bg-gray-100 text-[#264653] px-6 py-3 rounded-lg font-medium"
+                >
+                  Plan a Custom Trip
+                </Link>
+              </div>
+            </div>
+            <div className="md:w-1/3 flex justify-center">
+              <GlobeEuropeAfricaIcon className="h-56 w-56 text-white/20" />
+            </div>
           </div>
         </div>
       </section>

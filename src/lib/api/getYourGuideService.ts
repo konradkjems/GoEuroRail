@@ -84,12 +84,12 @@ const saveToCache = (cacheKey: string, data: GetYourGuideActivity[]) => {
  * Local image paths for activities (using renamed photos from public folder)
  */
 const localImagePaths = {
-  eiffelTower: '/Photos/eiffel tower.jpg',       // Eiffel Tower
-  museum: '/Photos/musseum.jpg',                 // Museum/Gallery 
-  cityWalking: '/Photos/city walking tour.jpg',  // City walking tour
-  riverCruise: '/Photos/river cruise.jpg',       // River cruise
-  bikeTour: '/Photos/bike tour.jpg',             // Bike tour
-  foodTasting: '/Photos/food tasting.jpg'        // Food tasting
+  eiffelTower: '/photos/eiffel tower.jpg',       // Eiffel Tower
+  museum: '/photos/musseum.jpg',                 // Museum/Gallery 
+  cityWalking: '/photos/city walking tour.jpg',  // City walking tour
+  riverCruise: '/photos/river cruise.jpg',       // River cruise
+  bikeTour: '/photos/bike tour.jpg',             // Bike tour
+  foodTasting: '/photos/food tasting.jpg'        // Food tasting
 };
 
 /**

@@ -9,6 +9,7 @@ import SplitView from "@/components/SplitView";
 import TripItinerary from "@/components/TripItinerary";
 import dynamic from "next/dynamic";
 import { cities } from "@/lib/cities";
+import { useAuth } from "@/context/AuthContext";
 
 // Dynamically import the map component to avoid server-side rendering issues
 const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
@@ -18,12 +19,20 @@ const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
 
 export default function TripDetails({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [trip, setTrip] = useState<FormTrip | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check authentication and redirect if not logged in
   useEffect(() => {
-    if (!params.id) return;
+    if (!authLoading && !isAuthenticated) {
+      router.push(`/login?redirect=/trips/${params.id}`);
+    }
+  }, [isAuthenticated, authLoading, router, params.id]);
+
+  useEffect(() => {
+    if (!params.id || !isAuthenticated) return;
     
     // Special case for new trip
     if (params.id === 'new') {
@@ -39,7 +48,8 @@ export default function TripDetails({ params }: { params: { id: string } }) {
         endDate: nextWeek.toISOString().split('T')[0],
         notes: "",
         travelers: 1,
-        stops: []
+        stops: [],
+        userId: user?.id
       };
       
       setTrip(newTrip);
@@ -68,15 +78,21 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       const foundTrip = parsedTrips.find((t: FormTrip) => t._id === params.id);
       
       if (foundTrip) {
-        setTrip(foundTrip);
+        // Check if user owns this trip or if it's a shared trip (no userId)
+        if (!foundTrip.userId || foundTrip.userId === user?.id) {
+          setTrip(foundTrip);
+        } else {
+          // Trip belongs to another user, redirect to trips page
+          router.push('/trips');
+        }
       } else {
-        // Trip not found, redirect to trips page instead of home
+        // Trip not found, redirect to trips page
         router.push('/trips');
       }
     }
     
     setIsLoading(false);
-  }, [params.id, router]);
+  }, [params.id, router, isAuthenticated, user]);
 
   useEffect(() => {
     // Listen for addCityToTrip event

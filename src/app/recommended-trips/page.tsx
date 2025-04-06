@@ -17,7 +17,7 @@ const recommendedTrips = [
     difficulty: "Easy",
     bestSeason: "Year-round",
     highlights: ["Eiffel Tower in Paris", "Amsterdam canals", "Brandenburg Gate in Berlin", "Big Ben in London"],
-    image: "/Photos/classic-capitals.jpg",
+    image: "/photos/classic-capitals.jpg",
     rating: 4.8,
     reviews: 324,
     tags: ["Capitals", "Urban", "History", "Culture"],
@@ -39,7 +39,7 @@ const recommendedTrips = [
     difficulty: "Moderate",
     bestSeason: "Spring/Fall",
     highlights: ["Sagrada Familia in Barcelona", "French Riviera beaches", "Renaissance art in Florence", "Colosseum in Rome"],
-    image: "/Photos/barcelona.jpg",
+    image: "/photos/barcelona.jpg",
     rating: 4.7,
     reviews: 286,
     tags: ["Beach", "Food", "Art", "Culture"],
@@ -61,7 +61,7 @@ const recommendedTrips = [
     difficulty: "Moderate",
     bestSeason: "Summer/Winter",
     highlights: ["Swiss Alps", "Lake Lucerne", "Austrian Tyrol", "Salzburg Mozart sites", "Munich Oktoberfest grounds"],
-    image: "/Photos/alpine.jpg",
+    image: "/photos/alpine.jpg",
     rating: 4.9,
     reviews: 215,
     tags: ["Mountains", "Nature", "Hiking", "Scenic"],
@@ -83,7 +83,7 @@ const recommendedTrips = [
     difficulty: "Moderate",
     bestSeason: "Spring/Fall",
     highlights: ["Prague Castle", "Auschwitz Memorial", "Hungarian Parliament", "Vienna Opera House", "Zagreb Cathedral"],
-    image: "/Photos/eastern-europe.jpg",
+    image: "/photos/eastern-europe.jpg",
     rating: 4.6,
     reviews: 178,
     tags: ["History", "Culture", "Architecture", "Value"],
@@ -105,7 +105,7 @@ const recommendedTrips = [
     difficulty: "Easy",
     bestSeason: "Spring/Fall",
     highlights: ["Lisbon's historical trams", "Porto wine cellars", "Madrid's Prado Museum", "Seville's Alcázar", "Barcelona's La Rambla"],
-    image: "/Photos/iberian.jpg",
+    image: "/photos/iberian.jpg",
     rating: 4.8,
     reviews: 205,
     tags: ["Food", "Culture", "Beaches", "Architecture"],
@@ -127,7 +127,7 @@ const recommendedTrips = [
     difficulty: "Moderate",
     bestSeason: "Summer",
     highlights: ["Copenhagen's Nyhavn", "Stockholm Archipelago", "Oslo Opera House", "Bergen Fjords", "Scandinavian design"],
-    image: "/Photos/scandinavian.jpg",
+    image: "/photos/scandinavian.jpg",
     rating: 4.7,
     reviews: 142,
     tags: ["Nature", "Design", "Fjords", "Modern"],
@@ -186,7 +186,7 @@ export default function RecommendedTrips() {
       <section className="relative">
         <div className="h-[400px] relative overflow-hidden rounded-2xl">
           <Image
-            src="/Photos/classic-capitals.jpg"
+            src="/photos/classic-capitals.jpg"
             alt="European rail journey"
             fill
             style={{ objectFit: "cover" }}
@@ -365,10 +365,11 @@ export default function RecommendedTrips() {
           </div>
           <div className="md:w-1/2 relative h-64 md:h-80 w-full rounded-lg overflow-hidden">
             <Image
-              src="/Photos/custom-trip.jpg"
+              src="/photos/custom-trip.jpg"
               alt="Custom trip planning"
               fill
               style={{ objectFit: "cover" }}
+              className="brightness-[0.85]"
             />
           </div>
         </div>

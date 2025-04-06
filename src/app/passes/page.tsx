@@ -35,7 +35,7 @@ export default function Passes() {
       <section className="relative">
         <div className="h-[400px] relative overflow-hidden rounded-2xl">
           <Image
-            src="/rail-pass.jpg"
+            src="/photos/rail-pass.jpg"
             alt="European rail pass"
             fill
             style={{ objectFit: "cover" }}
@@ -61,7 +61,7 @@ export default function Passes() {
             <div className="flex items-start gap-4">
               <div className="w-24 h-24 relative flex-shrink-0">
                 <Image
-                  src="/interrail-logo.png"
+                  src="/photos/interrail-logo.png"
                   alt="Interrail Logo"
                   fill
                   style={{ objectFit: "contain" }}
@@ -91,7 +91,7 @@ export default function Passes() {
             <div className="flex items-start gap-4">
               <div className="w-24 h-24 relative flex-shrink-0">
                 <Image
-                  src="/eurail-logo.png"
+                  src="/photos/eurail-logo.png"
                   alt="Eurail Logo"
                   fill
                   style={{ objectFit: "contain" }}
@@ -375,6 +375,142 @@ export default function Passes() {
             Plan Your Trip
             <ArrowRightIcon className="w-5 h-5" />
           </Link>
+        </div>
+      </section>
+      
+      {/* Adding new purchase section */}
+      <section className="py-16 bg-gray-50 rounded-2xl">
+        <div className="max-w-5xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-[#264653] mb-6 text-center">Purchase Your Rail Pass</h2>
+          <p className="text-gray-600 text-center mb-12 max-w-3xl mx-auto">
+            Ready to start your European rail adventure? Purchase your rail pass directly from the official providers.
+            Our recommendation: {recommendedPass}.
+          </p>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Interrail Card */}
+            <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 flex flex-col">
+              <div className="w-36 h-36 relative mx-auto mb-6">
+                <Image
+                  src="/photos/interrail-logo.png"
+                  alt="Interrail Logo"
+                  fill
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-center text-[#264653]">Interrail Pass</h3>
+              <p className="text-gray-600 mb-4 text-center">
+                For European residents. Travel through up to 33 countries with flexible options.
+              </p>
+              <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                <h4 className="font-semibold text-blue-800 mb-2">Benefits:</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckIcon className="h-5 w-5 text-blue-700 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Access to trains in up to 33 European countries</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckIcon className="h-5 w-5 text-blue-700 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Flexible travel options: 4, 5, 7, 10 or 15 days within 1 or 2 months</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckIcon className="h-5 w-5 text-blue-700 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Discounts on ferries, museums, and attractions</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-auto">
+                <a 
+                  href="https://www.interrail.eu/en" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#06D6A0] hover:bg-[#05C090] text-white font-medium py-3 px-4 rounded-lg flex justify-center items-center"
+                >
+                  Buy Interrail Pass
+                  <ArrowRightIcon className="h-5 w-5 ml-2" />
+                </a>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  You will be redirected to the official Interrail website
+                </p>
+              </div>
+            </div>
+            
+            {/* Eurail Card */}
+            <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 flex flex-col">
+              <div className="w-36 h-36 relative mx-auto mb-6">
+                <Image
+                  src="/photos/eurail-logo.png"
+                  alt="Eurail Logo"
+                  fill
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-center text-[#264653]">Eurail Pass</h3>
+              <p className="text-gray-600 mb-4 text-center">
+                For non-European residents. Explore up to 33 countries with flexible travel options.
+              </p>
+              <div className="bg-red-50 p-4 rounded-lg mb-6">
+                <h4 className="font-semibold text-red-800 mb-2">Benefits:</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckIcon className="h-5 w-5 text-red-700 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Access to trains in up to 33 European countries</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckIcon className="h-5 w-5 text-red-700 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Flexible travel options: 4, 5, 7, 10, 15 days or continuous travel</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckIcon className="h-5 w-5 text-red-700 mr-2 flex-shrink-0 mt-0.5" />
+                    <span>Discounts on ferries, museums, and attractions</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-auto">
+                <a 
+                  href="https://www.eurail.com/en" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#EF476F] hover:bg-[#e13a62] text-white font-medium py-3 px-4 rounded-lg flex justify-center items-center"
+                >
+                  Buy Eurail Pass
+                  <ArrowRightIcon className="h-5 w-5 ml-2" />
+                </a>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  You will be redirected to the official Eurail website
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-12 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-[#264653] mb-4 flex items-center">
+              <CalculatorIcon className="h-5 w-5 mr-2 text-[#FFD166]" />
+              Which Pass Do I Need?
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="flex items-start">
+                <div className="bg-blue-100 p-2 rounded-full mr-3 flex-shrink-0">
+                  <span className="text-blue-800 font-bold">EU</span>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Interrail:</span> For citizens or residents of the European Union or other participating European countries.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="bg-red-100 p-2 rounded-full mr-3 flex-shrink-0">
+                  <span className="text-red-800 font-bold">Non-EU</span>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Eurail:</span> For non-European residents visiting Europe for tourism purposes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>

@@ -7,27 +7,45 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import TripForm from "@/components/TripForm";
 import { FormTrip } from "@/types";
 import { loadTrips, saveTrips } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import Layout from "@/components/Layout";
 
 export default function EditTrip({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [trip, setTrip] = useState<FormTrip | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Check authentication and redirect if not logged in
   useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push(`/login?redirect=/trips/${params.id}/edit`);
+    }
+  }, [isAuthenticated, authLoading, router, params.id]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
     // Load trip data
     const trips = loadTrips();
     const foundTrip = trips.find((t: FormTrip) => t._id === params.id);
     
     if (foundTrip) {
-      setTrip(foundTrip);
+      // Check if user owns this trip
+      if (!foundTrip.userId || foundTrip.userId === user?.id) {
+        setTrip(foundTrip);
+      } else {
+        // Trip belongs to another user, redirect to trips page
+        router.push('/trips');
+      }
     } else {
-      // Trip not found, redirect to home
-      router.push("/");
+      // Trip not found, redirect to trips page
+      router.push("/trips");
     }
     
     setIsLoading(false);
-  }, [params.id, router]);
+  }, [params.id, router, isAuthenticated, user]);
 
   const handleSubmit = (formData: FormTrip) => {
     if (!trip) return;
@@ -58,7 +76,8 @@ export default function EditTrip({ params }: { params: { id: string } }) {
               nights: stop.nights || 1,
               accommodation: stop.accommodation || '',
               notes: stop.notes || ''
-            }))
+            })),
+          userId: user?.id // Ensure the user ID is set
         };
         
         // Update the trip in the array
@@ -78,33 +97,49 @@ export default function EditTrip({ params }: { params: { id: string } }) {
     }
   };
 
-  if (isLoading) {
-    return <div className="text-center py-12">Loading...</div>;
+  if (authLoading || isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#06D6A0] mx-auto"></div>
+            <p className="mt-4 text-[#264653]">Loading...</p>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   if (!trip) {
-    return <div className="text-center py-12">Trip not found</div>;
+    return (
+      <Layout>
+        <div className="text-center py-12">Trip not found</div>
+      </Layout>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center mb-6">
-        <Link 
-          href={`/trips/${trip._id}`}
-          className="flex items-center text-blue-600 hover:text-blue-800"
-        >
-          <ArrowLeftIcon className="h-4 w-4 mr-1" />
-          Back to Trip Details
-        </Link>
+    <Layout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="flex items-center mb-6">
+          <Link 
+            href={`/trips/${trip._id}`}
+            className="flex items-center text-[#264653] hover:text-[#06D6A0]"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-1" />
+            Back to Trip Details
+          </Link>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-[#264653] mb-6">Edit Trip</h1>
+          <TripForm 
+            initialData={trip} 
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
+        </div>
       </div>
-      
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Trip</h1>
-        <TripForm 
-          initialData={trip} 
-          onSubmit={handleSubmit} 
-        />
-      </div>
-    </div>
+    </Layout>
   );
 } 

@@ -16,49 +16,77 @@ import {
 } from "@heroicons/react/24/outline";
 import { formatDate } from "@/lib/utils";
 import { cities } from "@/lib/cities";
+import { useAuth } from "@/context/AuthContext";
 
 // Map city IDs to their corresponding local photos
 const cityImages: Record<string, string> = {
-  paris: "/Photos/paris.jpg",
-  rome: "/Photos/rome.jpg",
-  barcelona: "/Photos/barcelona.jpg",
-  amsterdam: "/Photos/amsterdam.jpg",
+  paris: "/photos/paris.jpg",
+  rome: "/photos/rome.jpg",
+  barcelona: "/photos/barcelona.jpg",
+  amsterdam: "/photos/amsterdam.jpg",
   // Add more cities as photos become available
 };
 
 // Default image for trips
-const DEFAULT_TRIP_IMAGE = "/Photos/classic-capitals.jpg";
+const DEFAULT_TRIP_IMAGE = "/photos/classic-capitals.jpg";
 
 export default function TripsPage() {
   const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [trips, setTrips] = useState<FormTrip[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
+  // Check authentication and redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login?redirect=/trips');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
   // Load trips from localStorage
   useEffect(() => {
+    if (!isAuthenticated) return; // Only load trips when authenticated
+    
     setIsClient(true);
     const savedTrips = localStorage.getItem('trips');
     if (savedTrips) {
       try {
         const parsedTrips = JSON.parse(savedTrips);
-        setTrips(parsedTrips);
+        // Only show trips for the current user
+        const userTrips = parsedTrips.filter((trip: FormTrip) => 
+          trip.userId === user?.id || !trip.userId
+        );
+        setTrips(userTrips);
       } catch (error) {
         console.error("Error parsing trips:", error);
       }
     }
-  }, []);
+  }, [isAuthenticated, user]);
 
   // Handle trip deletion
   const handleDeleteTrip = (id: string) => {
     if (confirm("Are you sure you want to delete this trip? This action cannot be undone.")) {
       setIsDeleting(id);
       
-      const updatedTrips = trips.filter(trip => trip._id !== id);
-      setTrips(updatedTrips);
+      // Get all trips first
+      const savedTrips = localStorage.getItem('trips');
+      let allTrips: FormTrip[] = [];
+      if (savedTrips) {
+        allTrips = JSON.parse(savedTrips);
+      }
       
-      // Update localStorage
-      localStorage.setItem('trips', JSON.stringify(updatedTrips));
+      // Filter out the deleted trip
+      const updatedAllTrips = allTrips.filter(trip => trip._id !== id);
+      
+      // Update localStorage with all trips
+      localStorage.setItem('trips', JSON.stringify(updatedAllTrips));
+      
+      // Update state with user's trips
+      const userTrips = updatedAllTrips.filter((trip: FormTrip) => 
+        trip.userId === user?.id || !trip.userId
+      );
+      setTrips(userTrips);
       setIsDeleting(null);
     }
   };

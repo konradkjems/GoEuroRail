@@ -10,8 +10,15 @@ import { useRouter } from "next/navigation";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { cities } from "@/lib/cities";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRightIcon, GlobeEuropeAfricaIcon, MapIcon, TicketIcon, StarIcon } from "@heroicons/react/24/outline";
+import LowercaseImage from "@/components/LowercaseImage";
+import {
+  ArrowRightIcon,
+  StarIcon,
+  CheckIcon,
+  MapIcon,
+  TicketIcon,
+  GlobeEuropeAfricaIcon
+} from "@heroicons/react/24/outline";
 
 // Dynamically import the map component to avoid server-side rendering issues
 const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
@@ -25,8 +32,8 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative">
         <div className="h-[600px] relative overflow-hidden rounded-2xl">
-          <Image
-            src="/Photos/classic-capitals.jpg"
+          <LowercaseImage
+            src="/photos/classic-capitals.jpg"
             alt="European railway scene"
             fill
             style={{ objectFit: "cover" }}
@@ -127,8 +134,8 @@ export default function Home() {
               href={`/country-guides/${item.country}`}
               className="group relative h-72 overflow-hidden rounded-xl"
             >
-              <Image
-                src={`/Photos/${item.city.toLowerCase()}.jpg`}
+              <LowercaseImage
+                src={`/photos/${item.city.toLowerCase()}.jpg`}
                 alt={item.city}
                 fill
                 style={{ objectFit: "cover" }}
@@ -141,6 +148,70 @@ export default function Home() {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Rail Maps Feature */}
+      <section className="py-12 bg-gray-50 rounded-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-[#264653] mb-4">
+                Plan Your Route with Rail Maps
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Explore our comprehensive collection of European railway maps. 
+                See high-speed routes, regional connections, and plan the perfect 
+                train journey with detailed rail network information.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-[#06D6A0] flex items-center justify-center mt-1 mr-3">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-gray-700">View detailed rail maps for each country</p>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-[#06D6A0] flex items-center justify-center mt-1 mr-3">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-gray-700">Identify high-speed and regional train routes</p>
+                </div>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-[#06D6A0] flex items-center justify-center mt-1 mr-3">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <p className="text-gray-700">Plan connections between major European cities</p>
+                </div>
+              </div>
+              <div className="mt-8">
+                <Link
+                  href="/rail-maps"
+                  className="inline-flex items-center bg-[#06D6A0] hover:bg-[#05c091] text-white px-6 py-3 rounded-lg font-medium"
+                >
+                  Explore Rail Maps
+                  <MapIcon className="ml-2 h-5 w-5" />
+                </Link>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
+                <LowercaseImage
+                  src="/photos/rail-maps/High_Speed_Railroad_Map_of_Europe.svg.png"
+                  alt="European High-Speed Rail Network Map"
+                  fill
+                  style={{ objectFit: "cover" }}
+                  className="hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-[#FFD166] rounded-lg shadow-md flex items-center justify-center p-4 border-4 border-white">
+                <div className="text-center">
+                  <p className="text-sm font-bold text-[#264653]">27MAPS</p>
+                  <p className="text-xs text-[#264653]/80">Now Available</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -165,21 +236,21 @@ export default function Home() {
               title: "Classic European Capitals",
               duration: "14 days",
               cities: ["London", "Paris", "Brussels", "Amsterdam", "Berlin"],
-              image: "/Photos/classic-capitals.jpg",
+              image: "/photos/classic-capitals.jpg",
               id: "classic-european-capitals"
             },
             {
               title: "Mediterranean Explorer",
               duration: "12 days",
               cities: ["Barcelona", "Marseille", "Nice", "Florence", "Rome"],
-              image: "/Photos/barcelona.jpg",
+              image: "/photos/barcelona.jpg",
               id: "mediterranean-explorer"
             },
             {
               title: "Alpine Adventure",
               duration: "10 days",
               cities: ["Zurich", "Lucerne", "Interlaken", "Geneva", "Lyon"],
-              image: "/Photos/alpine.jpg",
+              image: "/photos/alpine.jpg",
               id: "alpine-adventure"
             }
           ].map((trip, index) => (
@@ -189,7 +260,7 @@ export default function Home() {
               className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
             >
               <div className="h-48 relative overflow-hidden">
-                <Image
+                <LowercaseImage
                   src={trip.image}
                   alt={trip.title}
                   fill
@@ -213,6 +284,96 @@ export default function Home() {
               </div>
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Rail Pass CTA Section */}
+      <section className="py-16">
+        <div className="bg-gradient-to-r from-[#06D6A0] to-[#1A9E81] rounded-2xl overflow-hidden relative">
+          <div className="absolute inset-0 opacity-10">
+            <LowercaseImage
+              src="/photos/rail-pass.jpg"
+              alt="European rail pass"
+              fill
+              style={{ objectFit: "cover" }}
+            />
+          </div>
+          <div className="relative p-8 md:p-16 grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Explore Europe with a Rail Pass
+              </h2>
+              <p className="text-white/90 text-lg mb-6">
+                Get unlimited travel across 33 countries with Interrail and Eurail passes. Enjoy flexibility, 
+                convenience, and the scenic beauty of Europe by train.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href="https://www.interrail.eu/en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white hover:bg-gray-100 text-[#264653] px-6 py-3 rounded-lg font-medium text-center flex items-center justify-center gap-2"
+                >
+                  <span>Buy Interrail Pass</span>
+                  <span className="text-xs">(EU residents)</span>
+                </a>
+                <a
+                  href="https://www.eurail.com/en"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#264653] hover:bg-[#1d3640] text-white px-6 py-3 rounded-lg font-medium text-center flex items-center justify-center gap-2"
+                >
+                  <span>Buy Eurail Pass</span>
+                  <span className="text-xs">(non-EU residents)</span>
+                </a>
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+              <h3 className="text-xl font-semibold text-white mb-4">Rail Pass Benefits</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <div className="bg-white/20 p-1 rounded-full mr-3 flex-shrink-0 mt-1">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-white/90">Unlimited travel on train networks across Europe</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="bg-white/20 p-1 rounded-full mr-3 flex-shrink-0 mt-1">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-white/90">Flexible options for different travel durations</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="bg-white/20 p-1 rounded-full mr-3 flex-shrink-0 mt-1">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-white/90">Discounts on ferries, museums, and attractions</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="bg-white/20 p-1 rounded-full mr-3 flex-shrink-0 mt-1">
+                    <CheckIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-white/90">Freedom to create your own custom itinerary</span>
+                </li>
+              </ul>
+              <div className="mt-4 text-center">
+                <Link 
+                  href="/passes" 
+                  className="text-white hover:text-[#FFD166] font-medium inline-flex items-center mr-6"
+                >
+                  Compare all rail passes
+                  <ArrowRightIcon className="w-4 h-4 ml-1" />
+                </Link>
+                <Link 
+                  href="/rail-maps" 
+                  className="text-white hover:text-[#FFD166] font-medium inline-flex items-center"
+                >
+                  View rail maps
+                  <MapIcon className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

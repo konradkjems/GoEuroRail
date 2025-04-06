@@ -41,6 +41,7 @@ export interface FormTrip {
   notes?: string;
   travelers?: number;
   stops: FormTripStop[];
+  userId?: string;
 }
 
 // Database interfaces (used in API and database operations)

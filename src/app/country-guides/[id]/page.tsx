@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import LowercaseImage from "@/components/LowercaseImage";
 import { useRouter } from "next/navigation";
 import { 
   ArrowLeftIcon,
@@ -14,7 +14,10 @@ import {
   GlobeEuropeAfricaIcon,
   InformationCircleIcon,
   ArrowRightIcon,
-  RocketLaunchIcon
+  RocketLaunchIcon,
+  ArrowTopRightOnSquareIcon,
+  ChevronRightIcon,
+  ClockIcon
 } from "@heroicons/react/24/outline";
 
 // Country data
@@ -26,8 +29,9 @@ const countries = [
     capital: "Paris",
     language: "French",
     currency: "Euro (€)",
-    image: "/Photos/paris.jpg",
+    image: "/photos/paris.jpg",
     railNetwork: "Extensive high-speed TGV network",
+    railMap: "/photos/rail-maps/France-map.jpg",
     majorCities: ["Paris", "Lyon", "Marseille", "Bordeaux", "Nice"],
     mustVisit: ["Eiffel Tower", "Louvre Museum", "Mont Saint-Michel", "French Riviera", "Loire Valley Châteaux"],
     travelTips: [
@@ -44,8 +48,9 @@ const countries = [
     capital: "Rome",
     language: "Italian",
     currency: "Euro (€)",
-    image: "/Photos/rome.jpg",
+    image: "/photos/rome.jpg",
     railNetwork: "Well-connected with high-speed Frecciarossa trains",
+    railMap: "/photos/rail-maps/Italy-Map.jpg",
     majorCities: ["Rome", "Florence", "Venice", "Milan", "Naples"],
     mustVisit: ["Colosseum", "Vatican City", "Venice Canals", "Florence Cathedral", "Amalfi Coast"],
     travelTips: [
@@ -62,8 +67,9 @@ const countries = [
     capital: "Berlin",
     language: "German",
     currency: "Euro (€)",
-    image: "/Photos/city walking tour.jpg",
+    image: "/photos/city walking tour.jpg",
     railNetwork: "Comprehensive ICE high-speed network",
+    railMap: "/photos/rail-maps/Germany-mainlines-map.jpg",
     majorCities: ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne"],
     mustVisit: ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral", "Black Forest", "Bavarian Alps"],
     travelTips: [
@@ -80,8 +86,9 @@ const countries = [
     capital: "Madrid",
     language: "Spanish",
     currency: "Euro (€)",
-    image: "/Photos/barcelona.jpg",
+    image: "/photos/barcelona.jpg",
     railNetwork: "Modern AVE high-speed trains",
+    railMap: "/photos/rail-maps/Spain-map.jpg",
     majorCities: ["Madrid", "Barcelona", "Seville", "Valencia", "Malaga"],
     mustVisit: ["Sagrada Familia", "Alhambra", "Plaza Mayor", "Park Güell", "Guggenheim Museum Bilbao"],
     travelTips: [
@@ -98,8 +105,9 @@ const countries = [
     capital: "Bern",
     language: "German, French, Italian, Romansh",
     currency: "Swiss Franc (CHF)",
-    image: "/Photos/alpine.jpg",
+    image: "/photos/alpine.jpg",
     railNetwork: "Comprehensive and punctual SBB network",
+    railMap: "/photos/rail-maps/Switzerland-map.jpg",
     majorCities: ["Zurich", "Geneva", "Bern", "Basel", "Lucerne"],
     mustVisit: ["Matterhorn", "Lake Geneva", "Swiss Alps", "Interlaken", "Rhine Falls"],
     travelTips: [
@@ -116,8 +124,9 @@ const countries = [
     capital: "Amsterdam",
     language: "Dutch",
     currency: "Euro (€)",
-    image: "/Photos/amsterdam.jpg",
+    image: "/photos/amsterdam.jpg",
     railNetwork: "Dense NS network covering the entire country",
+    railMap: "/photos/rail-maps/netherlands-map.png",
     majorCities: ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven"],
     mustVisit: ["Amsterdam Canals", "Keukenhof Gardens", "Rijksmuseum", "Kinderdijk Windmills", "Rotterdam Architecture"],
     travelTips: [
@@ -134,8 +143,9 @@ const countries = [
     capital: "London",
     language: "English",
     currency: "Pound Sterling (£)",
-    image: "/Photos/classic-capitals.jpg",
+    image: "/photos/classic-capitals.jpg",
     railNetwork: "Extensive network with high-speed services",
+    railMap: "/photos/rail-maps/uk-map.png",
     majorCities: ["London", "Edinburgh", "Manchester", "Birmingham", "Glasgow"],
     mustVisit: ["Tower of London", "Edinburgh Castle", "Stonehenge", "Lake District", "Scottish Highlands"],
     travelTips: [
@@ -152,8 +162,9 @@ const countries = [
     capital: "Vienna",
     language: "German",
     currency: "Euro (€)",
-    image: "/Photos/bike tour.jpg",
+    image: "/photos/vienna.png",
     railNetwork: "Modern ÖBB network with efficient services",
+    railMap: "/photos/rail-maps/Austria-map.jpg",
     majorCities: ["Vienna", "Salzburg", "Innsbruck", "Graz", "Linz"],
     mustVisit: ["Schönbrunn Palace", "Historic Center of Vienna", "Salzburg Old Town", "Austrian Alps", "Hallstatt"],
     travelTips: [
@@ -164,6 +175,16 @@ const countries = [
     ]
   }
 ];
+
+// Add a function to get the rail map with a fallback
+const getRailMap = (country: any) => {
+  if (country.railMap) {
+    return country.railMap;
+  }
+  
+  // European rail network map as fallback
+  return "/photos/rail-maps/lna1ntnpv6ia1.png";
+};
 
 export default function CountryDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -206,13 +227,12 @@ export default function CountryDetail({ params }: { params: { id: string } }) {
       </div>
     );
   }
-
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
       {/* Back button */}
       <div className="mb-6">
         <Link 
-          href="/country-guides" 
+          href="/country-guides"
           className="inline-flex items-center text-[#264653] hover:text-[#06D6A0] transition-colors"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-2" />
@@ -222,7 +242,7 @@ export default function CountryDetail({ params }: { params: { id: string } }) {
 
       {/* Hero section */}
       <div className="relative h-[500px] rounded-2xl overflow-hidden mb-8">
-        <Image
+        <LowercaseImage
           src={country.image}
           alt={country.name}
           fill
@@ -263,6 +283,31 @@ export default function CountryDetail({ params }: { params: { id: string } }) {
               <h2 className="text-2xl font-bold text-[#264653]">Rail Network</h2>
             </div>
             <p className="text-gray-700 mb-4">{country.railNetwork}</p>
+            
+            {/* Add rail map preview */}
+            <div className="relative h-48 w-full rounded-lg overflow-hidden mb-4 border border-gray-100">
+              <LowercaseImage
+                src={getRailMap(country)}
+                alt={`${country.name} Rail Network Map`}
+                fill
+                style={{ objectFit: "cover" }}
+                className="hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                <div className="p-4 w-full">
+                  <a 
+                    href={getRailMap(country)}
+                    target="_blank"
+                    rel="noopener noreferrer" 
+                    className="text-white hover:text-[#06D6A0] font-medium text-sm flex items-center justify-center bg-black/30 backdrop-blur-sm py-2 px-3 rounded-md"
+                  >
+                    Click to view full map
+                    <ArrowRightIcon className="w-4 h-4 ml-1" />
+                  </a>
+                </div>
+              </div>
+            </div>
+            
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-semibold text-[#264653] mb-2">Rail Pass Options:</h3>
               <ul className="list-disc pl-5 text-gray-700 space-y-1">
@@ -376,116 +421,50 @@ export default function CountryDetail({ params }: { params: { id: string } }) {
               >
                 Create a Custom Trip
               </Link>
-              <a
-                href="#"
-                className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-[#264653] font-medium py-3 px-4 rounded-lg flex justify-center items-center"
-                onClick={(e) => {
-                  e.preventDefault();
-                  alert(`${country.name} Rail Map has been downloaded.`);
-                }}
-              >
-                Download Rail Map
-              </a>
-            </div>
-          </div>
-          
-          {/* Related Countries */}
-          <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-[#264653] mb-4">Nearby Countries</h3>
-            
-            <div className="space-y-3">
-              {countries
-                .filter(c => c.id !== country.id)
-                .slice(0, 3)
-                .map(relatedCountry => (
-                  <Link
-                    key={relatedCountry.id}
-                    href={`/country-guides/${relatedCountry.id}`}
-                    className="flex items-center p-2 hover:bg-gray-50 rounded-lg"
-                  >
-                    <div className="w-12 h-12 relative rounded-full overflow-hidden mr-3 flex-shrink-0">
-                      <Image
-                        src={relatedCountry.image}
-                        alt={relatedCountry.name}
-                        fill
-                        style={{ objectFit: "cover" }}
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-[#264653]">{relatedCountry.name}</h4>
-                      <p className="text-gray-500 text-sm">{relatedCountry.capital}</p>
-                    </div>
-                    <ArrowRightIcon className="h-4 w-4 text-gray-400 ml-auto" />
-                  </Link>
-                ))
-              }
               
-              <Link 
-                href="/country-guides" 
-                className="text-[#06D6A0] hover:text-[#05c091] font-medium flex items-center justify-center mt-4"
+              {/* Add links to purchase rail passes */}
+              {country.id === "uk" ? (
+                <a
+                  href="https://www.britrail.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#264653] hover:bg-[#1d3640] text-white font-medium py-3 px-4 rounded-lg flex justify-center items-center mt-3"
+                >
+                  Buy BritRail Pass
+                </a>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <a
+                    href="https://www.interrail.eu/en"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#264653] hover:bg-[#1d3640] text-white font-medium py-3 px-2 rounded-lg flex justify-center items-center text-sm"
+                  >
+                    Buy Interrail Pass
+                  </a>
+                  <a
+                    href="https://www.eurail.com/en"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-[#EF476F] hover:bg-[#e13a62] text-white font-medium py-3 px-2 rounded-lg flex justify-center items-center text-sm"
+                  >
+                    Buy Eurail Pass
+                  </a>
+                </div>
+              )}
+              
+              <a
+                href={getRailMap(country)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-[#264653] font-medium py-3 px-4 rounded-lg flex justify-center items-center mt-3"
               >
-                View All Countries
-                <ArrowRightIcon className="h-4 w-4 ml-1" />
-              </Link>
+                View Rail Map
+              </a>
             </div>
           </div>
         </div>
       </div>
-      
-      {/* Popular train routes */}
-      <section className="mt-12 bg-white p-6 rounded-xl shadow-sm">
-        <h2 className="text-2xl font-bold text-[#264653] mb-6">Popular Train Routes in {country.name}</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {generatePopularRoutes(country.majorCities).map((route, index) => (
-            <div key={index} className="border border-gray-100 rounded-lg p-4 hover:shadow-sm transition-shadow">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-[#264653]">{route.from} to {route.to}</h3>
-                <span className="text-[#06D6A0] font-medium">{route.duration}</span>
-              </div>
-              <div className="flex items-center text-gray-600 text-sm">
-                <RocketLaunchIcon className="h-4 w-4 mr-1" />
-                <span>{route.trainType}</span>
-                <span className="mx-2">•</span>
-                <span>{route.frequency}</span>
-              </div>
-              <div className="mt-3 text-sm text-gray-700">
-                {route.note}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
-
-// Helper function to generate popular routes between cities
-function generatePopularRoutes(cities: string[]) {
-  const routes = [];
-  
-  // Generate routes between the first 3-4 most important cities
-  const mainCities = cities.slice(0, Math.min(4, cities.length));
-  
-  for (let i = 0; i < mainCities.length; i++) {
-    for (let j = i + 1; j < mainCities.length; j++) {
-      const hours = Math.floor(Math.random() * 4) + 1; // 1-5 hours
-      const minutes = Math.floor(Math.random() * 60); // 0-59 minutes
-      
-      routes.push({
-        from: mainCities[i],
-        to: mainCities[j],
-        duration: `${hours}h ${minutes < 10 ? '0' + minutes : minutes}m`,
-        trainType: ["High-speed", "Regional", "InterCity"][Math.floor(Math.random() * 3)],
-        frequency: ["Hourly", "Every 2 hours", "4-5 times daily"][Math.floor(Math.random() * 3)],
-        note: ["Reservation required", "Scenic route", "No reservation needed", "Popular route - book early"][Math.floor(Math.random() * 4)]
-      });
-      
-      // Don't generate too many routes
-      if (routes.length >= 4) break;
-    }
-    if (routes.length >= 4) break;
-  }
-  
-  return routes;
-} 

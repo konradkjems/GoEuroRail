@@ -8,6 +8,7 @@ import SplitView from "@/components/SplitView";
 import { cities } from "@/lib/cities";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useAuth } from "@/context/AuthContext";
 import { 
   PlusIcon, 
   TrashIcon, 
@@ -28,6 +29,7 @@ const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
 
 export default function NewTrip() {
   const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [isClient, setIsClient] = useState(false);
   const [selectedCities, setSelectedCities] = useState<City[]>([]);
   
@@ -38,6 +40,13 @@ export default function NewTrip() {
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+
+  // Check authentication and redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login?redirect=/trips/new');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   // Initialize dates
   useEffect(() => {
@@ -136,7 +145,8 @@ export default function NewTrip() {
       endDate,
       travelers,
       notes,
-      stops
+      stops,
+      userId: user?.id, // Associate trip with the current user
     };
     
     // Save to localStorage
