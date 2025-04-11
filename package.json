@@ -10,7 +10,8 @@
     "lint": "next lint",
     "seed": "node src/scripts/seedDatabase.cjs",
     "clean": "rimraf .next && rimraf node_modules/.cache",
-    "process-cities": "node --loader ts-node/esm src/scripts/processCities.ts"
+    "process-cities": "node --loader ts-node/esm src/scripts/processCities.ts",
+    "delete-russian-cities": "node src/scripts/deleteRussianCities.js"
   },
   "dependencies": {
     "@changey/react-leaflet-markercluster": "^4.0.0-rc1",

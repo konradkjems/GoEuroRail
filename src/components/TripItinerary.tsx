@@ -963,7 +963,7 @@ export default function TripItinerary({
                           onClick={() => setNewDestination(city.id)}
                         >
                           <div>
-                            <div className="font-medium">{city.name}</div>
+                            <div className="font-medium text-black">{city.name}</div>
                             <div className="text-xs text-gray-500">{city.country}</div>
             </div>
                           {city.id === newDestination && <CheckIcon className="h-4 w-4 text-[#06D6A0]" />}

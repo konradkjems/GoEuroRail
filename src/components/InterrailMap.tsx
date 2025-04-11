@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { City, Trip, FormTrip } from "@/types";
 import dynamic from "next/dynamic";
 import L from "leaflet";
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { railConnections, getRailSpeedColor, getRailSpeedDash, getConnectionsForTrip } from "@/lib/railConnections";
 
 // Fix for default marker icons with webpack
@@ -144,7 +144,7 @@ const CityInfoModal: React.FC<CityInfoModalProps> = ({ city, onClose, onAddToTri
             Close
           </button>
           
-          {!isInTrip && onAddToTrip && (
+          {!isInTrip && (
             <button 
               onClick={onAddToTrip}
               className="px-4 py-2 bg-[#06D6A0] text-white rounded hover:bg-[#05C090]"
@@ -157,52 +157,6 @@ const CityInfoModal: React.FC<CityInfoModalProps> = ({ city, onClose, onAddToTri
     </div>
   );
 };
-
-// Get circle style based on city properties
-function getCircleStyle(city: City, isSelected: boolean, isInTrip: boolean, isConnected = false) {
-  // Base size determined by city importance
-  let baseRadius;
-  
-  if (isConnected && !city.isTransportHub && city.population < 1000000 && !isInTrip && !isSelected) {
-    // Smaller size for rail-connected cities that aren't otherwise important
-    baseRadius = 4;
-  } else {
-    baseRadius = city.size === 'large' ? 14 : city.size === 'medium' ? 10 : 7;
-  }
-  
-  // Modern color palette with white borders
-  const colors = {
-    default: { fill: '#10B981', stroke: '#FFFFFF' },         // Regular cities: Green
-    selected: { fill: '#EF4444', stroke: '#FFFFFF' },        // Selected: Red
-    inTrip: { fill: '#F59E0B', stroke: '#FFFFFF' },          // In trip: Amber
-    majorCity: { fill: '#6366F1', stroke: '#FFFFFF' },       // Major cities: Indigo
-    transportHub: { fill: '#8B5CF6', stroke: '#FFFFFF' },    // Transport hubs: Purple
-    connectedCity: { fill: '#94A3B8', stroke: '#FFFFFF' }    // Rail connected: Slate
-  };
-
-  let style = colors.default;
-  if (isSelected) {
-    style = colors.selected;
-  } else if (isInTrip) {
-    style = colors.inTrip;
-  } else if (city.isTransportHub) {
-    style = colors.transportHub;
-  } else if (city.population >= 1000000) {
-    style = colors.majorCity;
-  } else if (isConnected) {
-    style = colors.connectedCity;
-  }
-
-  return {
-    radius: baseRadius,
-    fillColor: style.fill,
-    color: style.stroke,
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.9,
-    className: isSelected ? 'pulse-marker' : ''
-  };
-}
 
 // Add CSS for pulsing animation to the top of the file
 const pulsingCSS = `
@@ -265,6 +219,8 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<City[]>([]);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(5);
+  const mapRef = useRef<L.Map | null>(null);
   
   // Get trip city IDs to highlight them on the map
   const tripCityIds = selectedTrip?.stops.map(stop => stop.cityId) || [];
@@ -284,15 +240,95 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
     return Array.from(cityIds);
   }, [showAllRailConnections]);
 
-  // Filter cities to show major ones, transport hubs, cities in the trip, and connected cities
+  // Filter cities based on zoom level and importance
   const visibleCities = useMemo(() => {
-    return cities.filter(city => 
-      city.isTransportHub || 
-      city.population >= 1000000 || 
-      tripCityIds.includes(city.id) ||
-      connectedCityIds.includes(city.id)
-    );
-  }, [tripCityIds, connectedCityIds]);
+    return cities.filter(city => {
+      // Always show cities in the trip
+      if (tripCityIds.includes(city.id)) return true;
+
+      // Always show Nice and Monaco
+      if (city.id === 'nice' || city.id === 'monaco') return true;
+
+      // Show all cities when zoomed in close (zoom level >= 8)
+      if (zoomLevel >= 8) {
+        return city.population >= 20000;
+      }
+
+      // Show medium and large cities when moderately zoomed (zoom level >= 6)
+      if (zoomLevel >= 6) {
+        return city.isTransportHub || city.population >= 50000;
+      }
+
+      // Show only major cities and transport hubs when zoomed out
+      return city.isTransportHub || city.population >= 300000;
+    });
+  }, [tripCityIds, zoomLevel]);
+
+  // Add zoom event listener
+  useEffect(() => {
+    if (mapRef.current) {
+      const map = mapRef.current;
+      const handleZoom = () => {
+        setZoomLevel(map.getZoom());
+      };
+      
+      map.on('zoomend', handleZoom);
+      return () => {
+        map.off('zoomend', handleZoom);
+      };
+    }
+  }, []);
+
+  // Get circle style based on city properties and zoom level
+  function getCircleStyle(city: City, isSelected: boolean, isInTrip: boolean) {
+    // Base size determined by city importance and zoom level
+    let baseRadius;
+    
+    if (city.population >= 2000000) {
+      baseRadius = Math.max(8, 14 * (zoomLevel / 5)); // Scale with zoom for major cities
+    } else if (city.isTransportHub) {
+      baseRadius = Math.max(6, 12 * (zoomLevel / 5)); // Scale with zoom for transport hubs
+    } else if (city.population >= 1000000) {
+      baseRadius = Math.max(4, 8 * (zoomLevel / 5)); // Scale with zoom for large cities
+    } else if (city.population >= 100000) {
+      baseRadius = Math.max(2, 4 * (zoomLevel / 5)); // Scale with zoom for smaller cities
+    } else {
+      baseRadius = Math.max(1, 3 * (zoomLevel / 5)); // Scale with zoom for very small cities
+    }
+    
+    // Modern color palette with white borders
+    const colors = {
+      default: { fill: '#10B981', stroke: '#FFFFFF' },         // Regular cities: Green
+      selected: { fill: '#EF4444', stroke: '#FFFFFF' },        // Selected: Red
+      inTrip: { fill: '#F59E0B', stroke: '#FFFFFF' },          // In trip: Amber
+      majorCity: { fill: '#6366F1', stroke: '#FFFFFF' },       // Major cities: Indigo
+      transportHub: { fill: '#8B5CF6', stroke: '#FFFFFF' },    // Transport hubs: Purple
+      smallCity: { fill: '#94A3B8', stroke: '#FFFFFF' }        // Small cities: Grey
+    };
+
+    let style = colors.default;
+    if (isSelected) {
+      style = colors.selected;
+    } else if (isInTrip) {
+      style = colors.inTrip;
+    } else if (city.isTransportHub) {
+      style = colors.transportHub;
+    } else if (city.population >= 2000000) {
+      style = colors.majorCity;
+    } else if (city.population >= 100000) {
+      style = colors.smallCity;
+    }
+
+    return {
+      radius: baseRadius,
+      fillColor: style.fill,
+      color: style.stroke,
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9,
+      className: isSelected ? 'pulse-marker' : ''
+    };
+  }
 
   // Search functionality
   const handleSearch = useCallback((query: string) => {
@@ -326,15 +362,20 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
     }
   };
 
-  const handleAddToTrip = (cityId: string) => {
-    window.dispatchEvent(new CustomEvent('addCityToTrip', { detail: { cityId } }));
-    setSelectedCity(null);
-  };
-
   const handleCitySelect = (city: City) => {
-    setSelectedCity(city);
+    // Close the search UI
     setSearchQuery("");
     setSearchResults([]);
+    
+    // Show the city info modal
+    setSelectedCity(city);
+  };
+
+  const handleAddToTrip = (cityId: string) => {
+    if (onCityClick) {
+      onCityClick(cityId);
+      setSelectedCity(null);
+    }
   };
 
   // Add style tag for pulsing animation
@@ -367,11 +408,11 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
             {searchResults.map(city => (
               <button
                 key={city.id}
-                className="w-full px-3 py-2 text-left hover:bg-gray-100 focus:outline-none"
+                className="w-full px-3 py-2 text-left hover:bg-gray-100 focus:outline-none text-gray-900"
                 onClick={() => handleCitySelect(city)}
               >
                 <div>
-                  <span className="font-medium">{city.name}</span>
+                  <span className="font-medium text-gray-900">{city.name}</span>
                   <span className="text-sm text-gray-600 ml-2">{city.country}</span>
                 </div>
                 <div className="text-xs space-x-2">
@@ -435,6 +476,7 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
         style={{ height: "100%", width: "100%" }}
         className={`${className || ""}`}
         zoomControl={false}
+        ref={mapRef}
       >
         <MapController trip={selectedTrip || null} />
         <ZoomControl position="bottomright" />
@@ -500,13 +542,12 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
           const isSelected = selectedTrip && selectedTrip.stops.length > 0 
             ? selectedTrip.stops[0]?.cityId === city.id
             : false;
-          const isConnected = connectedCityIds.includes(city.id);
           
           return (
             <CircleMarker
               key={city.id}
               center={[city.coordinates.lat, city.coordinates.lng]}
-              {...getCircleStyle(city, isSelected, isTripStop, isConnected)}
+              {...getCircleStyle(city, isSelected, isTripStop)}
               eventHandlers={{
                 click: () => handleMarkerClick(city.id)
               }}
@@ -521,11 +562,8 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
                     {city.isTransportHub && (
                       <p className="text-sm text-purple-600 font-medium">🚆 Major Transport Hub</p>
                     )}
-                    {city.population >= 1000000 && (
+                    {city.population >= 2000000 && (
                       <p className="text-sm text-indigo-600 font-medium">🌆 Major City</p>
-                    )}
-                    {isConnected && !(city.isTransportHub || city.population >= 1000000) && (
-                      <p className="text-sm text-slate-600 font-medium">🔄 Rail Connection Point</p>
                     )}
                   </div>
                   {selectedTrip && !isTripStop && (
@@ -551,8 +589,13 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
         <CityInfoModal 
           city={selectedCity} 
           onClose={() => setSelectedCity(null)}
-          onAddToTrip={() => handleAddToTrip(selectedCity.id)}
-          isInTrip={tripCityIds.includes(selectedCity.id)}
+          onAddToTrip={() => {
+            if (onCityClick) {
+              onCityClick(selectedCity.id);
+              setSelectedCity(null);
+            }
+          }}
+          isInTrip={selectedTrip ? tripCityIds.includes(selectedCity.id) : false}
         />
       )}
     </div>

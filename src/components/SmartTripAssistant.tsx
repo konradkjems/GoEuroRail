@@ -1928,24 +1928,24 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <div className="font-medium">{pass.name}</div>
+                            <div className="font-medium text-gray-900">{pass.name}</div>
                             <div className="text-sm text-gray-600 mt-1">
                               Price: {formatCurrency(pass.price)}
                               {pass.savings > 0 && (
                                 <span className="ml-2 text-green-600">
                                   Save {formatCurrency(pass.savings)}
-                                  </span>
-                                )}
-                              </div>
+                                </span>
+                              )}
                             </div>
+                          </div>
                           {pass.recommended && (
                             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Recommended</span>
                           )}
-                            </div>
-                          </div>
-                        ))}
+                        </div>
                       </div>
-                    ) : (
+                    ))}
+                  </div>
+                ) : (
                   <div className="text-sm text-gray-600 p-3 bg-blue-50 rounded-lg">
                     <p>For this trip, individual tickets may be more economical than a rail pass.</p>
                   </div>
@@ -2008,7 +2008,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                         <div className="space-y-3">
                           {cityActivities.map((activity: any, activityIdx: number) => (
                             <div key={activityIdx} className="bg-white rounded-lg shadow-sm p-4">
-                              <div className="font-medium mb-1">{activity.title}</div>
+                              <div className="font-medium text-gray-900 mb-1">{activity.title}</div>
                               <div className="text-sm text-gray-600 mb-2">{activity.description?.substring(0, 100)}...</div>
                               <div className="flex justify-between items-center mt-2">
                                 <div className="text-sm font-medium">{activity.price?.formattedValue || 'Price unavailable'}</div>

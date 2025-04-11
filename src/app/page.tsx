@@ -52,14 +52,14 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/trips/new"
-                className="bg-[#06D6A0] hover:bg-[#05c091] text-white px-6 py-3 rounded-lg font-medium text-center sm:text-left flex items-center justify-center sm:justify-start gap-2 max-w-xs"
+                className="bg-[#06D6A0] hover:bg-[#06D6A0] text-white px-6 py-3 rounded-lg font-medium text-center sm:text-left flex items-center justify-center sm:justify-start gap-2 max-w-xs"
               >
                 Plan Your Journey
                 <ArrowRightIcon className="w-5 h-5" />
               </Link>
               <Link
                 href="/recommended-trips"
-                className="bg-white hover:bg-gray-100 text-black px-6 py-3 rounded-lg font-medium text-center sm:text-left max-w-xs"
+                className="bg-white hover:bg-gray-100 text-[#264653] px-6 py-3 rounded-lg font-medium text-center sm:text-left max-w-xs"
               >
                 See Recommended Routes
               </Link>

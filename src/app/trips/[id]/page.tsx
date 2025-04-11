@@ -71,8 +71,49 @@ export default function TripDetails({ params }: { params: { id: string } }) {
 
     const stopIndex = trip.stops.findIndex(stop => stop.cityId === cityId);
     if (stopIndex !== -1) {
+      // If the city is already in the trip, select it
       setSelectedStopIndex(stopIndex);
       setSelectedStop(trip.stops[stopIndex]);
+    } else {
+      // If it's a new city, add it to the trip
+      const newStop: FormTripStop = {
+        cityId,
+        arrivalDate: '',
+        departureDate: '',
+        nights: 1,
+        isStopover: false
+      };
+
+      // If there are existing stops, calculate the dates based on the last stop
+      if (trip.stops.length > 0) {
+        const lastStop = trip.stops[trip.stops.length - 1];
+        const lastStopDeparture = new Date(lastStop.departureDate);
+        newStop.arrivalDate = lastStopDeparture.toISOString().split('T')[0];
+        const newDepartureDate = new Date(lastStopDeparture);
+        newDepartureDate.setDate(newDepartureDate.getDate() + 1);
+        newStop.departureDate = newDepartureDate.toISOString().split('T')[0];
+      } else {
+        // First stop in the trip, use the trip's start date
+        const startDate = new Date(trip.startDate);
+        const nextDay = new Date(startDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        newStop.arrivalDate = startDate.toISOString().split('T')[0];
+        newStop.departureDate = nextDay.toISOString().split('T')[0];
+      }
+
+      // Add the stop to the trip
+      const updatedTrip = {
+        ...trip,
+        stops: [...trip.stops, newStop],
+        endDate: newStop.departureDate
+      };
+
+      // Update the trip
+      handleUpdateTrip(updatedTrip);
+      
+      // Select the new stop
+      setSelectedStopIndex(updatedTrip.stops.length - 1);
+      setSelectedStop(newStop);
     }
   };
 

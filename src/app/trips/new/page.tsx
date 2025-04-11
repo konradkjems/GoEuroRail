@@ -55,6 +55,25 @@ export default function NewTrip() {
     // Set default start date to today
     const today = new Date();
     setStartDate(today.toISOString().split('T')[0]);
+
+    // Add event listener for addCityToTrip
+    const handleAddCityToTrip = (event: CustomEvent) => {
+      const cityId = event.detail.cityId;
+      const city = cities.find(c => c.id === cityId);
+      if (!city) return;
+      
+      setSelectedCities(prev => {
+        // Don't add if already selected
+        if (prev.some(c => c.id === cityId)) return prev;
+        return [...prev, city];
+      });
+    };
+
+    window.addEventListener('addCityToTrip', handleAddCityToTrip as EventListener);
+    
+    return () => {
+      window.removeEventListener('addCityToTrip', handleAddCityToTrip as EventListener);
+    };
   }, []);
 
   // Calculate end date based on stays
