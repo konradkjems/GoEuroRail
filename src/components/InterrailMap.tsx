@@ -7,7 +7,7 @@ import { City, Trip, FormTrip } from "@/types";
 import dynamic from "next/dynamic";
 import L from "leaflet";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { railConnections, getRailSpeedColor, getRailSpeedDash, getConnectionsForTrip } from "@/lib/railConnections";
+import { railConnections, getRailSpeedColor, getRailSpeedDash, getConnectionsForTrip, RailSpeed } from "@/lib/railConnections";
 
 // Fix for default marker icons with webpack
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -176,8 +176,26 @@ interface RailNetworkLayerProps {
   tripCityIds: string[];
 }
 
+// Helper function to format rail speed for tooltip
+const formatRailSpeed = (speed: RailSpeed): string => {
+  switch (speed) {
+    case 'high-speed':
+      return 'High-Speed Rail (310-320 km/h)';
+    case 'very-fast':
+      return 'Very Fast Rail (270-300 km/h)';
+    case 'fast':
+      return 'Fast Rail (240-260 km/h)';
+    case 'medium':
+      return 'Medium-Speed Rail (200-230 km/h)';
+    case 'under-construction':
+      return 'Under Construction';
+    case 'normal':
+    default:
+      return 'Regular Rail (< 200 km/h)';
+  }
+};
+
 // Add a Rail Network Layer to display the railway connections
-// This function will render all the rail connections based on their speed
 function RailNetworkLayer({ showAllConnections = false, tripCityIds = [] }: RailNetworkLayerProps) {
   // Connections to render on the map
   const connections = showAllConnections 
@@ -188,6 +206,13 @@ function RailNetworkLayer({ showAllConnections = false, tripCityIds = [] }: Rail
   const getCoordinatesById = (cityId: string): [number, number] | null => {
     const city = cities.find(c => c.id === cityId);
     return city ? [city.coordinates.lat, city.coordinates.lng] : null;
+  };
+
+  // Get city names for tooltip
+  const getCityNames = (fromCityId: string, toCityId: string): string => {
+    const fromCity = cities.find(c => c.id === fromCityId);
+    const toCity = cities.find(c => c.id === toCityId);
+    return `${fromCity?.name} ↔ ${toCity?.name}`;
   };
   
   return (
@@ -208,7 +233,14 @@ function RailNetworkLayer({ showAllConnections = false, tripCityIds = [] }: Rail
               dashArray: getRailSpeedDash(connection.speed) || undefined,
               opacity: 0.8
             }}
-          />
+          >
+            <Tooltip sticky>
+              <div className="text-sm font-medium">
+                <div>{getCityNames(connection.fromCityId, connection.toCityId)}</div>
+                <div className="text-xs mt-1 text-gray-600">{formatRailSpeed(connection.speed)}</div>
+              </div>
+            </Tooltip>
+          </Polyline>
         );
       })}
     </>
@@ -243,6 +275,9 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
   // Filter cities based on zoom level and importance
   const visibleCities = useMemo(() => {
     return cities.filter(city => {
+      // Exclude cities from Russia, Belarus, and Ukraine
+      if (['Russian Federation', 'Belarus', 'Ukraine'].includes(city.country)) return false;
+
       // Always show cities in the trip
       if (tripCityIds.includes(city.id)) return true;
 
@@ -251,16 +286,21 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
 
       // Show all cities when zoomed in close (zoom level >= 8)
       if (zoomLevel >= 8) {
-        return city.population >= 20000;
+        return city.population >= 5000;
       }
 
-      // Show medium and large cities when moderately zoomed (zoom level >= 6)
+      // Show more cities when moderately zoomed (zoom level >= 6)
       if (zoomLevel >= 6) {
-        return city.isTransportHub || city.population >= 50000;
+        return city.isTransportHub || city.population >= 15000;
       }
 
-      // Show only major cities and transport hubs when zoomed out
-      return city.isTransportHub || city.population >= 300000;
+      // Show medium and major cities when slightly zoomed out (zoom level >= 5)
+      if (zoomLevel >= 5) {
+        return city.isTransportHub || city.population >= 100000;
+      }
+
+      // Show only major cities and transport hubs when fully zoomed out
+      return (city.isTransportHub && city.population >= 200000) || city.population >= 500000;
     });
   }, [tripCityIds, zoomLevel]);
 

@@ -202,6 +202,26 @@ export default function TripForm({ initialData, onSubmit, isSubmitting = false }
                   />
                 </div>
               </div>
+
+              <div className="mb-4">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`stops.${index}.useInterrailPass`}
+                    {...register(`stops.${index}.useInterrailPass` as const)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor={`stops.${index}.useInterrailPass`}
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    Use Interrail Pass for this journey
+                  </label>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Toggle this if you plan to use your Interrail pass for this train journey
+                </p>
+              </div>
               
               <div className="mb-4">
                 <label 

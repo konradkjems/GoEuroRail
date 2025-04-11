@@ -929,7 +929,26 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     if (!trip || !trip.stops || trip.stops.length < 2) return null;
     
     // Count number of travel days (connections between cities)
-    const travelDays = trip.stops.length - 1;
+    // Only count journeys where useInterrailPass is true and handle stopovers correctly
+    const travelDays = trip.stops.reduce((count: number, stop: FormTripStop, index: number, array: FormTripStop[]) => {
+      if (index === 0) return count; // Skip first stop
+      
+      const prevStop = array[index - 1];
+      
+      // If current stop is a stopover, don't count it as a travel day
+      // If previous stop was a stopover, don't count this as a new travel day
+      // This ensures the journey through a stopover only counts as one travel day
+      if (stop.isStopover || prevStop.isStopover) {
+        return count;
+      }
+      
+      // Only count as a travel day if useInterrailPass is true
+      if (stop.useInterrailPass) {
+        return count + 1;
+      }
+      
+      return count;
+    }, 0 as number);
     
     // Count number of countries visited
     const countries = new Set<string>();
@@ -953,7 +972,12 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     const individualTicketCost = budgetEstimation?.transport || 0;
     
     // Find suitable pass options
-    const suitablePasses = [];
+    const suitablePasses: Array<{
+      name: string;
+      price: number;
+      savings: number;
+      recommended: boolean;
+    }> = [];
     
     // For 5 or more travel days, consider a Global Pass
     if (travelDays >= 5) {

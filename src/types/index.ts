@@ -23,6 +23,7 @@ export interface FormTripStop {
   isStopover?: boolean;
   accommodation?: string;
   notes?: string;
+  useInterrailPass?: boolean;
   trainDetails?: {
     trainNumber: string;
     duration: string;

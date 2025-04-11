@@ -4,6 +4,7 @@ export * from './accommodationService';
 export * from './attractionsService';
 export * from './budgetService';
 export * from './getYourGuideService';
+export * from './deepseekService';
 
 /**
  * This file exports all our API services that provide real data
