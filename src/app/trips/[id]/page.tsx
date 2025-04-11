@@ -7,12 +7,19 @@ import { loadTrips, saveTrips } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import SplitView from "@/components/SplitView";
 import TripItinerary from "@/components/TripItinerary";
+import TrainSchedule from "@/components/TrainSchedule";
+import { TrainConnection } from "@/lib/api/trainSchedule";
 import dynamic from "next/dynamic";
 import { cities } from "@/lib/cities";
 import { useAuth } from "@/context/AuthContext";
 
-// Dynamically import the map component to avoid server-side rendering issues
+// Dynamically import map components to avoid server-side rendering issues
 const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center">Loading map...</div>
+});
+
+const MobileMap = dynamic(() => import("@/components/MobileMap"), {
   ssr: false,
   loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center">Loading map...</div>
 });
@@ -22,7 +29,14 @@ export default function TripDetails({ params }: { params: { id: string } }) {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [trip, setTrip] = useState<FormTrip | null>(null);
   const [selectedStopIndex, setSelectedStopIndex] = useState(-1);
+  const [selectedStop, setSelectedStop] = useState<FormTripStop | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showTrainSchedule, setShowTrainSchedule] = useState(false);
+  const [trainScheduleData, setTrainScheduleData] = useState<{
+    fromCityId: string;
+    toCityId: string;
+    date: string;
+  } | null>(null);
 
   // Check authentication and redirect if not logged in
   useEffect(() => {
@@ -31,183 +45,141 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     }
   }, [isAuthenticated, authLoading, router, params.id]);
 
+  // Load trip data
   useEffect(() => {
-    if (!params.id || !isAuthenticated) return;
-    
-    // Special case for new trip
-    if (params.id === 'new') {
-      // Create a new empty trip
-      const today = new Date();
-      const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate() + 7);
-      
-      const newTrip: FormTrip = {
-        _id: Date.now().toString(),
-        name: "New Trip",
-        startDate: today.toISOString().split('T')[0],
-        endDate: nextWeek.toISOString().split('T')[0],
-        notes: "",
-        travelers: 1,
-        stops: [],
-        userId: user?.id
-      };
-      
-      setTrip(newTrip);
-      setIsLoading(false);
-      
-      // Get existing trips to add this one
-      const savedTrips = localStorage.getItem('trips');
-      let existingTrips: FormTrip[] = [];
-      if (savedTrips) {
-        existingTrips = JSON.parse(savedTrips);
-      }
-      
-      // Add to localStorage
-      const updatedTrips = [...existingTrips, newTrip];
-      localStorage.setItem('trips', JSON.stringify(updatedTrips));
-      
-      // Update URL to use real ID without reloading
-      router.replace(`/trips/${newTrip._id}`);
-      return;
-    }
-    
-    // Normal trip loading
-    const savedTrips = localStorage.getItem('trips');
-    if (savedTrips) {
-      const parsedTrips = JSON.parse(savedTrips);
-      const foundTrip = parsedTrips.find((t: FormTrip) => t._id === params.id);
-      
-      if (foundTrip) {
-        // Check if user owns this trip or if it's a shared trip (no userId)
-        if (!foundTrip.userId || foundTrip.userId === user?.id) {
+    const loadTripData = async () => {
+      setIsLoading(true);
+      try {
+        const trips = await loadTrips();
+        const foundTrip = trips.find((t: FormTrip) => t._id === params.id);
+        if (foundTrip) {
           setTrip(foundTrip);
-        } else {
-          // Trip belongs to another user, redirect to trips page
-          router.push('/trips');
         }
-      } else {
-        // Trip not found, redirect to trips page
-        router.push('/trips');
+      } catch (error) {
+        console.error('Error loading trip:', error);
       }
-    }
-    
-    setIsLoading(false);
-  }, [params.id, router, isAuthenticated, user]);
-
-  useEffect(() => {
-    // Listen for addCityToTrip event
-    const handleAddCityToTrip = (event: any) => {
-      const { cityId } = event.detail;
-      if (trip && cityId) {
-        addCityToTrip(cityId);
-      }
+      setIsLoading(false);
     };
-    
-    window.addEventListener('addCityToTrip', handleAddCityToTrip);
-    
-    return () => {
-      window.removeEventListener('addCityToTrip', handleAddCityToTrip);
-    };
-  }, [trip]);
 
-  const handleDeleteTrip = (id: string) => {
-    if (!id) return;
-    
-    const savedTrips = localStorage.getItem('trips');
-    if (savedTrips) {
-      const parsedTrips = JSON.parse(savedTrips);
-      const updatedTrips = parsedTrips.filter((t: FormTrip) => t._id !== id);
-      
-      // Update localStorage
-      localStorage.setItem('trips', JSON.stringify(updatedTrips));
-      
-      // Redirect to trips page instead of home
-      router.push('/trips');
+    if (isAuthenticated && !authLoading) {
+      loadTripData();
     }
-  };
-
-  const handleUpdateTrip = (updatedTrip: FormTrip) => {
-    if (!updatedTrip) return;
-    
-    const savedTrips = localStorage.getItem('trips');
-    if (savedTrips) {
-      const parsedTrips = JSON.parse(savedTrips);
-      const updatedTrips = parsedTrips.map((t: FormTrip) => 
-        t._id === updatedTrip._id ? updatedTrip : t
-      );
-      
-      // Update localStorage
-      localStorage.setItem('trips', JSON.stringify(updatedTrips));
-      
-      // Update local state
-      setTrip(updatedTrip);
-    }
-  };
+  }, [params.id, isAuthenticated, authLoading]);
 
   const handleCityClick = (cityId: string) => {
     if (!trip) return;
-    
-    // Find the stop index for this city
+
     const stopIndex = trip.stops.findIndex(stop => stop.cityId === cityId);
-    
     if (stopIndex !== -1) {
       setSelectedStopIndex(stopIndex);
+      setSelectedStop(trip.stops[stopIndex]);
     }
   };
 
-  // Function to add a city to the trip
-  const addCityToTrip = (cityId: string) => {
+  const handleUpdateTrip = async (updatedTrip: FormTrip) => {
+    try {
+      const trips = await loadTrips();
+      const updatedTrips = trips.map((t: FormTrip) => 
+        t._id === updatedTrip._id ? updatedTrip : t
+      );
+      await saveTrips(updatedTrips);
+      setTrip(updatedTrip);
+    } catch (error) {
+      console.error('Error updating trip:', error);
+    }
+  };
+
+  const handleDeleteTrip = async () => {
+    if (!trip) return;
+
+    try {
+      const trips = await loadTrips();
+      const updatedTrips = trips.filter((t: FormTrip) => t._id !== trip._id);
+      await saveTrips(updatedTrips);
+      router.push('/trips');
+    } catch (error) {
+      console.error('Error deleting trip:', error);
+    }
+  };
+
+  const handleUpdateNights = (stopId: string, nights: number) => {
     if (!trip) return;
     
-    // Find the city from our cities list
-    const cityToAdd = cities.find(city => city.id === cityId);
-    if (!cityToAdd) return;
-    
-    // Check if city is already in the trip
-    const isAlreadyInTrip = trip.stops.some(stop => stop.cityId === cityId);
-    if (isAlreadyInTrip) {
-      alert(`${cityToAdd.name} is already in your trip.`);
-      return;
-    }
-    
-    // Estimate the arrival and departure dates based on the last stop or trip start date
-    let arrivalDate;
-    if (trip.stops.length > 0) {
-      // Get the last stop's departure date or add 1 day to arrival if no departure
-      const lastStop = trip.stops[trip.stops.length - 1];
-      const lastStopDate = lastStop.departureDate || 
-                           (lastStop.arrivalDate ? new Date(new Date(lastStop.arrivalDate).getTime() + 86400000).toISOString() : null);
-      arrivalDate = lastStopDate || trip.startDate;
-    } else {
-      arrivalDate = trip.startDate;
-    }
-    
-    // Create a departure date 1 day after arrival
-    const arrivalDateObj = new Date(arrivalDate);
-    const departureDateObj = new Date(arrivalDateObj);
-    departureDateObj.setDate(departureDateObj.getDate() + 1);
-    
-    // Create the new stop
-    const newStop: FormTripStop = {
-      cityId: cityToAdd.id,
-      arrivalDate: arrivalDateObj.toISOString().split('T')[0],
-      departureDate: departureDateObj.toISOString().split('T')[0],
-      accommodation: '',
-      notes: '',
-      nights: 1
-    };
-    
-    // Add the stop to the trip
+    // Create a new stops array with the updated stop
+    const updatedStops = trip.stops.map(stop => {
+      if (stop.cityId === stopId) {
+        const arrival = new Date(stop.arrivalDate);
+        const departure = new Date(arrival);
+        departure.setDate(arrival.getDate() + nights);
+        
+        return {
+          ...stop,
+          departureDate: departure.toISOString().split('T')[0],
+          nights,
+          isStopover: nights === 0
+        };
+      }
+      return stop;
+    });
+
+    // Update the trip with the new stops array
     const updatedTrip = {
       ...trip,
-      stops: [...trip.stops, newStop]
+      stops: updatedStops
     };
     
-    // Update the trip
+    // Update the trip in the database
     handleUpdateTrip(updatedTrip);
+  };
+
+  const handleShowTrainSchedule = (fromCityId: string, toCityId: string, date: string) => {
+    setTrainScheduleData({ fromCityId, toCityId, date });
+    setShowTrainSchedule(true);
+  };
+
+  const handleTrainSelect = async (train: TrainConnection) => {
+    if (!trip || !selectedStop) return;
+
+    const updatedStops = trip.stops.map((stop) => {
+      if (stop.cityId === selectedStop.cityId) {
+        return {
+          ...stop,
+          trainDetails: {
+            trainNumber: train.trains.map(t => `${t.type} ${t.number}`).join(', '),
+            duration: train.duration,
+            changes: train.changes,
+            price: train.price
+          },
+        };
+      }
+      return stop;
+    });
+
+    const updatedTrip = { ...trip, stops: updatedStops };
     
-    // Select the new stop
-    setSelectedStopIndex(updatedTrip.stops.length - 1);
+    try {
+      // Update the trip in the database
+      await handleUpdateTrip(updatedTrip);
+      // Update local state
+      setTrip(updatedTrip);
+      // Update selectedStop to reflect the changes
+      const updatedSelectedStop = updatedStops.find(stop => stop.cityId === selectedStop.cityId);
+      if (updatedSelectedStop) {
+        setSelectedStop(updatedSelectedStop);
+      }
+      setShowTrainSchedule(false);
+      setTrainScheduleData(null);
+    } catch (error) {
+      console.error('Error updating train details:', error);
+    }
+  };
+
+  const handleShowCityInfo = (cityId: string) => {
+    const city = cities.find((c) => c.id === cityId);
+    if (city) {
+      // You can implement a modal or other UI to show city information
+      console.log("Showing city info:", city);
+    }
   };
 
   if (isLoading) {
@@ -230,36 +202,69 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     );
   }
 
-  // Map section
-  const mapSection = (
-    <div className="h-full">
-      <InterrailMap
-        selectedTrip={trip}
-        onCityClick={handleCityClick}
-      />
-    </div>
+  // Desktop view
+  const DesktopView = () => (
+    <SplitView 
+      mapSection={
+        <div className="h-full">
+          <InterrailMap
+            selectedTrip={trip}
+            onCityClick={handleCityClick}
+          />
+        </div>
+      }
+      contentSection={
+        <div className="h-full flex flex-col">
+          <TripItinerary
+            trip={trip}
+            onDeleteTrip={handleDeleteTrip}
+            selectedStopIndex={selectedStopIndex}
+            onSelectStop={setSelectedStopIndex}
+            onUpdateTrip={handleUpdateTrip}
+          />
+        </div>
+      }
+      mapWidth="50%"
+    />
   );
 
-  // Content section
-  const contentSection = (
-    <div className="h-full flex flex-col">
-      <TripItinerary
-        trip={trip}
-        onDeleteTrip={handleDeleteTrip}
-        selectedStopIndex={selectedStopIndex}
-        onSelectStop={setSelectedStopIndex}
-        onUpdateTrip={handleUpdateTrip}
-      />
-    </div>
+  // Mobile view
+  const MobileView = () => (
+    <MobileMap
+      trip={trip}
+      selectedStop={selectedStop}
+      onStopSelect={(stop) => setSelectedStop(stop)}
+      onBack={() => router.push('/trips')}
+      onUpdateNights={handleUpdateNights}
+      onShowCityInfo={handleShowCityInfo}
+      onShowTrainSchedule={(fromCityId, toCityId, date) => {
+        setTrainScheduleData({ fromCityId, toCityId, date });
+        setShowTrainSchedule(true);
+      }}
+      onTrainSelect={handleTrainSelect}
+    />
   );
 
   return (
     <Layout>
-      <SplitView 
-        mapSection={mapSection}
-        contentSection={contentSection}
-        mapWidth="50%"
-      />
+      <div className="hidden md:block h-full">
+        <DesktopView />
+      </div>
+      <div className="md:hidden">
+        <MobileView />
+      </div>
+      {showTrainSchedule && trainScheduleData && (
+        <TrainSchedule
+          fromCity={cities.find(c => c.id === trainScheduleData.fromCityId)?.name || ''}
+          toCity={cities.find(c => c.id === trainScheduleData.toCityId)?.name || ''}
+          date={trainScheduleData.date}
+          onSelectTrain={handleTrainSelect}
+          onClose={() => {
+            setShowTrainSchedule(false);
+            setTrainScheduleData(null);
+          }}
+        />
+      )}
     </Layout>
   );
 } 

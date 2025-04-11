@@ -17,6 +17,24 @@ const cityVisitSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const sharedWithSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true
+  },
+  accessLevel: {
+    type: String,
+    enum: ['view', 'edit'],
+    default: 'view'
+  },
+  sharedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: false });
+
 const tripSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -60,6 +78,16 @@ const tripSchema = new mongoose.Schema({
   travel_notes: {
     type: String,
     trim: true
+  },
+  shared_with: [sharedWithSchema],
+  is_public: {
+    type: Boolean,
+    default: false
+  },
+  share_token: {
+    type: String,
+    unique: true,
+    sparse: true
   }
 }, {
   timestamps: true
@@ -86,6 +114,19 @@ tripSchema.pre('save', function(next) {
   }
   next();
 });
+
+// Generate share token before saving if trip is public
+tripSchema.pre('save', function(next) {
+  if (this.is_public && !this.share_token) {
+    this.share_token = Math.random().toString(36).substring(2, 15);
+  }
+  next();
+});
+
+// Create indexes for common queries
+tripSchema.index({ user_id: 1, start_date: -1 });
+tripSchema.index({ 'shared_with.email': 1 });
+tripSchema.index({ share_token: 1 }, { unique: true, sparse: true });
 
 // Check if the model exists before creating a new one
 // This prevents "Cannot overwrite model" errors during hot reload in development

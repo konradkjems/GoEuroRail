@@ -1,16 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable image domains if you're using external image sources
+  output: 'standalone',
   images: {
-    domains: [],
+    domains: ['images.unsplash.com'],
   },
-  // Redirect favicon requests to our API route
-  async redirects() {
+  // Disable static generation for dynamic routes
+  async rewrites() {
     return [
       {
-        source: '/favicon.ico',
-        destination: '/api/favicon',
-        permanent: true,
+        source: '/api/:path*',
+        destination: '/api/:path*',
       },
     ];
   },

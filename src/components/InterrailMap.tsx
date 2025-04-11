@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, Polyline, ZoomControl, CircleMarker } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, ZoomControl, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icon } from "leaflet";
 import { cities } from "@/lib/cities";
@@ -8,6 +8,60 @@ import dynamic from "next/dynamic";
 import L from "leaflet";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { railConnections, getRailSpeedColor, getRailSpeedDash, getConnectionsForTrip } from "@/lib/railConnections";
+
+// Fix for default marker icons with webpack
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: icon.src,
+  shadowUrl: iconShadow.src,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Create a custom marker icon for trip stops
+const createStopIcon = (number: number) => {
+  return L.divIcon({
+    className: 'custom-div-icon',
+    html: `
+      <div style="background-color: #3B82F6; color: white; width: 30px; height: 30px; 
+                  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                  font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+        ${number}
+      </div>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
+};
+
+interface MapControllerProps {
+  trip: FormTrip | null;
+}
+
+// Add MapController component to handle map bounds
+function MapController({ trip }: MapControllerProps) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (trip && trip.stops && trip.stops.length > 0) {
+      const bounds = L.latLngBounds(
+        trip.stops.map(stop => {
+          const city = cities.find(c => c.id === stop.cityId);
+          return city ? [city.coordinates.lat, city.coordinates.lng] : [0, 0];
+        })
+      );
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [map, trip]);
+
+  return null;
+}
 
 const MapWithNoSSR = dynamic(() => Promise.resolve(MapDisplay), {
   ssr: false,
@@ -376,12 +430,13 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
       </div>
 
       <MapContainer
-        center={[48.8566, 2.3522]}
+        center={[50.1109, 8.6821]}
         zoom={5}
         style={{ height: "100%", width: "100%" }}
         className={`${className || ""}`}
         zoomControl={false}
       >
+        <MapController trip={selectedTrip || null} />
         <ZoomControl position="bottomright" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -394,9 +449,54 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
           tripCityIds={tripCityIds} 
         />
         
-        {/* City markers */}
+        {/* Draw trip route if a trip is selected */}
+        {selectedTrip && routeCoordinates.length > 1 && (
+          <Polyline
+            positions={routeCoordinates}
+            pathOptions={{
+              color: '#3B82F6',
+              weight: 4,
+              opacity: 0.8
+            }}
+          />
+        )}
+
+        {/* Trip stop markers with numbers */}
+        {selectedTrip?.stops.map((stop, index) => {
+          const city = cities.find(c => c.id === stop.cityId);
+          if (!city) return null;
+
+          return (
+            <Marker
+              key={`${stop.cityId}-${index}`}
+              position={[city.coordinates.lat, city.coordinates.lng]}
+              icon={createStopIcon(index + 1)}
+              eventHandlers={{
+                click: () => onCityClick?.(stop.cityId)
+              }}
+            >
+              <Tooltip permanent direction="top" offset={[0, -20]}>
+                <span className="font-semibold">{city.name}</span>
+              </Tooltip>
+              <Popup>
+                <div className="p-2">
+                  <h3 className="font-bold text-gray-900">{city.name}</h3>
+                  <p className="text-gray-700">{city.country}</p>
+                  <p className="text-sm text-gray-600 mt-1">Stop {index + 1} of {selectedTrip.stops.length}</p>
+                  <p className="text-sm text-gray-600">
+                    {new Date(stop.arrivalDate).toLocaleDateString()} - {new Date(stop.departureDate).toLocaleDateString()}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+        
+        {/* Other city markers */}
         {visibleCities.map((city) => {
           const isTripStop = tripCityIds.includes(city.id);
+          if (isTripStop) return null; // Skip cities that are trip stops
+
           const isSelected = selectedTrip && selectedTrip.stops.length > 0 
             ? selectedTrip.stops[0]?.cityId === city.id
             : false;
@@ -411,6 +511,7 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
                 click: () => handleMarkerClick(city.id)
               }}
             >
+              <Tooltip>{city.name}</Tooltip>
               <Popup>
                 <div className="p-2">
                   <h3 className="font-bold text-gray-900">{city.name}</h3>
@@ -423,10 +524,7 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
                     {city.population >= 1000000 && (
                       <p className="text-sm text-indigo-600 font-medium">🌆 Major City</p>
                     )}
-                    {isTripStop && (
-                      <p className="text-sm text-amber-600 font-medium">📍 Part of Trip</p>
-                    )}
-                    {isConnected && !(city.isTransportHub || city.population >= 1000000 || isTripStop) && (
+                    {isConnected && !(city.isTransportHub || city.population >= 1000000) && (
                       <p className="text-sm text-slate-600 font-medium">🔄 Rail Connection Point</p>
                     )}
                   </div>
@@ -446,18 +544,6 @@ function MapDisplay({ selectedTrip, onCityClick, className }: InterrailMapProps)
             </CircleMarker>
           );
         })}
-        
-        {/* Draw trip route if a trip is selected */}
-        {selectedTrip && routeCoordinates.length > 1 && (
-          <Polyline
-            positions={routeCoordinates}
-            pathOptions={{
-              color: '#3B82F6',
-              weight: 4,
-              opacity: 1
-            }}
-          />
-        )}
       </MapContainer>
       
       {/* City Info Modal */}

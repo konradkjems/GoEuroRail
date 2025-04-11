@@ -7,6 +7,7 @@ import City from '@/models/City';
 import Trip from '@/models/Trip';
 import Connection from '@/models/Connection';
 import Attraction from '@/models/Attraction';
+import mongoose from 'mongoose';
 
 // Export models so they can be imported elsewhere if needed
 export {
@@ -18,16 +19,12 @@ export {
 };
 
 // This function does nothing but ensures the models are imported
-export const ensureModelsRegistered = () => {
-  // The models are registered when imported above
-  // This is just to make eslint happy about "unused" imports
-  return {
-    User,
-    City,
-    Trip,
-    Connection,
-    Attraction
-  };
-};
+export function ensureModelsRegistered() {
+  // This function is called to ensure all models are registered
+  // Add any additional models here
+  if (!mongoose.models.User) {
+    require('../models/User');
+  }
+}
 
 export default ensureModelsRegistered; 

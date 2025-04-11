@@ -46,6 +46,12 @@ export interface ICityVisit {
   departure: Date;
 }
 
+export interface ISharedWith {
+  email: string;
+  accessLevel: 'view' | 'edit';
+  sharedAt: Date;
+}
+
 export interface ITrip extends Document {
   user_id: Types.ObjectId;
   trip_name: string;
@@ -57,6 +63,9 @@ export interface ITrip extends Document {
   total_duration: number;
   budget_estimate: number;
   travel_notes: string;
+  shared_with: ISharedWith[];
+  is_public: boolean;
+  share_token?: string;
   createdAt: Date;
   updatedAt: Date;
 }
