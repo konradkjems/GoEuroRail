@@ -61,6 +61,7 @@ export const railConnections: RailConnection[] = [
   ...createBidirectionalConnection('Mulhouse', 'Basel', 'high-speed'),
   ...createBidirectionalConnection('Dijon', 'Mulhouse', 'high-speed'),
   ...createBidirectionalConnection('Strasbourg', 'Dijon', 'high-speed'),
+  ...createBidirectionalConnection('Madrid', 'Malaga', 'high-speed'),
   
   // Very fast connections (270-300 km/h) - Red lines
   ...createBidirectionalConnection('Paris', 'London', 'very-fast'),
@@ -234,7 +235,6 @@ export const railConnections: RailConnection[] = [
   ...createBidirectionalConnection('Prague', 'Berlin', 'normal'),
   ...createBidirectionalConnection('Prague', 'Warsaw', 'normal'),
   ...createBidirectionalConnection('Berlin', 'Warsaw', 'normal'),
-  ...createBidirectionalConnection('Warsaw', 'Minsk', 'normal'),
   ...createBidirectionalConnection('Munich', 'Prague', 'normal'),
   ...createBidirectionalConnection('Budapest', 'Belgrade', 'normal'),
   ...createBidirectionalConnection('Belgrade', 'Sofia', 'normal'),
@@ -248,7 +248,6 @@ export const railConnections: RailConnection[] = [
   ...createBidirectionalConnection('Moscow', 'Nizhny Novgorod', 'normal'),
   ...createBidirectionalConnection('Moscow', 'Kazan', 'normal'),
   ...createBidirectionalConnection('St. Petersburg', 'Murmansk', 'normal'),
-  ...createBidirectionalConnection('Minsk', 'Vilnius', 'normal'),
   ...createBidirectionalConnection('Berlin', 'Dresden', 'normal'),
   ...createBidirectionalConnection('Dresden', 'Prague', 'normal'),
   ...createBidirectionalConnection('Krakow', 'Warsaw', 'normal'),

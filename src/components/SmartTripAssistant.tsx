@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FormTrip, FormTripStop, City } from "@/types";
 import { cities } from "@/lib/cities";
 import AIItineraryGenerator from './AIItineraryGenerator';
+import BudgetEntrySystem from './BudgetEntrySystem';
+import BudgetEntryModal from './BudgetEntryModal';
 import {
   BanknotesIcon,
   CloudIcon,
@@ -24,7 +26,8 @@ import {
   DocumentTextIcon,
   ArrowDownTrayIcon,
   SparklesIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import { getWeatherForecast, WeatherForecast, getTripBudget, BudgetCategory, getAccommodations, Accommodation as ApiAccommodation, AccommodationSearchParams, getAttractions, Attraction as ApiAttraction, AttractionSearchParams, getActivities, getActivityWidgetHtml } from "@/lib/api";
 
@@ -382,6 +385,17 @@ const getYourGuideLocationIds: Record<string, string> = {
   'Milan': '87',
 };
 
+// Update the formatCurrency function to be available to the BudgetEntrySystem component
+const formatCurrency = (amount: number, currency: string = 'EUR') => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return formatter.format(amount);
+};
+
 export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   // State for budget level
   const [budgetLevel, setBudgetLevel] = useState<'budget' | 'moderate' | 'luxury'>('moderate');
@@ -414,7 +428,8 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     attractions: false,
     railPass: false,
     activities: false,
-    aiItinerary: false // Add this new section
+    aiItinerary: false,
+    budgetEntry: false
   });
   
   // Add new states for AI itinerary
@@ -423,6 +438,150 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
   const [itineraryError, setItineraryError] = useState<string | null>(null);
   const [itineraryGenerated, setItineraryGenerated] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState('');
+
+  // Add new states for expenses
+  const [expenses, setExpenses] = useState<any[]>([]);
+  
+  // Helper function to safely get trip ID
+  const getTripId = (): string => {
+    if (!trip) return 'default';
+    // First check for _id as it's typed as string
+    if (trip._id) return trip._id;
+    // Then check for id which is now typed as optional string
+    if (typeof trip.id === 'string') return trip.id;
+    // If neither exists, use the name as a fallback
+    return trip.name || 'default';
+  };
+
+  // Add a function to handle expense updates from BudgetEntryModal
+  const handleExpensesUpdate = async (updatedExpenses: any[]) => {
+    setExpenses(updatedExpenses);
+    
+    // Save to localStorage as fallback
+    if (trip) {
+      const tripId = getTripId();
+      localStorage.setItem(`expenses_${tripId}`, JSON.stringify(updatedExpenses));
+      
+      // Save to the database
+      try {
+        console.log(`Saving ${updatedExpenses.length} expenses to database for trip ${tripId}`);
+        
+        // Clean up expenses before sending to server
+        const cleanExpenses = updatedExpenses.map(({ _id, id, __v, ...rest }) => ({
+          ...rest,
+          // Ensure date is in ISO format
+          date: new Date(rest.date).toISOString().split('T')[0]
+        }));
+        
+        const response = await fetch(`/api/trips/${tripId}/expenses`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            expenses: cleanExpenses,
+            budgetLevel,
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Failed to save expenses to database (${response.status}):`, errorText);
+        } else {
+          const result = await response.json();
+          console.log(`Expenses saved to database successfully. Count: ${result.count || 0}`);
+        }
+      } catch (error) {
+        console.error('Error saving expenses to database:', error);
+      }
+    }
+  };
+  
+  // Load expenses from database when component mounts
+  useEffect(() => {
+    if (trip) {
+      const tripId = getTripId();
+      
+      // First try to load from localStorage as a fallback
+      const savedExpenses = localStorage.getItem(`expenses_${tripId}`);
+      if (savedExpenses) {
+        setExpenses(JSON.parse(savedExpenses));
+      }
+      
+      // Then try to load from the database
+      const fetchExpenses = async () => {
+        try {
+          const response = await fetch(`/api/trips/${tripId}/expenses`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.expenses && Array.isArray(data.expenses)) {
+              setExpenses(data.expenses);
+              // Also update localStorage with the latest data
+              localStorage.setItem(`expenses_${tripId}`, JSON.stringify(data.expenses));
+            }
+          } else if (response.status !== 401) {  // Ignore auth errors
+            console.error('Failed to load expenses from database:', await response.text());
+          }
+        } catch (error) {
+          console.error('Error loading expenses from database:', error);
+        }
+      };
+      
+      fetchExpenses();
+    }
+  }, [trip]);
+
+  // Add this state near the other state variables
+  const [showBudgetEntryModal, setShowBudgetEntryModal] = useState(false);
+
+  // Add this effect to load the budget level from local storage when the component mounts
+  useEffect(() => {
+    if (trip) {
+      const tripId = getTripId();
+      const savedBudgetLevel = localStorage.getItem(`budgetLevel_${tripId}`);
+      if (savedBudgetLevel && ['budget', 'moderate', 'luxury'].includes(savedBudgetLevel)) {
+        setBudgetLevel(savedBudgetLevel as 'budget' | 'moderate' | 'luxury');
+      }
+    }
+  }, [trip]);
+
+  // Add this effect to save the budget level to local storage and database when it changes
+  useEffect(() => {
+    if (trip) {
+      const tripId = getTripId();
+      
+      // Save to localStorage as fallback
+      localStorage.setItem(`budgetLevel_${tripId}`, budgetLevel);
+      
+      // Save to the database
+      const saveBudgetLevel = async () => {
+        try {
+          const response = await fetch(`/api/trips/${tripId}/expenses`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              expenses: [], // Empty array to avoid modifying existing expenses
+              budgetLevel,
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to save budget level to database:', await response.text());
+          }
+        } catch (error) {
+          console.error('Error saving budget level to database:', error);
+        }
+      };
+      
+      saveBudgetLevel();
+    }
+  }, [budgetLevel, trip]);
+
+  // Add a state for custom budget amount
+  const [customBudget, setCustomBudget] = useState<number | null>(null);
 
   // Set up effect to fetch data when the trip changes or openSections changes
   useEffect(() => {
@@ -483,7 +642,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     }
   };
 
-  // Fetch budget data
+  // Update the fetchBudgetData function to handle custom budget
   const fetchBudgetData = async () => {
     if (!trip.stops || trip.stops.length === 0) return;
     
@@ -507,12 +666,43 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
       // Try to get real budget data
       const realBudgetData = await getTripBudget(budgetParams);
       if (realBudgetData) {
-        setBudgetData(realBudgetData);
+        // Apply custom budget if set
+        if (customBudget !== null) {
+          // Create a modified version of the budget data
+          const modifiedBudgetData = {
+            ...realBudgetData,
+            totalCost: customBudget,
+            // Adjust breakdown proportions based on the custom total
+            breakdown: {
+              accommodation: (realBudgetData.breakdown.accommodation / 100) * customBudget,
+              food: (realBudgetData.breakdown.food / 100) * customBudget,
+              localTransport: (realBudgetData.breakdown.localTransport / 100) * customBudget,
+              attractions: (realBudgetData.breakdown.attractions / 100) * customBudget
+            }
+          };
+          setBudgetData(modifiedBudgetData);
+        } else {
+          setBudgetData(realBudgetData);
+        }
         return;
       }
       
       // Fallback to local calculation
-      setBudgetData(calculateBudget());
+      const calculatedBudget = calculateBudget();
+      if (customBudget !== null && calculatedBudget) {
+        // Apply custom budget to the calculated budget
+        calculatedBudget.totalCost = customBudget;
+        // Adjust cost breakdown proportions
+        const originalTotal = calculatedBudget.accommodation + calculatedBudget.food + 
+                             calculatedBudget.activities + calculatedBudget.transport;
+        const ratio = customBudget / originalTotal;
+        
+        calculatedBudget.accommodation *= ratio;
+        calculatedBudget.food *= ratio;
+        calculatedBudget.activities *= ratio;
+        calculatedBudget.transport *= ratio;
+      }
+      setBudgetData(calculatedBudget);
     } catch (error: any) {
       console.error('Error fetching budget data:', error);
       setBudgetData(calculateBudget());
@@ -520,6 +710,25 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
       setIsLoadingBudget(false);
     }
   };
+
+  // Add an effect to load custom budget from local storage
+  useEffect(() => {
+    if (trip) {
+      const tripId = getTripId();
+      const savedCustomBudget = localStorage.getItem(`customBudget_${tripId}`);
+      if (savedCustomBudget) {
+        setCustomBudget(parseFloat(savedCustomBudget));
+      }
+    }
+  }, [trip]);
+
+  // Save custom budget to local storage when it changes
+  useEffect(() => {
+    if (customBudget !== null && trip) {
+      const tripId = getTripId();
+      localStorage.setItem(`customBudget_${tripId}`, customBudget.toString());
+    }
+  }, [customBudget, trip]);
 
   // Fetch accommodations data
   const fetchAccommodationsData = async () => {
@@ -765,11 +974,6 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
     
     // Default to Western Europe if unknown
     return 'Western Europe';
-  };
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return `€${Math.round(amount)}`;
   };
 
   // Get weather for a specific stop
@@ -1664,64 +1868,128 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
               </div>
             ) : budget ? (
               <>
-            <div className="mb-4">
+                <div className="mb-4">
                   <h4 className="font-medium text-[#264653] mb-3">Budget Level:</h4>
                   <div className="flex space-x-2">
-                <button 
+                    <button 
                       className={`px-3 py-2 rounded-lg text-sm ${budgetLevel === 'budget' ? 'bg-[#06D6A0] text-white' : 'bg-gray-100 text-gray-700'}`}
-                  onClick={() => setBudgetLevel('budget')}
-                >
-                  Budget
-                </button>
-                <button 
+                      onClick={() => {
+                        setBudgetLevel('budget');
+                        setCustomBudget(null); // Reset custom budget when selecting a level
+                        fetchBudgetData();
+                      }}
+                    >
+                      Budget
+                    </button>
+                    <button 
                       className={`px-3 py-2 rounded-lg text-sm ${budgetLevel === 'moderate' ? 'bg-[#06D6A0] text-white' : 'bg-gray-100 text-gray-700'}`}
-                  onClick={() => setBudgetLevel('moderate')}
-                >
+                      onClick={() => {
+                        setBudgetLevel('moderate');
+                        setCustomBudget(null); // Reset custom budget when selecting a level
+                        fetchBudgetData();
+                      }}
+                    >
                       Moderate
-                </button>
-                <button 
+                    </button>
+                    <button 
                       className={`px-3 py-2 rounded-lg text-sm ${budgetLevel === 'luxury' ? 'bg-[#06D6A0] text-white' : 'bg-gray-100 text-gray-700'}`}
-                  onClick={() => setBudgetLevel('luxury')}
-                >
-                  Luxury
-                </button>
-              </div>
-            </div>
-            
+                      onClick={() => {
+                        setBudgetLevel('luxury');
+                        setCustomBudget(null); // Reset custom budget when selecting a level
+                        fetchBudgetData();
+                      }}
+                    >
+                      Luxury
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <h4 className="font-medium text-[#264653] mb-3">Custom Budget Amount (Optional):</h4>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">€</span>
+                    </div>
+                    <input
+                      type="number"
+                      id="custom-budget"
+                      className="focus:ring-teal-500 focus:border-teal-500 block w-full pl-8 pr-12 sm:text-sm border-gray-300 rounded-md"
+                      value={customBudget === null ? '' : customBudget}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? null : parseFloat(e.target.value);
+                        setCustomBudget(value);
+                      }}
+                      step="100"
+                      min="0"
+                      placeholder={`${formatCurrency(budget?.totalCost || 0)} (calculated)`}
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Leave empty to use the {budgetLevel} budget calculation, or enter a custom amount to override.
+                  </p>
+                </div>
+
+                <div className="flex justify-end mb-4">
+                  <button
+                    type="button"
+                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                    onClick={() => {
+                      fetchBudgetData();
+                    }}
+                  >
+                    Update Budget
+                  </button>
+                </div>
+
+                {/* Budget breakdown */}
                 <h4 className="font-medium text-[#264653] mb-3">Estimated Trip Cost:</h4>
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
                   <div className="p-4 border-b">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Total</span>
                       <span className="text-xl font-bold text-[#264653]">{formatCurrency(budget.totalCost)}</span>
+                    </div>
                   </div>
-                </div>
-                
+                  
                   <div className="p-4">
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Accommodation</span>
-                        <span>{formatCurrency(budget.accommodation)}</span>
-                  </div>
+                        <span className="text-black">{formatCurrency(budget.accommodation)}</span>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Food & Drinks</span>
-                        <span>{formatCurrency(budget.food)}</span>
-                  </div>
+                        <span className="text-black">{formatCurrency(budget.food)}</span>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Activities & Attractions</span>
-                        <span>{formatCurrency(budget.activities)}</span>
-                  </div>
+                        <span className="text-black">{formatCurrency(budget.activities)}</span>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Transportation</span>
-                        <span>{formatCurrency(budget.transport)}</span>
-                  </div>
+                        <span className="text-black">{formatCurrency(budget.transport)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                
-                <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-700">
+
+                <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-700 mb-6">
                   <p>This budget is based on {budget.details.nights} nights in {budget.details.cities} cities with {budget.details.travelDays} travel days.</p>
-                    </div>
+                  {customBudget !== null && (
+                    <p className="mt-2">You are using a custom budget amount of <span className="font-medium text-black">{formatCurrency(customBudget)}</span>.</p>
+                  )}
+                </div>
+
+                <div className="flex justify-center mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setShowBudgetEntryModal(true)}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                  >
+                    <BanknotesIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                    Open Expense Tracker
+                  </button>
+                </div>
               </>
             ) : (
               <div className="text-center py-4">
@@ -1924,28 +2192,28 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
                   <div className="text-sm space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Countries visited:</span>
-                      <span className="font-medium">{trainPassAdvice.countriesCount}</span>
+                      <span className="font-medium">{trainPassAdvice?.countriesCount}</span>
                         </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Travel days:</span>
-                      <span className="font-medium">{trainPassAdvice.travelDays}</span>
+                      <span className="font-medium">{trainPassAdvice?.travelDays}</span>
                       </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Trip duration:</span>
-                      <span className="font-medium">{trainPassAdvice.tripDuration} days</span>
+                      <span className="font-medium">{trainPassAdvice?.tripDuration} days</span>
                         </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Est. cost of point-to-point tickets:</span>
-                      <span className="font-medium">{formatCurrency(trainPassAdvice.individualTicketCost)}</span>
+                      <span className="font-medium">{formatCurrency(trainPassAdvice?.individualTicketCost || 0)}</span>
                         </div>
                         </div>
                     </div>
                     
                 <h4 className="font-medium text-[#264653] mb-3">Recommended Passes</h4>
                 
-                {trainPassAdvice.suitablePasses.length > 0 ? (
+                {trainPassAdvice?.suitablePasses?.length > 0 ? (
                   <div className="space-y-3">
-                    {trainPassAdvice.suitablePasses.map((pass, idx) => (
+                    {trainPassAdvice?.suitablePasses?.map((pass, idx) => (
                       <div 
                         key={idx} 
                         className={`bg-white rounded-lg shadow-sm p-4 border-l-4 ${pass.recommended ? 'border-l-[#06D6A0]' : 'border-l-gray-200'}`}
@@ -2087,7 +2355,7 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
           <ChevronDownIcon
             className={`h-5 w-5 text-gray-500 transition-transform ${openSections.aiItinerary ? 'rotate-180' : ''}`}
           />
-              </div>
+        </div>
               
         {openSections.aiItinerary && (
           <AIItineraryGenerator
@@ -2098,6 +2366,18 @@ export default function SmartTripAssistant({ trip }: SmartTripAssistantProps) {
           />
         )}
       </div>
+
+      {/* Budget Entry Modal */}
+      <BudgetEntryModal
+        isOpen={showBudgetEntryModal}
+        onClose={() => setShowBudgetEntryModal(false)}
+        trip={trip}
+        initialBudget={budget?.totalCost}
+        budgetData={budget}
+        expenses={expenses}
+        handleExpensesUpdate={handleExpensesUpdate}
+        budgetLevel={budgetLevel}
+      />
     </div>
   );
 } 

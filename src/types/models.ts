@@ -95,4 +95,16 @@ export interface IAttraction extends Document {
   photo_url: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IExpense extends Document {
+  trip_id: string;
+  user_id: Types.ObjectId;
+  date: Date;
+  amount: number;
+  category: 'accommodation' | 'food' | 'transport' | 'activities' | 'shopping' | 'other';
+  description: string;
+  currency: string;
+  createdAt: Date;
+  updatedAt: Date;
 } 

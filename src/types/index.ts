@@ -36,6 +36,7 @@ export interface FormTripStop {
 }
 
 export interface FormTrip {
+  id?: string;
   _id: string;
   name: string;
   startDate: string;
