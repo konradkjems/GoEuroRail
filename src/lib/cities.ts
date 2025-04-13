@@ -4,7 +4,7 @@ const citiesData = [
   {
     "id": "moscow",
     "name": "Moscow",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.75222,
       "lng": 37.61556
@@ -30,7 +30,7 @@ const citiesData = [
   {
     "id": "saint-petersburg",
     "name": "Saint Petersburg",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.93863,
       "lng": 30.31413
@@ -134,7 +134,7 @@ const citiesData = [
   {
     "id": "minsk",
     "name": "Minsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.9,
       "lng": 27.56667
@@ -264,7 +264,7 @@ const citiesData = [
   {
     "id": "nizhniy-novgorod",
     "name": "Nizhniy Novgorod",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.32867,
       "lng": 44.00205
@@ -277,7 +277,7 @@ const citiesData = [
   {
     "id": "kazan",
     "name": "Kazan",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.78874,
       "lng": 49.12214
@@ -303,7 +303,7 @@ const citiesData = [
   {
     "id": "samara",
     "name": "Samara",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.20007,
       "lng": 50.15
@@ -355,7 +355,7 @@ const citiesData = [
   {
     "id": "rostov-na-donu",
     "name": "Rostov-na-Donu",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.23135,
       "lng": 39.72328
@@ -368,7 +368,7 @@ const citiesData = [
   {
     "id": "voronezh",
     "name": "Voronezh",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.67204,
       "lng": 39.1843
@@ -420,7 +420,7 @@ const citiesData = [
   {
     "id": "volgograd",
     "name": "Volgograd",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.71939,
       "lng": 44.50183
@@ -485,7 +485,7 @@ const citiesData = [
   {
     "id": "krasnodar",
     "name": "Krasnodar",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.04484,
       "lng": 38.97603
@@ -537,7 +537,7 @@ const citiesData = [
   {
     "id": "saratov",
     "name": "Saratov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.54056,
       "lng": 46.00861
@@ -641,7 +641,7 @@ const citiesData = [
   {
     "id": "tolyatti",
     "name": "Tolyatti",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.5303,
       "lng": 49.3461
@@ -758,7 +758,7 @@ const citiesData = [
   {
     "id": "izhevsk",
     "name": "Izhevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.84976,
       "lng": 53.20448
@@ -810,7 +810,7 @@ const citiesData = [
   {
     "id": "ulyanovsk",
     "name": "Ulyanovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.32824,
       "lng": 48.38657
@@ -849,7 +849,7 @@ const citiesData = [
   {
     "id": "yaroslavl",
     "name": "Yaroslavl",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.62987,
       "lng": 39.87368
@@ -914,7 +914,7 @@ const citiesData = [
   {
     "id": "makhachkala",
     "name": "Makhachkala",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 42.97638,
       "lng": 47.50236
@@ -991,7 +991,7 @@ const citiesData = [
   },
   {
     "id": "malaga",
-    "name": "Málaga",
+    "name": "Malaga",
     "country": "Spain",
     "coordinates": {
       "lat": 36.72016,
@@ -1083,7 +1083,7 @@ const citiesData = [
   {
     "id": "ryazan'",
     "name": "Ryazan’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.6269,
       "lng": 39.6916
@@ -1096,7 +1096,7 @@ const citiesData = [
   {
     "id": "astrakhan",
     "name": "Astrakhan",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.34968,
       "lng": 48.04076
@@ -1122,7 +1122,7 @@ const citiesData = [
   {
     "id": "homyel'",
     "name": "Homyel'",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.4345,
       "lng": 30.9754
@@ -1135,7 +1135,7 @@ const citiesData = [
   {
     "id": "penza",
     "name": "Penza",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.20066,
       "lng": 45.00464
@@ -1213,7 +1213,7 @@ const citiesData = [
   {
     "id": "naberezhnyye-chelny",
     "name": "Naberezhnyye Chelny",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.72545,
       "lng": 52.41122
@@ -1226,7 +1226,7 @@ const citiesData = [
   {
     "id": "lipetsk",
     "name": "Lipetsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.60311,
       "lng": 39.57076
@@ -1239,7 +1239,7 @@ const citiesData = [
   {
     "id": "kirov",
     "name": "Kirov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.59665,
       "lng": 49.66007
@@ -1278,7 +1278,7 @@ const citiesData = [
   {
     "id": "kalininskiy",
     "name": "Kalininskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.99675,
       "lng": 30.3899
@@ -1317,7 +1317,7 @@ const citiesData = [
   {
     "id": "cheboksary",
     "name": "Cheboksary",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.13222,
       "lng": 47.25194
@@ -1330,7 +1330,7 @@ const citiesData = [
   {
     "id": "tula",
     "name": "Tula",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.19609,
       "lng": 37.61822
@@ -1343,7 +1343,7 @@ const citiesData = [
   {
     "id": "kaliningrad",
     "name": "Kaliningrad",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.70649,
       "lng": 20.51095
@@ -1434,7 +1434,7 @@ const citiesData = [
   {
     "id": "kursk",
     "name": "Kursk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.73733,
       "lng": 36.18735
@@ -1460,7 +1460,7 @@ const citiesData = [
   {
     "id": "stavropol'",
     "name": "Stavropol’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.0428,
       "lng": 41.9734
@@ -1486,7 +1486,7 @@ const citiesData = [
   {
     "id": "bryansk",
     "name": "Bryansk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.25209,
       "lng": 34.37167
@@ -1512,7 +1512,7 @@ const citiesData = [
   {
     "id": "tver",
     "name": "Tver",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.85836,
       "lng": 35.90057
@@ -1577,7 +1577,7 @@ const citiesData = [
   {
     "id": "ivanovo",
     "name": "Ivanovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.99719,
       "lng": 40.97139
@@ -1707,7 +1707,7 @@ const citiesData = [
   {
     "id": "hrodna",
     "name": "Hrodna",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.6884,
       "lng": 23.8258
@@ -1733,7 +1733,7 @@ const citiesData = [
   {
     "id": "mahilyow",
     "name": "Mahilyow",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.9168,
       "lng": 30.3449
@@ -1809,19 +1809,6 @@ const citiesData = [
     "size": "medium"
   },
   {
-    "id": "brest",
-    "name": "Brest",
-    "country": "Belarus",
-    "coordinates": {
-      "lat": 52.09755,
-      "lng": 23.68775
-    },
-    "region": "Eastern Europe",
-    "population": 362641,
-    "isTransportHub": false,
-    "size": "medium"
-  },
-  {
     "id": "utrecht",
     "name": "Utrecht",
     "country": "Netherlands",
@@ -1863,7 +1850,7 @@ const citiesData = [
   {
     "id": "vladimir",
     "name": "Vladimir",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.13655,
       "lng": 40.39658
@@ -1889,7 +1876,7 @@ const citiesData = [
   {
     "id": "arkhangel'sk",
     "name": "Arkhangel’sk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 64.54717,
       "lng": 40.55291
@@ -1967,7 +1954,7 @@ const citiesData = [
   {
     "id": "belgorod",
     "name": "Belgorod",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.61074,
       "lng": 36.58015
@@ -1980,7 +1967,7 @@ const citiesData = [
   {
     "id": "vitebsk",
     "name": "Vitebsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 55.1904,
       "lng": 30.2049
@@ -2019,7 +2006,7 @@ const citiesData = [
   {
     "id": "kaluga",
     "name": "Kaluga",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.5293,
       "lng": 36.27542
@@ -2045,7 +2032,7 @@ const citiesData = [
   {
     "id": "krasnogvargeisky",
     "name": "Krasnogvargeisky",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.97305,
       "lng": 30.47607
@@ -2110,7 +2097,7 @@ const citiesData = [
   {
     "id": "smolensk",
     "name": "Smolensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.77944,
       "lng": 32.04371
@@ -2136,7 +2123,7 @@ const citiesData = [
   {
     "id": "sochi",
     "name": "Sochi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.59917,
       "lng": 39.72569
@@ -2188,7 +2175,7 @@ const citiesData = [
   {
     "id": "volzhsky",
     "name": "Volzhsky",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.78583,
       "lng": 44.77973
@@ -2214,7 +2201,7 @@ const citiesData = [
   {
     "id": "saransk",
     "name": "Saransk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.1838,
       "lng": 45.1749
@@ -2331,7 +2318,7 @@ const citiesData = [
   {
     "id": "cherepovets",
     "name": "Cherepovets",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.13333,
       "lng": 37.9
@@ -2409,7 +2396,7 @@ const citiesData = [
   {
     "id": "vologda",
     "name": "Vologda",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.2239,
       "lng": 39.88398
@@ -2461,7 +2448,7 @@ const citiesData = [
   {
     "id": "vladikavkaz",
     "name": "Vladikavkaz",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.03667,
       "lng": 44.66778
@@ -2487,7 +2474,7 @@ const citiesData = [
   {
     "id": "orel",
     "name": "Orël",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.95932,
       "lng": 36.07805
@@ -2565,7 +2552,7 @@ const citiesData = [
   {
     "id": "groznyy",
     "name": "Groznyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.31195,
       "lng": 45.68895
@@ -2591,7 +2578,7 @@ const citiesData = [
   {
     "id": "murmansk",
     "name": "Murmansk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 68.97398,
       "lng": 33.09747
@@ -2630,7 +2617,7 @@ const citiesData = [
   {
     "id": "tambov",
     "name": "Tambov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.73169,
       "lng": 41.44326
@@ -2786,7 +2773,7 @@ const citiesData = [
   {
     "id": "petrozavodsk",
     "name": "Petrozavodsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.78491,
       "lng": 34.34691
@@ -2799,7 +2786,7 @@ const citiesData = [
   {
     "id": "taganrog",
     "name": "Taganrog",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.23627,
       "lng": 38.9053
@@ -2851,7 +2838,7 @@ const citiesData = [
   {
     "id": "kostroma",
     "name": "Kostroma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.76647,
       "lng": 40.92686
@@ -3007,7 +2994,7 @@ const citiesData = [
   {
     "id": "yoshkar-ola",
     "name": "Yoshkar-Ola",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.63877,
       "lng": 47.89078
@@ -3423,7 +3410,7 @@ const citiesData = [
   {
     "id": "syktyvkar",
     "name": "Syktyvkar",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.664,
       "lng": 50.815
@@ -3488,7 +3475,7 @@ const citiesData = [
   {
     "id": "mar'ino",
     "name": "Mar’ino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65,
       "lng": 37.71667
@@ -3501,7 +3488,7 @@ const citiesData = [
   {
     "id": "novorossiysk",
     "name": "Novorossiysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.72439,
       "lng": 37.76752
@@ -3514,7 +3501,7 @@ const citiesData = [
   {
     "id": "khimki",
     "name": "Khimki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.9001,
       "lng": 37.42848
@@ -3540,7 +3527,7 @@ const citiesData = [
   {
     "id": "nalchik",
     "name": "Nalchik",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.49806,
       "lng": 43.61889
@@ -3683,7 +3670,7 @@ const citiesData = [
   {
     "id": "nizhnekamsk",
     "name": "Nizhnekamsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.63657,
       "lng": 51.82447
@@ -3709,7 +3696,7 @@ const citiesData = [
   {
     "id": "dzerzhinsk",
     "name": "Dzerzhinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.24422,
       "lng": 43.45543
@@ -3800,7 +3787,7 @@ const citiesData = [
   {
     "id": "staryy-oskol",
     "name": "Staryy Oskol",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.29667,
       "lng": 37.84167
@@ -3891,7 +3878,7 @@ const citiesData = [
   {
     "id": "velikiy-novgorod",
     "name": "Velikiy Novgorod",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.52131,
       "lng": 31.27104
@@ -3904,7 +3891,7 @@ const citiesData = [
   {
     "id": "shakhty",
     "name": "Shakhty",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.70911,
       "lng": 40.21443
@@ -4073,7 +4060,7 @@ const citiesData = [
   {
     "id": "rybinsk",
     "name": "Rybinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.04562,
       "lng": 38.83811
@@ -4086,7 +4073,7 @@ const citiesData = [
   {
     "id": "vykhino-zhulebino",
     "name": "Vykhino-Zhulebino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.70196,
       "lng": 37.81178
@@ -4125,7 +4112,7 @@ const citiesData = [
   {
     "id": "zelenograd",
     "name": "Zelenograd",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.9825,
       "lng": 37.18139
@@ -4164,7 +4151,7 @@ const citiesData = [
   {
     "id": "centralniy",
     "name": "Centralniy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.93111,
       "lng": 30.36072
@@ -4242,7 +4229,7 @@ const citiesData = [
   {
     "id": "pskov",
     "name": "Pskov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.81404,
       "lng": 28.34493
@@ -4255,7 +4242,7 @@ const citiesData = [
   {
     "id": "babruysk",
     "name": "Babruysk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.1384,
       "lng": 29.2214
@@ -4450,7 +4437,7 @@ const citiesData = [
   {
     "id": "vasyl'evsky-ostrov",
     "name": "Vasyl'evsky Ostrov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.94091,
       "lng": 30.25377
@@ -4528,7 +4515,7 @@ const citiesData = [
   {
     "id": "severnyy",
     "name": "Severnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.93583,
       "lng": 37.54889
@@ -4554,7 +4541,7 @@ const citiesData = [
   {
     "id": "balakovo",
     "name": "Balakovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.02782,
       "lng": 47.8007
@@ -4567,7 +4554,7 @@ const citiesData = [
   {
     "id": "armavir",
     "name": "Armavir",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.9892,
       "lng": 41.1234
@@ -4710,7 +4697,7 @@ const citiesData = [
   {
     "id": "engels",
     "name": "Engels",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.48389,
       "lng": 46.10528
@@ -4788,7 +4775,7 @@ const citiesData = [
   {
     "id": "severodvinsk",
     "name": "Severodvinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 64.55825,
       "lng": 39.82971
@@ -4840,7 +4827,7 @@ const citiesData = [
   {
     "id": "syzran",
     "name": "Syzran",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.1585,
       "lng": 48.4681
@@ -5074,7 +5061,7 @@ const citiesData = [
   {
     "id": "yasenevo",
     "name": "Yasenevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.60686,
       "lng": 37.51991
@@ -5100,7 +5087,7 @@ const citiesData = [
   {
     "id": "podolsk",
     "name": "Podolsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.42419,
       "lng": 37.55472
@@ -5126,7 +5113,7 @@ const citiesData = [
   {
     "id": "baranovichi",
     "name": "Baranovichi",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.13253,
       "lng": 26.00774
@@ -5334,7 +5321,7 @@ const citiesData = [
   {
     "id": "lyublino",
     "name": "Lyublino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.67738,
       "lng": 37.76005
@@ -5555,7 +5542,7 @@ const citiesData = [
   {
     "id": "volgodonsk",
     "name": "Volgodonsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.51361,
       "lng": 42.15139
@@ -5607,7 +5594,7 @@ const citiesData = [
   {
     "id": "novocherkassk",
     "name": "Novocherkassk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.42096,
       "lng": 40.09185
@@ -5724,7 +5711,7 @@ const citiesData = [
   {
     "id": "nazran'",
     "name": "Nazran’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.22597,
       "lng": 44.77323
@@ -5867,7 +5854,7 @@ const citiesData = [
   {
     "id": "mytishchi",
     "name": "Mytishchi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.91099,
       "lng": 37.72964
@@ -5893,7 +5880,7 @@ const citiesData = [
   {
     "id": "khoroshevo-mnevniki",
     "name": "Khoroshëvo-Mnevniki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.78363,
       "lng": 37.47137
@@ -5906,7 +5893,7 @@ const citiesData = [
   {
     "id": "bibirevo",
     "name": "Bibirevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.88333,
       "lng": 37.6
@@ -5971,7 +5958,7 @@ const citiesData = [
   {
     "id": "gol'yanovo",
     "name": "Gol’yanovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.82299,
       "lng": 37.81306
@@ -5984,7 +5971,7 @@ const citiesData = [
   {
     "id": "admiralteisky",
     "name": "Admiralteisky",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.923,
       "lng": 30.3
@@ -6140,7 +6127,7 @@ const citiesData = [
   {
     "id": "lyubertsy",
     "name": "Lyubertsy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.67719,
       "lng": 37.89322
@@ -6166,7 +6153,7 @@ const citiesData = [
   {
     "id": "kovrov",
     "name": "Kovrov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.35752,
       "lng": 41.31893
@@ -6231,7 +6218,7 @@ const citiesData = [
   {
     "id": "strogino",
     "name": "Strogino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.81838,
       "lng": 37.41224
@@ -6270,7 +6257,7 @@ const citiesData = [
   {
     "id": "balashikha",
     "name": "Balashikha",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.79479,
       "lng": 37.94794
@@ -6296,7 +6283,7 @@ const citiesData = [
   {
     "id": "zhulebino",
     "name": "Zhulebino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.85
@@ -6543,7 +6530,7 @@ const citiesData = [
   {
     "id": "kolomna",
     "name": "Kolomna",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.07108,
       "lng": 38.78399
@@ -6738,7 +6725,7 @@ const citiesData = [
   {
     "id": "barysaw",
     "name": "Barysaw",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.2279,
       "lng": 28.505
@@ -6816,7 +6803,7 @@ const citiesData = [
   {
     "id": "elektrostal'",
     "name": "Elektrostal’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.78647,
       "lng": 38.45713
@@ -6842,7 +6829,7 @@ const citiesData = [
   {
     "id": "biryulevo",
     "name": "Biryulëvo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.58635,
       "lng": 37.67781
@@ -6855,7 +6842,7 @@ const citiesData = [
   {
     "id": "orekhovo-borisovo",
     "name": "Orekhovo-Borisovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.61252,
       "lng": 37.72639
@@ -6933,7 +6920,7 @@ const citiesData = [
   {
     "id": "novyye-kuz'minki",
     "name": "Novyye Kuz’minki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.75
@@ -6946,7 +6933,7 @@ const citiesData = [
   {
     "id": "kuz'minki",
     "name": "Kuz’minki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.8
@@ -6972,7 +6959,7 @@ const citiesData = [
   {
     "id": "pyatigorsk",
     "name": "Pyatigorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.05,
       "lng": 43.05036
@@ -7037,7 +7024,7 @@ const citiesData = [
   {
     "id": "chertanovo-yuzhnoye",
     "name": "Chertanovo Yuzhnoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.59072,
       "lng": 37.59519
@@ -7050,7 +7037,7 @@ const citiesData = [
   {
     "id": "maykop",
     "name": "Maykop",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.60778,
       "lng": 40.10583
@@ -7076,7 +7063,7 @@ const citiesData = [
   {
     "id": "zheleznodorozhnyy",
     "name": "Zheleznodorozhnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.744,
       "lng": 38.01684
@@ -7154,7 +7141,7 @@ const citiesData = [
   {
     "id": "al'met'yevsk",
     "name": "Al’met’yevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.90442,
       "lng": 52.3154
@@ -7232,7 +7219,7 @@ const citiesData = [
   {
     "id": "korolev",
     "name": "Korolev",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.91417,
       "lng": 37.82556
@@ -7297,7 +7284,7 @@ const citiesData = [
   {
     "id": "kolpino",
     "name": "Kolpino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.75069,
       "lng": 30.58856
@@ -7336,7 +7323,7 @@ const citiesData = [
   {
     "id": "odintsovo",
     "name": "Odintsovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.66977,
       "lng": 37.27716
@@ -7440,7 +7427,7 @@ const citiesData = [
   {
     "id": "nevinnomyssk",
     "name": "Nevinnomyssk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.6333,
       "lng": 41.9444
@@ -7518,7 +7505,7 @@ const citiesData = [
   {
     "id": "kislovodsk",
     "name": "Kislovodsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.91333,
       "lng": 42.72083
@@ -7596,7 +7583,7 @@ const citiesData = [
   {
     "id": "dimitrovgrad",
     "name": "Dimitrovgrad",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.21386,
       "lng": 49.61838
@@ -7635,7 +7622,7 @@ const citiesData = [
   {
     "id": "novomoskovsk",
     "name": "Novomoskovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.01098,
       "lng": 38.29084
@@ -7661,7 +7648,7 @@ const citiesData = [
   {
     "id": "pinsk",
     "name": "Pinsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.12153,
       "lng": 26.06726
@@ -7687,7 +7674,7 @@ const citiesData = [
   {
     "id": "petrogradka",
     "name": "Petrogradka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.96567,
       "lng": 30.31154
@@ -7752,7 +7739,7 @@ const citiesData = [
   {
     "id": "ramenki",
     "name": "Ramenki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.5
@@ -7856,7 +7843,7 @@ const citiesData = [
   {
     "id": "zyablikovo",
     "name": "Zyablikovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.61667,
       "lng": 37.76667
@@ -7869,7 +7856,7 @@ const citiesData = [
   {
     "id": "kamyshin",
     "name": "Kamyshin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.09833,
       "lng": 45.41601
@@ -7882,7 +7869,7 @@ const citiesData = [
   {
     "id": "novocheboksarsk",
     "name": "Novocheboksarsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.11095,
       "lng": 47.47755
@@ -7908,7 +7895,7 @@ const citiesData = [
   {
     "id": "serpukhov",
     "name": "Serpukhov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.9198,
       "lng": 37.41618
@@ -7921,7 +7908,7 @@ const citiesData = [
   {
     "id": "orekhovo-borisovo-severnoye",
     "name": "Orekhovo-Borisovo Severnoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.61667,
       "lng": 37.68333
@@ -7934,7 +7921,7 @@ const citiesData = [
   {
     "id": "ivanovskoye",
     "name": "Ivanovskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.76667,
       "lng": 37.83333
@@ -8025,7 +8012,7 @@ const citiesData = [
   {
     "id": "murom",
     "name": "Murom",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.56853,
       "lng": 42.02388
@@ -8038,7 +8025,7 @@ const citiesData = [
   {
     "id": "khasavyurt",
     "name": "Khasavyurt",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.24872,
       "lng": 46.58571
@@ -8142,7 +8129,7 @@ const citiesData = [
   {
     "id": "orsha",
     "name": "Orsha",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.5081,
       "lng": 30.4172
@@ -8168,7 +8155,7 @@ const citiesData = [
   {
     "id": "tyoply-stan",
     "name": "Tyoply Stan",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.62047,
       "lng": 37.49338
@@ -8259,7 +8246,7 @@ const citiesData = [
   {
     "id": "tsaritsyno",
     "name": "Tsaritsyno",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.6254,
       "lng": 37.65032
@@ -8311,7 +8298,7 @@ const citiesData = [
   {
     "id": "cherkessk",
     "name": "Cherkessk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.22333,
       "lng": 42.05778
@@ -8376,7 +8363,7 @@ const citiesData = [
   {
     "id": "veshnyaki",
     "name": "Veshnyaki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.72393,
       "lng": 37.81952
@@ -8389,7 +8376,7 @@ const citiesData = [
   {
     "id": "presnenskiy",
     "name": "Presnenskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.75,
       "lng": 37.55
@@ -8506,7 +8493,7 @@ const citiesData = [
   {
     "id": "zyuzino",
     "name": "Zyuzino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65608,
       "lng": 37.56846
@@ -8610,7 +8597,7 @@ const citiesData = [
   {
     "id": "solntsevo",
     "name": "Solntsevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.63711,
       "lng": 37.38115
@@ -8623,7 +8610,7 @@ const citiesData = [
   {
     "id": "orekhovo-zuyevo",
     "name": "Orekhovo-Zuyevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.81242,
       "lng": 38.99155
@@ -8805,7 +8792,7 @@ const citiesData = [
   {
     "id": "troparevo",
     "name": "Troparëvo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65625,
       "lng": 37.48496
@@ -8974,7 +8961,7 @@ const citiesData = [
   {
     "id": "taganskiy",
     "name": "Taganskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.73333,
       "lng": 37.66667
@@ -8987,7 +8974,7 @@ const citiesData = [
   {
     "id": "noginsk",
     "name": "Noginsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.86486,
       "lng": 38.44853
@@ -9013,7 +9000,7 @@ const citiesData = [
   {
     "id": "yelets",
     "name": "Yelets",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.61435,
       "lng": 38.50935
@@ -9039,7 +9026,7 @@ const citiesData = [
   {
     "id": "novo-peredelkino",
     "name": "Novo-Peredelkino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.64528,
       "lng": 37.33583
@@ -9078,7 +9065,7 @@ const citiesData = [
   {
     "id": "ochakovo-matveyevskoye",
     "name": "Ochakovo-Matveyevskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.68432,
       "lng": 37.44654
@@ -9195,7 +9182,7 @@ const citiesData = [
   {
     "id": "shchyolkovo",
     "name": "Shchyolkovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.92497,
       "lng": 37.97218
@@ -9234,7 +9221,7 @@ const citiesData = [
   {
     "id": "mazyr",
     "name": "Mazyr",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.0495,
       "lng": 29.2456
@@ -9286,7 +9273,7 @@ const citiesData = [
   {
     "id": "novokuybyshevsk",
     "name": "Novokuybyshevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.0959,
       "lng": 49.9462
@@ -9468,7 +9455,7 @@ const citiesData = [
   {
     "id": "bataysk",
     "name": "Bataysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.13975,
       "lng": 39.75181
@@ -9533,7 +9520,7 @@ const citiesData = [
   {
     "id": "arzamas",
     "name": "Arzamas",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.39563,
       "lng": 43.8381
@@ -9559,7 +9546,7 @@ const citiesData = [
   {
     "id": "sergiyev-posad",
     "name": "Sergiyev Posad",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.31204,
       "lng": 38.13869
@@ -9611,7 +9598,7 @@ const citiesData = [
   {
     "id": "navapolatsk",
     "name": "Navapolatsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 55.5318,
       "lng": 28.5987
@@ -9715,7 +9702,7 @@ const citiesData = [
   {
     "id": "obninsk",
     "name": "Obninsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.10993,
       "lng": 36.61238
@@ -9780,7 +9767,7 @@ const citiesData = [
   {
     "id": "elista",
     "name": "Elista",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.30778,
       "lng": 44.25583
@@ -9806,7 +9793,7 @@ const citiesData = [
   {
     "id": "salihorsk",
     "name": "Salihorsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.7876,
       "lng": 27.5415
@@ -9819,7 +9806,7 @@ const citiesData = [
   {
     "id": "cheremushki",
     "name": "Cherëmushki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.66473,
       "lng": 37.56135
@@ -9910,7 +9897,7 @@ const citiesData = [
   {
     "id": "derbent",
     "name": "Derbent",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 42.06622,
       "lng": 48.28759
@@ -10066,7 +10053,7 @@ const citiesData = [
   {
     "id": "izmaylovo",
     "name": "Izmaylovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.78677,
       "lng": 37.80165
@@ -10157,7 +10144,7 @@ const citiesData = [
   {
     "id": "akademicheskoe",
     "name": "Akademicheskoe",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.01375,
       "lng": 30.39471
@@ -10170,7 +10157,7 @@ const citiesData = [
   {
     "id": "velikiye-luki",
     "name": "Velikiye Luki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.34063,
       "lng": 30.54377
@@ -10209,7 +10196,7 @@ const citiesData = [
   {
     "id": "bogorodskoye",
     "name": "Bogorodskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.81353,
       "lng": 37.71617
@@ -10235,7 +10222,7 @@ const citiesData = [
   {
     "id": "pushkino",
     "name": "Pushkino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.99456,
       "lng": 37.82897
@@ -10274,7 +10261,7 @@ const citiesData = [
   {
     "id": "lida",
     "name": "Lida",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.88333,
       "lng": 25.29972
@@ -10365,7 +10352,7 @@ const citiesData = [
   {
     "id": "ukhta",
     "name": "Ukhta",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 63.56705,
       "lng": 53.68348
@@ -10378,7 +10365,7 @@ const citiesData = [
   {
     "id": "brateyevo",
     "name": "Brateyevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.63755,
       "lng": 37.76438
@@ -10391,7 +10378,7 @@ const citiesData = [
   {
     "id": "shchukino",
     "name": "Shchukino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.8,
       "lng": 37.45
@@ -10534,7 +10521,7 @@ const citiesData = [
   {
     "id": "maladziecna",
     "name": "Maladziečna",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.3167,
       "lng": 26.854
@@ -10586,7 +10573,7 @@ const citiesData = [
   {
     "id": "novyye-cheremushki",
     "name": "Novyye Cherëmushki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.58333
@@ -10599,7 +10586,7 @@ const citiesData = [
   {
     "id": "ryazanskiy",
     "name": "Ryazanskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.73333,
       "lng": 37.76667
@@ -10651,7 +10638,7 @@ const citiesData = [
   {
     "id": "glazov",
     "name": "Glazov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.14,
       "lng": 52.65619
@@ -10755,7 +10742,7 @@ const citiesData = [
   {
     "id": "tekstil'shchiki",
     "name": "Tekstil’shchiki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.70033,
       "lng": 37.74271
@@ -10781,7 +10768,7 @@ const citiesData = [
   {
     "id": "zelenodolsk",
     "name": "Zelenodolsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.84376,
       "lng": 48.51784
@@ -10807,7 +10794,7 @@ const citiesData = [
   {
     "id": "novoshakhtinsk",
     "name": "Novoshakhtinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.76037,
       "lng": 39.93335
@@ -10872,7 +10859,7 @@ const citiesData = [
   {
     "id": "sarapul",
     "name": "Sarapul",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.47633,
       "lng": 53.79782
@@ -10937,7 +10924,7 @@ const citiesData = [
   {
     "id": "votkinsk",
     "name": "Votkinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.04867,
       "lng": 53.9872
@@ -10989,7 +10976,7 @@ const citiesData = [
   {
     "id": "balashov",
     "name": "Balashov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.5502,
       "lng": 43.1667
@@ -11028,7 +11015,7 @@ const citiesData = [
   {
     "id": "zheleznogorsk",
     "name": "Zheleznogorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.34198,
       "lng": 35.35917
@@ -11093,7 +11080,7 @@ const citiesData = [
   {
     "id": "zhukovsky",
     "name": "Zhukovsky",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.59528,
       "lng": 38.12028
@@ -11249,7 +11236,7 @@ const citiesData = [
   {
     "id": "ramenskoye",
     "name": "Ramenskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.56341,
       "lng": 38.24152
@@ -11366,7 +11353,7 @@ const citiesData = [
   {
     "id": "novogireyevo",
     "name": "Novogireyevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.75378,
       "lng": 37.81885
@@ -11379,7 +11366,7 @@ const citiesData = [
   {
     "id": "vostochnoe-degunino",
     "name": "Vostochnoe Degunino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.8801,
       "lng": 37.55758
@@ -11392,7 +11379,7 @@ const citiesData = [
   {
     "id": "ozerki",
     "name": "Ozerki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.03947,
       "lng": 30.31128
@@ -11509,7 +11496,7 @@ const citiesData = [
   {
     "id": "michurinsk",
     "name": "Michurinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.8978,
       "lng": 40.4907
@@ -11665,7 +11652,7 @@ const citiesData = [
   {
     "id": "kineshma",
     "name": "Kineshma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.43665,
       "lng": 42.12766
@@ -11678,7 +11665,7 @@ const citiesData = [
   {
     "id": "krasnogorsk",
     "name": "Krasnogorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.81904,
       "lng": 37.32984
@@ -11691,7 +11678,7 @@ const citiesData = [
   {
     "id": "pushkin",
     "name": "Pushkin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.71417,
       "lng": 30.39642
@@ -11821,7 +11808,7 @@ const citiesData = [
   {
     "id": "bugulma",
     "name": "Bugulma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.5378,
       "lng": 52.7985
@@ -11938,7 +11925,7 @@ const citiesData = [
   {
     "id": "lefortovo",
     "name": "Lefortovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.76667,
       "lng": 37.7
@@ -11951,7 +11938,7 @@ const citiesData = [
   {
     "id": "yaroslavskiy",
     "name": "Yaroslavskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.88333,
       "lng": 37.71667
@@ -11990,7 +11977,7 @@ const citiesData = [
   {
     "id": "kuznetsk",
     "name": "Kuznetsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.11675,
       "lng": 46.60037
@@ -12029,7 +12016,7 @@ const citiesData = [
   {
     "id": "kirovo-chepetsk",
     "name": "Kirovo-Chepetsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.55091,
       "lng": 50.031
@@ -12107,7 +12094,7 @@ const citiesData = [
   {
     "id": "gatchina",
     "name": "Gatchina",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.57639,
       "lng": 30.12833
@@ -12198,7 +12185,7 @@ const citiesData = [
   {
     "id": "biryulevo-zapadnoye",
     "name": "Biryulëvo Zapadnoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.58766,
       "lng": 37.64282
@@ -12315,7 +12302,7 @@ const citiesData = [
   {
     "id": "sarov",
     "name": "Sarov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.94802,
       "lng": 43.31521
@@ -12328,7 +12315,7 @@ const citiesData = [
   {
     "id": "yeysk",
     "name": "Yeysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.7055,
       "lng": 38.2739
@@ -12458,7 +12445,7 @@ const citiesData = [
   {
     "id": "gubkin",
     "name": "Gubkin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.28167,
       "lng": 37.5458
@@ -12588,7 +12575,7 @@ const citiesData = [
   {
     "id": "babushkin",
     "name": "Babushkin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.86931,
       "lng": 37.72966
@@ -12601,7 +12588,7 @@ const citiesData = [
   {
     "id": "lianozovo",
     "name": "Lianozovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.89783,
       "lng": 37.5868
@@ -12705,7 +12692,7 @@ const citiesData = [
   {
     "id": "obruchevo",
     "name": "Obruchevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.6591,
       "lng": 37.52291
@@ -12731,7 +12718,7 @@ const citiesData = [
   {
     "id": "svetlanovskiy",
     "name": "Svetlanovskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.00276,
       "lng": 30.33051
@@ -12809,7 +12796,7 @@ const citiesData = [
   {
     "id": "yegor'yevsk",
     "name": "Yegor’yevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.37952,
       "lng": 39.04122
@@ -13030,7 +13017,7 @@ const citiesData = [
   {
     "id": "komendantsky-aerodrom",
     "name": "Komendantsky aerodrom",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.00448,
       "lng": 30.27523
@@ -13407,7 +13394,7 @@ const citiesData = [
   {
     "id": "polatsk",
     "name": "Polatsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 55.4879,
       "lng": 28.7856
@@ -13433,7 +13420,7 @@ const citiesData = [
   {
     "id": "azov",
     "name": "Azov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.10779,
       "lng": 39.41648
@@ -13524,7 +13511,7 @@ const citiesData = [
   {
     "id": "kaspiysk",
     "name": "Kaspiysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 42.88165,
       "lng": 47.63919
@@ -13680,7 +13667,7 @@ const citiesData = [
   {
     "id": "yessentuki",
     "name": "Yessentuki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.04826,
       "lng": 42.85638
@@ -13719,7 +13706,7 @@ const citiesData = [
   {
     "id": "klin",
     "name": "Klin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.33342,
       "lng": 36.73195
@@ -13888,7 +13875,7 @@ const citiesData = [
   {
     "id": "vorkuta",
     "name": "Vorkuta",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 67.49884,
       "lng": 64.05253
@@ -13914,7 +13901,7 @@ const citiesData = [
   {
     "id": "fili",
     "name": "Fili",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.74819,
       "lng": 37.47969
@@ -13979,7 +13966,7 @@ const citiesData = [
   {
     "id": "kropotkin",
     "name": "Kropotkin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.4375,
       "lng": 40.57556
@@ -14122,7 +14109,7 @@ const citiesData = [
   {
     "id": "vyborg",
     "name": "Vyborg",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.70763,
       "lng": 28.75283
@@ -14174,7 +14161,7 @@ const citiesData = [
   {
     "id": "reutov",
     "name": "Reutov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.76273,
       "lng": 37.86303
@@ -14239,7 +14226,7 @@ const citiesData = [
   {
     "id": "alekseyevka",
     "name": "Alekseyevka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.63,
       "lng": 37.8
@@ -14512,7 +14499,7 @@ const citiesData = [
   {
     "id": "voskresensk",
     "name": "Voskresensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.29092,
       "lng": 38.67556
@@ -14798,7 +14785,7 @@ const citiesData = [
   {
     "id": "mineralnye-vody",
     "name": "Mineralnye Vody",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.21028,
       "lng": 43.13528
@@ -14863,7 +14850,7 @@ const citiesData = [
   {
     "id": "zhlobin",
     "name": "Zhlobin",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.8926,
       "lng": 30.024
@@ -14889,7 +14876,7 @@ const citiesData = [
   {
     "id": "nagornyy",
     "name": "Nagornyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65,
       "lng": 37.61667
@@ -14941,7 +14928,7 @@ const citiesData = [
   {
     "id": "kamensk-shakhtinsky",
     "name": "Kamensk-Shakhtinsky",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.31779,
       "lng": 40.25948
@@ -14967,7 +14954,7 @@ const citiesData = [
   {
     "id": "chekhov",
     "name": "Chekhov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.14552,
       "lng": 37.46193
@@ -15565,7 +15552,7 @@ const citiesData = [
   {
     "id": "peterhof",
     "name": "Peterhof",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.88333,
       "lng": 29.9
@@ -15695,7 +15682,7 @@ const citiesData = [
   {
     "id": "dachnoye",
     "name": "Dachnoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.84167,
       "lng": 30.25583
@@ -15721,7 +15708,7 @@ const citiesData = [
   {
     "id": "georgiyevsk",
     "name": "Georgiyevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.1494,
       "lng": 43.47019
@@ -15747,7 +15734,7 @@ const citiesData = [
   {
     "id": "yelabuga",
     "name": "Yelabuga",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.76127,
       "lng": 52.06493
@@ -15760,7 +15747,7 @@ const citiesData = [
   {
     "id": "naro-fominsk",
     "name": "Naro-Fominsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.38752,
       "lng": 36.73307
@@ -15812,7 +15799,7 @@ const citiesData = [
   {
     "id": "finlyandskiy",
     "name": "Finlyandskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.96824,
       "lng": 30.36415
@@ -15864,7 +15851,7 @@ const citiesData = [
   {
     "id": "sunzha",
     "name": "Sunzha",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.32059,
       "lng": 45.04903
@@ -16072,7 +16059,7 @@ const citiesData = [
   {
     "id": "grazhdanka",
     "name": "Grazhdanka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.017,
       "lng": 30.417
@@ -16215,7 +16202,7 @@ const citiesData = [
   {
     "id": "kurortnyy",
     "name": "Kurortnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.16562,
       "lng": 29.908
@@ -16306,7 +16293,7 @@ const citiesData = [
   {
     "id": "vol'sk",
     "name": "Vol’sk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.04541,
       "lng": 47.37993
@@ -16371,7 +16358,7 @@ const citiesData = [
   {
     "id": "adler",
     "name": "Adler",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.42896,
       "lng": 39.92391
@@ -16397,7 +16384,7 @@ const citiesData = [
   {
     "id": "chapayevsk",
     "name": "Chapayevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.9771,
       "lng": 49.7086
@@ -16709,7 +16696,7 @@ const citiesData = [
   {
     "id": "borisoglebsk",
     "name": "Borisoglebsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.36713,
       "lng": 42.08494
@@ -16722,7 +16709,7 @@ const citiesData = [
   {
     "id": "sosnovyy-bor",
     "name": "Sosnovyy Bor",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.8996,
       "lng": 29.08574
@@ -16787,7 +16774,7 @@ const citiesData = [
   {
     "id": "dolgoprudnyy",
     "name": "Dolgoprudnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.94958,
       "lng": 37.50183
@@ -16865,7 +16852,7 @@ const citiesData = [
   {
     "id": "dorogomilovo",
     "name": "Dorogomilovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.75,
       "lng": 37.56667
@@ -16904,7 +16891,7 @@ const citiesData = [
   {
     "id": "budyonnovsk",
     "name": "Budyonnovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.78389,
       "lng": 44.16583
@@ -17164,7 +17151,7 @@ const citiesData = [
   {
     "id": "kstovo",
     "name": "Kstovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.1475,
       "lng": 44.19865
@@ -17268,7 +17255,7 @@ const citiesData = [
   {
     "id": "svyetlahorsk",
     "name": "Svyetlahorsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.6329,
       "lng": 29.7389
@@ -17333,7 +17320,7 @@ const citiesData = [
   {
     "id": "aleksin",
     "name": "Aleksin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.50484,
       "lng": 37.06697
@@ -17372,7 +17359,7 @@ const citiesData = [
   {
     "id": "parnas",
     "name": "Parnas",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.06964,
       "lng": 30.3487
@@ -17476,7 +17463,7 @@ const citiesData = [
   {
     "id": "klintsy",
     "name": "Klintsy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.76033,
       "lng": 32.23905
@@ -17528,7 +17515,7 @@ const citiesData = [
   {
     "id": "leninogorsk",
     "name": "Leninogorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.60256,
       "lng": 52.46087
@@ -17580,7 +17567,7 @@ const citiesData = [
   {
     "id": "sosnovka",
     "name": "Sosnovka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.01667,
       "lng": 30.35
@@ -17671,7 +17658,7 @@ const citiesData = [
   {
     "id": "gukovo",
     "name": "Gukovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.06212,
       "lng": 39.9355
@@ -17827,7 +17814,7 @@ const citiesData = [
   {
     "id": "horad-zhodzina",
     "name": "Horad Zhodzina",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.0985,
       "lng": 28.3331
@@ -17866,7 +17853,7 @@ const citiesData = [
   {
     "id": "rechytsa",
     "name": "Rechytsa",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.3617,
       "lng": 30.3916
@@ -17957,7 +17944,7 @@ const citiesData = [
   {
     "id": "slavyansk-na-kubani",
     "name": "Slavyansk-na-Kubani",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.2558,
       "lng": 38.1256
@@ -18191,7 +18178,7 @@ const citiesData = [
   {
     "id": "tikhoretsk",
     "name": "Tikhoretsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.85472,
       "lng": 40.12528
@@ -18230,7 +18217,7 @@ const citiesData = [
   {
     "id": "rossosh'",
     "name": "Rossosh’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.1209,
       "lng": 38.5116
@@ -18269,7 +18256,7 @@ const citiesData = [
   {
     "id": "tuapse",
     "name": "Tuapse",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.1053,
       "lng": 39.0802
@@ -18321,7 +18308,7 @@ const citiesData = [
   {
     "id": "aleksandrov",
     "name": "Aleksandrov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.39516,
       "lng": 38.71452
@@ -18373,7 +18360,7 @@ const citiesData = [
   {
     "id": "kotlovka",
     "name": "Kotlovka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65928,
       "lng": 37.60404
@@ -18568,7 +18555,7 @@ const citiesData = [
   {
     "id": "zarechnyy",
     "name": "Zarechnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.20356,
       "lng": 45.19227
@@ -18711,7 +18698,7 @@ const citiesData = [
   {
     "id": "pavlovo",
     "name": "Pavlovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.9686,
       "lng": 43.0912
@@ -18776,7 +18763,7 @@ const citiesData = [
   {
     "id": "novaya-balakhna",
     "name": "Novaya Balakhna",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.48989,
       "lng": 43.60114
@@ -18893,7 +18880,7 @@ const citiesData = [
   {
     "id": "gus'-khrustal'nyy",
     "name": "Gus’-Khrustal’nyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.61171,
       "lng": 40.65023
@@ -18919,7 +18906,7 @@ const citiesData = [
   {
     "id": "buynaksk",
     "name": "Buynaksk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 42.81802,
       "lng": 47.12684
@@ -19049,7 +19036,7 @@ const citiesData = [
   {
     "id": "rzhev",
     "name": "Rzhev",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.26289,
       "lng": 34.3289
@@ -19075,7 +19062,7 @@ const citiesData = [
   {
     "id": "chistopol'",
     "name": "Chistopol’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.36311,
       "lng": 50.64244
@@ -19114,7 +19101,7 @@ const citiesData = [
   {
     "id": "zarechnyy",
     "name": "Zarechnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.13333,
       "lng": 46.58333
@@ -19140,7 +19127,7 @@ const citiesData = [
   {
     "id": "tikhvin",
     "name": "Tikhvin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.63937,
       "lng": 33.52967
@@ -19192,7 +19179,7 @@ const citiesData = [
   {
     "id": "rossosh'",
     "name": "Rossosh’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.19828,
       "lng": 39.56726
@@ -19205,7 +19192,7 @@ const citiesData = [
   {
     "id": "petrodvorets",
     "name": "Petrodvorets",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.89565,
       "lng": 29.80145
@@ -19218,7 +19205,7 @@ const citiesData = [
   {
     "id": "labinsk",
     "name": "Labinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.63417,
       "lng": 40.73556
@@ -19270,7 +19257,7 @@ const citiesData = [
   {
     "id": "slutsk",
     "name": "Slutsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.0274,
       "lng": 27.5597
@@ -19296,7 +19283,7 @@ const citiesData = [
   {
     "id": "lobnya",
     "name": "Lobnya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.02714,
       "lng": 37.46793
@@ -19361,7 +19348,7 @@ const citiesData = [
   {
     "id": "vyksa",
     "name": "Vyksa",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.32058,
       "lng": 42.17402
@@ -19426,7 +19413,7 @@ const citiesData = [
   {
     "id": "dmitrov",
     "name": "Dmitrov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.34485,
       "lng": 37.52041
@@ -19673,7 +19660,7 @@ const citiesData = [
   {
     "id": "apatity",
     "name": "Apatity",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 67.58267,
       "lng": 33.41339
@@ -19738,7 +19725,7 @@ const citiesData = [
   {
     "id": "sal'sk",
     "name": "Sal’sk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.4747,
       "lng": 41.54114
@@ -19777,7 +19764,7 @@ const citiesData = [
   {
     "id": "stupino",
     "name": "Stupino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.89735,
       "lng": 38.06796
@@ -19907,7 +19894,7 @@ const citiesData = [
   {
     "id": "prokhladnyy",
     "name": "Prokhladnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.75741,
       "lng": 44.0297
@@ -19946,7 +19933,7 @@ const citiesData = [
   {
     "id": "shuya",
     "name": "Shuya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.84864,
       "lng": 41.3869
@@ -19959,7 +19946,7 @@ const citiesData = [
   {
     "id": "shchekino",
     "name": "Shchëkino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.00734,
       "lng": 37.50647
@@ -19985,7 +19972,7 @@ const citiesData = [
   {
     "id": "bor",
     "name": "Bor",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.35944,
       "lng": 44.07304
@@ -19998,7 +19985,7 @@ const citiesData = [
   {
     "id": "dubna",
     "name": "Dubna",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.74049,
       "lng": 37.18648
@@ -20193,7 +20180,7 @@ const citiesData = [
   {
     "id": "pavlovskiy-posad",
     "name": "Pavlovskiy Posad",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.78187,
       "lng": 38.65025
@@ -20245,7 +20232,7 @@ const citiesData = [
   {
     "id": "ostankinskiy",
     "name": "Ostankinskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.82957,
       "lng": 37.61604
@@ -20258,7 +20245,7 @@ const citiesData = [
   {
     "id": "sviblovo",
     "name": "Sviblovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.85,
       "lng": 37.63333
@@ -20531,7 +20518,7 @@ const citiesData = [
   {
     "id": "mikhaylovsk",
     "name": "Mikhaylovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.13097,
       "lng": 42.02703
@@ -20544,7 +20531,7 @@ const citiesData = [
   {
     "id": "kotlas",
     "name": "Kotlas",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.25663,
       "lng": 46.6537
@@ -20609,7 +20596,7 @@ const citiesData = [
   {
     "id": "mikhaylovka",
     "name": "Mikhaylovka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.06,
       "lng": 43.2379
@@ -20622,7 +20609,7 @@ const citiesData = [
   {
     "id": "solnechnogorsk",
     "name": "Solnechnogorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.18333,
       "lng": 36.98333
@@ -20752,7 +20739,7 @@ const citiesData = [
   {
     "id": "uzlovaya",
     "name": "Uzlovaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.9839,
       "lng": 38.15984
@@ -20973,7 +20960,7 @@ const citiesData = [
   {
     "id": "volzhsk",
     "name": "Volzhsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.86661,
       "lng": 48.35931
@@ -21194,7 +21181,7 @@ const citiesData = [
   {
     "id": "krymsk",
     "name": "Krymsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.92934,
       "lng": 37.99117
@@ -21311,7 +21298,7 @@ const citiesData = [
   {
     "id": "zhigulevsk",
     "name": "Zhigulevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.39972,
       "lng": 49.49528
@@ -21363,7 +21350,7 @@ const citiesData = [
   {
     "id": "sokol",
     "name": "Sokol",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.8,
       "lng": 37.51667
@@ -21376,7 +21363,7 @@ const citiesData = [
   {
     "id": "sokol'niki",
     "name": "Sokol’niki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.80202,
       "lng": 37.67159
@@ -21389,7 +21376,7 @@ const citiesData = [
   {
     "id": "roslavl'",
     "name": "Roslavl’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.95387,
       "lng": 32.86409
@@ -21623,7 +21610,7 @@ const citiesData = [
   {
     "id": "borovichi",
     "name": "Borovichi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.39418,
       "lng": 33.91864
@@ -21688,7 +21675,7 @@ const citiesData = [
   {
     "id": "chernaya-rechka",
     "name": "Chernaya Rechka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.98594,
       "lng": 30.30338
@@ -21779,7 +21766,7 @@ const citiesData = [
   {
     "id": "kirishi",
     "name": "Kirishi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.47417,
       "lng": 32.04007
@@ -21857,7 +21844,7 @@ const citiesData = [
   {
     "id": "ezhva",
     "name": "Ezhva",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.81281,
       "lng": 50.72834
@@ -21883,7 +21870,7 @@ const citiesData = [
   {
     "id": "liski",
     "name": "Liski",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.98405,
       "lng": 39.51545
@@ -22013,7 +22000,7 @@ const citiesData = [
   {
     "id": "vyaz'ma",
     "name": "Vyaz’ma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.20997,
       "lng": 34.29695
@@ -22182,7 +22169,7 @@ const citiesData = [
   {
     "id": "klimovsk",
     "name": "Klimovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.36352,
       "lng": 37.52984
@@ -22234,7 +22221,7 @@ const citiesData = [
   {
     "id": "rybatskoye",
     "name": "Rybatskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.8393,
       "lng": 30.49873
@@ -22247,7 +22234,7 @@ const citiesData = [
   {
     "id": "uritsk",
     "name": "Uritsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.83889,
       "lng": 30.17528
@@ -22260,7 +22247,7 @@ const citiesData = [
   {
     "id": "zamoskvorech'ye",
     "name": "Zamoskvorech’ye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.73333,
       "lng": 37.63333
@@ -22273,7 +22260,7 @@ const citiesData = [
   {
     "id": "pokrovskoye-streshnevo",
     "name": "Pokrovskoye-Streshnëvo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.80797,
       "lng": 37.45814
@@ -22481,7 +22468,7 @@ const citiesData = [
   {
     "id": "belorechensk",
     "name": "Belorechensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.77127,
       "lng": 39.87879
@@ -22624,7 +22611,7 @@ const citiesData = [
   {
     "id": "kupchino",
     "name": "Kupchino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.859,
       "lng": 30.388
@@ -22767,7 +22754,7 @@ const citiesData = [
   {
     "id": "altuf'yevskiy",
     "name": "Altuf’yevskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.88333,
       "lng": 37.58333
@@ -22845,7 +22832,7 @@ const citiesData = [
   {
     "id": "timashyovsk",
     "name": "Timashyovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.61694,
       "lng": 38.94528
@@ -22858,7 +22845,7 @@ const citiesData = [
   {
     "id": "severomorsk",
     "name": "Severomorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 69.06936,
       "lng": 33.40807
@@ -22897,7 +22884,7 @@ const citiesData = [
   {
     "id": "domodedovo",
     "name": "Domodedovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.44223,
       "lng": 37.75372
@@ -22949,7 +22936,7 @@ const citiesData = [
   {
     "id": "vyshniy-volochek",
     "name": "Vyshniy Volochëk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.5888,
       "lng": 34.56854
@@ -23027,7 +23014,7 @@ const citiesData = [
   {
     "id": "anapa",
     "name": "Anapa",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.89497,
       "lng": 37.31623
@@ -23183,7 +23170,7 @@ const citiesData = [
   {
     "id": "fryazevo",
     "name": "Fryazevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.73321,
       "lng": 38.46458
@@ -23495,7 +23482,7 @@ const citiesData = [
   {
     "id": "yartsevo",
     "name": "Yartsevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.06491,
       "lng": 32.69693
@@ -23716,7 +23703,7 @@ const citiesData = [
   {
     "id": "fryazino",
     "name": "Fryazino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.96131,
       "lng": 38.04643
@@ -23833,7 +23820,7 @@ const citiesData = [
   {
     "id": "kimry",
     "name": "Kimry",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.87456,
       "lng": 37.35957
@@ -23898,7 +23885,7 @@ const citiesData = [
   {
     "id": "levoberezhnyy",
     "name": "Levoberezhnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.85,
       "lng": 37.48333
@@ -24028,7 +24015,7 @@ const citiesData = [
   {
     "id": "vidnoye",
     "name": "Vidnoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.5523,
       "lng": 37.70885
@@ -24158,7 +24145,7 @@ const citiesData = [
   {
     "id": "slonim",
     "name": "Slonim",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.0869,
       "lng": 25.3163
@@ -24314,7 +24301,7 @@ const citiesData = [
   {
     "id": "ivanteyevka",
     "name": "Ivanteyevka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.97111,
       "lng": 37.92083
@@ -24405,7 +24392,7 @@ const citiesData = [
   {
     "id": "donetsk",
     "name": "Donetsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.33962,
       "lng": 39.95948
@@ -24457,7 +24444,7 @@ const citiesData = [
   {
     "id": "gelendzhik",
     "name": "Gelendzhik",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.5622,
       "lng": 38.0848
@@ -24470,7 +24457,7 @@ const citiesData = [
   {
     "id": "kobryn",
     "name": "Kobryn",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.21173,
       "lng": 24.3563
@@ -24509,7 +24496,7 @@ const citiesData = [
   {
     "id": "lytkarino",
     "name": "Lytkarino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.57653,
       "lng": 37.91245
@@ -24574,7 +24561,7 @@ const citiesData = [
   {
     "id": "kingisepp",
     "name": "Kingisepp",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.37627,
       "lng": 28.61409
@@ -24600,7 +24587,7 @@ const citiesData = [
   {
     "id": "kizlyar",
     "name": "Kizlyar",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.84686,
       "lng": 46.70977
@@ -24821,7 +24808,7 @@ const citiesData = [
   {
     "id": "otradnyy",
     "name": "Otradnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.37596,
       "lng": 51.3452
@@ -24925,7 +24912,7 @@ const citiesData = [
   {
     "id": "nikol'skoye",
     "name": "Nikol’skoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.68333,
       "lng": 37.48333
@@ -24938,7 +24925,7 @@ const citiesData = [
   {
     "id": "semenovskoye",
     "name": "Semënovskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.68333,
       "lng": 37.55
@@ -24951,7 +24938,7 @@ const citiesData = [
   {
     "id": "kozhukhovo",
     "name": "Kozhukhovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.66667
@@ -24964,7 +24951,7 @@ const citiesData = [
   {
     "id": "novokuz'minki",
     "name": "Novokuz’minki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.71667,
       "lng": 37.78333
@@ -24977,7 +24964,7 @@ const citiesData = [
   {
     "id": "metrogorodok",
     "name": "Metrogorodok",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.80961,
       "lng": 37.78739
@@ -24990,7 +24977,7 @@ const citiesData = [
   {
     "id": "likhobory",
     "name": "Likhobory",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.85,
       "lng": 37.56667
@@ -25003,7 +24990,7 @@ const citiesData = [
   {
     "id": "novovladykino",
     "name": "Novovladykino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.85,
       "lng": 37.58333
@@ -25016,7 +25003,7 @@ const citiesData = [
   {
     "id": "novokhovrino",
     "name": "Novokhovrino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.86667,
       "lng": 37.5
@@ -25029,7 +25016,7 @@ const citiesData = [
   {
     "id": "kozeyevo",
     "name": "Kozeyevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.86667,
       "lng": 37.61667
@@ -25042,7 +25029,7 @@ const citiesData = [
   {
     "id": "vatutino",
     "name": "Vatutino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.88441,
       "lng": 37.69055
@@ -25055,7 +25042,7 @@ const citiesData = [
   {
     "id": "vagonoremont",
     "name": "Vagonoremont",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.9,
       "lng": 37.55
@@ -25068,7 +25055,7 @@ const citiesData = [
   {
     "id": "untolovo",
     "name": "Untolovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.0122,
       "lng": 30.20897
@@ -25146,7 +25133,7 @@ const citiesData = [
   {
     "id": "kanash",
     "name": "Kanash",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.50962,
       "lng": 47.49127
@@ -25185,7 +25172,7 @@ const citiesData = [
   {
     "id": "monchegorsk",
     "name": "Monchegorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 67.93972,
       "lng": 32.87389
@@ -25484,7 +25471,7 @@ const citiesData = [
   {
     "id": "ruzayevka",
     "name": "Ruzayevka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.06387,
       "lng": 44.9509
@@ -25796,7 +25783,7 @@ const citiesData = [
   {
     "id": "torzhok",
     "name": "Torzhok",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.0436,
       "lng": 34.96221
@@ -25926,7 +25913,7 @@ const citiesData = [
   {
     "id": "sosnovaya-polyana",
     "name": "Sosnovaya Polyana",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.83528,
       "lng": 30.14667
@@ -25965,7 +25952,7 @@ const citiesData = [
   {
     "id": "vsevolozhsk",
     "name": "Vsevolozhsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.01512,
       "lng": 30.67314
@@ -26264,7 +26251,7 @@ const citiesData = [
   {
     "id": "kurganinsk",
     "name": "Kurganinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.88,
       "lng": 40.59861
@@ -26303,7 +26290,7 @@ const citiesData = [
   {
     "id": "mtsensk",
     "name": "Mtsensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.2788,
       "lng": 36.58047
@@ -26368,7 +26355,7 @@ const citiesData = [
   {
     "id": "belaya-kalitva",
     "name": "Belaya Kalitva",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.18585,
       "lng": 40.77424
@@ -26459,7 +26446,7 @@ const citiesData = [
   {
     "id": "gryazi",
     "name": "Gryazi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.49535,
       "lng": 39.94031
@@ -26576,7 +26563,7 @@ const citiesData = [
   {
     "id": "volkovysk",
     "name": "Volkovysk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.1561,
       "lng": 24.4513
@@ -26641,7 +26628,7 @@ const citiesData = [
   {
     "id": "mozhga",
     "name": "Mozhga",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.44576,
       "lng": 52.2156
@@ -26693,7 +26680,7 @@ const citiesData = [
   {
     "id": "dzerzhinsky",
     "name": "Dzerzhinsky",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.62737,
       "lng": 37.85803
@@ -26953,7 +26940,7 @@ const citiesData = [
   {
     "id": "livny",
     "name": "Livny",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.42431,
       "lng": 37.59956
@@ -27031,7 +27018,7 @@ const citiesData = [
   {
     "id": "kurchatov",
     "name": "Kurchatov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.65356,
       "lng": 35.68651
@@ -27213,7 +27200,7 @@ const citiesData = [
   {
     "id": "staryy-malgobek",
     "name": "Staryy Malgobek",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.54437,
       "lng": 44.59592
@@ -27356,7 +27343,7 @@ const citiesData = [
   {
     "id": "pechora",
     "name": "Pechora",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 65.14717,
       "lng": 57.22439
@@ -27473,7 +27460,7 @@ const citiesData = [
   {
     "id": "safonovo",
     "name": "Safonovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.11091,
       "lng": 33.23728
@@ -27512,7 +27499,7 @@ const citiesData = [
   {
     "id": "rasskazovo",
     "name": "Rasskazovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.66384,
       "lng": 41.88915
@@ -27577,7 +27564,7 @@ const citiesData = [
   {
     "id": "kol'chugino",
     "name": "Kol’chugino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.3045,
       "lng": 39.37656
@@ -27733,7 +27720,7 @@ const citiesData = [
   {
     "id": "volkhov",
     "name": "Volkhov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.92335,
       "lng": 32.33966
@@ -27746,7 +27733,7 @@ const citiesData = [
   {
     "id": "obukhovo",
     "name": "Obukhovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.84389,
       "lng": 30.45111
@@ -27915,7 +27902,7 @@ const citiesData = [
   {
     "id": "yefremov",
     "name": "Yefremov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.13762,
       "lng": 38.11856
@@ -28032,7 +28019,7 @@ const citiesData = [
   {
     "id": "kanevskaya",
     "name": "Kanevskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.0799,
       "lng": 38.9599
@@ -28110,7 +28097,7 @@ const citiesData = [
   {
     "id": "shebekino",
     "name": "Shebekino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.40967,
       "lng": 36.9136
@@ -28136,7 +28123,7 @@ const citiesData = [
   {
     "id": "chernyakhovsk",
     "name": "Chernyakhovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.63345,
       "lng": 21.81557
@@ -28526,7 +28513,7 @@ const citiesData = [
   {
     "id": "avtovo",
     "name": "Avtovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.87167,
       "lng": 30.26583
@@ -28617,7 +28604,7 @@ const citiesData = [
   {
     "id": "akhtubinsk",
     "name": "Akhtubinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.28339,
       "lng": 46.16519
@@ -28838,7 +28825,7 @@ const citiesData = [
   {
     "id": "krasnoye-selo",
     "name": "Krasnoye Selo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.73833,
       "lng": 30.08944
@@ -28955,7 +28942,7 @@ const citiesData = [
   {
     "id": "krasnyy-sulin",
     "name": "Krasnyy Sulin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.89221,
       "lng": 40.07037
@@ -28981,7 +28968,7 @@ const citiesData = [
   {
     "id": "ust'-labinsk",
     "name": "Ust’-Labinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.21077,
       "lng": 39.68914
@@ -28994,7 +28981,7 @@ const citiesData = [
   {
     "id": "usinsk",
     "name": "Usinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 65.99389,
       "lng": 57.52806
@@ -29033,7 +29020,7 @@ const citiesData = [
   {
     "id": "rtishchevo",
     "name": "Rtishchevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.26041,
       "lng": 43.78745
@@ -29228,7 +29215,7 @@ const citiesData = [
   {
     "id": "tutayev",
     "name": "Tutayev",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.87292,
       "lng": 39.52969
@@ -29358,7 +29345,7 @@ const citiesData = [
   {
     "id": "pashkovskiy",
     "name": "Pashkovskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.02366,
       "lng": 39.10436
@@ -29384,7 +29371,7 @@ const citiesData = [
   {
     "id": "sertolovo",
     "name": "Sertolovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.1444,
       "lng": 30.20165
@@ -29579,7 +29566,7 @@ const citiesData = [
   {
     "id": "malgobek",
     "name": "Malgobek",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.51121,
       "lng": 44.59051
@@ -29709,7 +29696,7 @@ const citiesData = [
   {
     "id": "morshansk",
     "name": "Morshansk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.44354,
       "lng": 41.81065
@@ -29722,7 +29709,7 @@ const citiesData = [
   {
     "id": "sovetsk",
     "name": "Sovetsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.08392,
       "lng": 21.87851
@@ -29826,7 +29813,7 @@ const citiesData = [
   {
     "id": "kronstadt",
     "name": "Kronstadt",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.992,
       "lng": 29.77616
@@ -29878,7 +29865,7 @@ const citiesData = [
   {
     "id": "zavolzh'ye",
     "name": "Zavolzh’ye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.64051,
       "lng": 43.39446
@@ -29891,7 +29878,7 @@ const citiesData = [
   {
     "id": "novodvinsk",
     "name": "Novodvinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 64.41638,
       "lng": 40.81674
@@ -30099,7 +30086,7 @@ const citiesData = [
   {
     "id": "koryazhma",
     "name": "Koryazhma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.31242,
       "lng": 47.14829
@@ -30125,7 +30112,7 @@ const citiesData = [
   {
     "id": "novozybkov",
     "name": "Novozybkov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.53711,
       "lng": 31.93659
@@ -30177,7 +30164,7 @@ const citiesData = [
   {
     "id": "lomonosov",
     "name": "Lomonosov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.90612,
       "lng": 29.77253
@@ -30333,7 +30320,7 @@ const citiesData = [
   {
     "id": "konakovo",
     "name": "Konakovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.70153,
       "lng": 36.77305
@@ -30359,7 +30346,7 @@ const citiesData = [
   {
     "id": "sokol",
     "name": "Sokol",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.46167,
       "lng": 40.12056
@@ -30385,7 +30372,7 @@ const citiesData = [
   {
     "id": "alatyr'",
     "name": "Alatyr’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.8421,
       "lng": 46.5813
@@ -30411,7 +30398,7 @@ const citiesData = [
   {
     "id": "izberbash",
     "name": "Izberbash",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 42.56705,
       "lng": 47.87546
@@ -30476,7 +30463,7 @@ const citiesData = [
   {
     "id": "zainsk",
     "name": "Zainsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.3195,
       "lng": 52.06942
@@ -30840,7 +30827,7 @@ const citiesData = [
   {
     "id": "korenovsk",
     "name": "Korenovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.46899,
       "lng": 39.45136
@@ -30853,7 +30840,7 @@ const citiesData = [
   {
     "id": "uryupinsk",
     "name": "Uryupinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.8047,
       "lng": 42.0138
@@ -30970,7 +30957,7 @@ const citiesData = [
   {
     "id": "urus-martan",
     "name": "Urus-Martan",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.13053,
       "lng": 45.53791
@@ -31048,7 +31035,7 @@ const citiesData = [
   {
     "id": "lyudinovo",
     "name": "Lyudinovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.86639,
       "lng": 34.44778
@@ -31074,7 +31061,7 @@ const citiesData = [
   {
     "id": "pugachev",
     "name": "Pugachev",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.01333,
       "lng": 48.8025
@@ -31204,7 +31191,7 @@ const citiesData = [
   {
     "id": "zelenokumsk",
     "name": "Zelenokumsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.41044,
       "lng": 43.88007
@@ -31360,7 +31347,7 @@ const citiesData = [
   {
     "id": "dzerzhinskiy",
     "name": "Dzerzhinskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.62868,
       "lng": 37.8443
@@ -31646,7 +31633,7 @@ const citiesData = [
   {
     "id": "frolovo",
     "name": "Frolovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 49.77133,
       "lng": 43.66222
@@ -31685,7 +31672,7 @@ const citiesData = [
   {
     "id": "mozdok",
     "name": "Mozdok",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.73976,
       "lng": 44.65157
@@ -32010,7 +31997,7 @@ const citiesData = [
   {
     "id": "apsheronsk",
     "name": "Apsheronsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.46472,
       "lng": 39.73417
@@ -32127,7 +32114,7 @@ const citiesData = [
   {
     "id": "pereslavl'-zalesskiy",
     "name": "Pereslavl’-Zalesskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.73912,
       "lng": 38.85966
@@ -32205,7 +32192,7 @@ const citiesData = [
   {
     "id": "tosno",
     "name": "Tosno",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.54,
       "lng": 30.8775
@@ -32270,7 +32257,7 @@ const citiesData = [
   {
     "id": "luga",
     "name": "Luga",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.73876,
       "lng": 29.84756
@@ -32283,7 +32270,7 @@ const citiesData = [
   {
     "id": "kashira",
     "name": "Kashira",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.84763,
       "lng": 38.18214
@@ -32400,7 +32387,7 @@ const citiesData = [
   {
     "id": "yagry",
     "name": "Yagry",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 64.59417,
       "lng": 39.81028
@@ -32452,7 +32439,7 @@ const citiesData = [
   {
     "id": "kolomyagi",
     "name": "Kolomyagi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.02427,
       "lng": 30.28491
@@ -32478,7 +32465,7 @@ const citiesData = [
   {
     "id": "alexeyevka",
     "name": "Alexeyevka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.63092,
       "lng": 38.6903
@@ -32634,7 +32621,7 @@ const citiesData = [
   {
     "id": "svetlograd",
     "name": "Svetlograd",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.32736,
       "lng": 42.8562
@@ -32777,7 +32764,7 @@ const citiesData = [
   {
     "id": "vyatskiye-polyany",
     "name": "Vyatskiye Polyany",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.22912,
       "lng": 51.06098
@@ -32959,7 +32946,7 @@ const citiesData = [
   {
     "id": "kirov",
     "name": "Kirov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.06889,
       "lng": 34.29891
@@ -32972,7 +32959,7 @@ const citiesData = [
   {
     "id": "sampsonievskiy",
     "name": "Sampsonievskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.98499,
       "lng": 30.34295
@@ -33037,7 +33024,7 @@ const citiesData = [
   {
     "id": "vyazniki",
     "name": "Vyazniki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.24227,
       "lng": 42.14911
@@ -33128,7 +33115,7 @@ const citiesData = [
   {
     "id": "vichuga",
     "name": "Vichuga",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.2145,
       "lng": 41.92555
@@ -33219,7 +33206,7 @@ const citiesData = [
   {
     "id": "izobil'nyy",
     "name": "Izobil’nyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.36653,
       "lng": 41.7091
@@ -33375,7 +33362,7 @@ const citiesData = [
   {
     "id": "aksay",
     "name": "Aksay",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.25838,
       "lng": 39.86675
@@ -33557,7 +33544,7 @@ const citiesData = [
   {
     "id": "leningradskaya",
     "name": "Leningradskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.3214,
       "lng": 39.3877
@@ -33791,7 +33778,7 @@ const citiesData = [
   {
     "id": "millerovo",
     "name": "Millerovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.92265,
       "lng": 40.39673
@@ -33895,7 +33882,7 @@ const citiesData = [
   {
     "id": "kandalaksha",
     "name": "Kandalaksha",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 67.15123,
       "lng": 32.41284
@@ -33960,7 +33947,7 @@ const citiesData = [
   {
     "id": "furmanov",
     "name": "Furmanov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.25417,
       "lng": 41.11122
@@ -34688,7 +34675,7 @@ const citiesData = [
   {
     "id": "uglich",
     "name": "Uglich",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.52322,
       "lng": 38.32258
@@ -34792,7 +34779,7 @@ const citiesData = [
   {
     "id": "kulebaki",
     "name": "Kulebaki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.41333,
       "lng": 42.5325
@@ -34844,7 +34831,7 @@ const citiesData = [
   {
     "id": "troitsk",
     "name": "Troitsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.48498,
       "lng": 37.30736
@@ -34909,7 +34896,7 @@ const citiesData = [
   {
     "id": "baksan",
     "name": "Baksan",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.68374,
       "lng": 43.53507
@@ -35026,7 +35013,7 @@ const citiesData = [
   {
     "id": "novovoronezh",
     "name": "Novovoronezh",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.30719,
       "lng": 39.21732
@@ -35091,7 +35078,7 @@ const citiesData = [
   {
     "id": "protvino",
     "name": "Protvino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.86821,
       "lng": 37.21583
@@ -35169,7 +35156,7 @@ const citiesData = [
   {
     "id": "sestroretsk",
     "name": "Sestroretsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.09801,
       "lng": 29.96378
@@ -35221,7 +35208,7 @@ const citiesData = [
   {
     "id": "kalinkavichy",
     "name": "Kalinkavichy",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.1323,
       "lng": 29.3257
@@ -35429,7 +35416,7 @@ const citiesData = [
   {
     "id": "rostokino",
     "name": "Rostokino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.83333,
       "lng": 37.66667
@@ -35754,7 +35741,7 @@ const citiesData = [
   {
     "id": "serdobsk",
     "name": "Serdobsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.45861,
       "lng": 44.21689
@@ -35767,7 +35754,7 @@ const citiesData = [
   {
     "id": "bogorodsk",
     "name": "Bogorodsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.10149,
       "lng": 43.5101
@@ -35858,7 +35845,7 @@ const citiesData = [
   {
     "id": "temryuk",
     "name": "Temryuk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.27055,
       "lng": 37.38716
@@ -36118,7 +36105,7 @@ const citiesData = [
   {
     "id": "novokubansk",
     "name": "Novokubansk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.117,
       "lng": 41.0267
@@ -36313,7 +36300,7 @@ const citiesData = [
   {
     "id": "slantsy",
     "name": "Slantsy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.1179,
       "lng": 28.08826
@@ -36495,7 +36482,7 @@ const citiesData = [
   {
     "id": "teykovo",
     "name": "Teykovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.85853,
       "lng": 40.54028
@@ -36521,7 +36508,7 @@ const citiesData = [
   {
     "id": "blagodarnyy",
     "name": "Blagodarnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.09778,
       "lng": 43.43639
@@ -36638,7 +36625,7 @@ const citiesData = [
   {
     "id": "smarhon",
     "name": "Smarhoń",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.4798,
       "lng": 26.3957
@@ -36664,7 +36651,7 @@ const citiesData = [
   {
     "id": "valuyki",
     "name": "Valuyki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.2035,
       "lng": 38.1067
@@ -36911,7 +36898,7 @@ const citiesData = [
   {
     "id": "beslan",
     "name": "Beslan",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.19277,
       "lng": 44.53274
@@ -37132,7 +37119,7 @@ const citiesData = [
   {
     "id": "kasimov",
     "name": "Kasimov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.94377,
       "lng": 41.40341
@@ -37314,7 +37301,7 @@ const citiesData = [
   {
     "id": "shumerlya",
     "name": "Shumerlya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.5005,
       "lng": 46.41288
@@ -37522,7 +37509,7 @@ const citiesData = [
   {
     "id": "goryachevodskiy",
     "name": "Goryachevodskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.02361,
       "lng": 43.09222
@@ -37613,7 +37600,7 @@ const citiesData = [
   {
     "id": "staraya-derevnya",
     "name": "Staraya Derevnya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.98834,
       "lng": 30.24296
@@ -37652,7 +37639,7 @@ const citiesData = [
   {
     "id": "gul'kevichi",
     "name": "Gul’kevichi",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.35383,
       "lng": 40.69465
@@ -37990,7 +37977,7 @@ const citiesData = [
   {
     "id": "rahachow",
     "name": "Rahachow",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.0934,
       "lng": 30.0495
@@ -38016,7 +38003,7 @@ const citiesData = [
   {
     "id": "abinsk",
     "name": "Abinsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.86803,
       "lng": 38.15728
@@ -38120,7 +38107,7 @@ const citiesData = [
   {
     "id": "asipovichy",
     "name": "Asipovichy",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.3011,
       "lng": 28.6386
@@ -38133,7 +38120,7 @@ const citiesData = [
   {
     "id": "dinskaya",
     "name": "Dinskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.21516,
       "lng": 39.2265
@@ -38185,7 +38172,7 @@ const citiesData = [
   {
     "id": "baltiysk",
     "name": "Baltiysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.65455,
       "lng": 19.90929
@@ -38237,7 +38224,7 @@ const citiesData = [
   {
     "id": "karabulak",
     "name": "Karabulak",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.30513,
       "lng": 44.89949
@@ -38315,7 +38302,7 @@ const citiesData = [
   {
     "id": "nurlat",
     "name": "Nurlat",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.42766,
       "lng": 50.80511
@@ -38419,7 +38406,7 @@ const citiesData = [
   {
     "id": "ostrogozhsk",
     "name": "Ostrogozhsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.8664,
       "lng": 39.07561
@@ -38510,7 +38497,7 @@ const citiesData = [
   {
     "id": "kondopoga",
     "name": "Kondopoga",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 62.20406,
       "lng": 34.26932
@@ -38575,7 +38562,7 @@ const citiesData = [
   {
     "id": "kinel'",
     "name": "Kinel’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.22571,
       "lng": 50.62907
@@ -38627,7 +38614,7 @@ const citiesData = [
   {
     "id": "staraya-russa",
     "name": "Staraya Russa",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.99618,
       "lng": 31.36003
@@ -38978,7 +38965,7 @@ const citiesData = [
   {
     "id": "ust'-dzheguta",
     "name": "Ust’-Dzheguta",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.0834,
       "lng": 41.9763
@@ -39017,7 +39004,7 @@ const citiesData = [
   {
     "id": "horki",
     "name": "Horki",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.2862,
       "lng": 30.9863
@@ -39277,7 +39264,7 @@ const citiesData = [
   {
     "id": "krasnoznamensk",
     "name": "Krasnoznamensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.59525,
       "lng": 37.05235
@@ -39368,7 +39355,7 @@ const citiesData = [
   {
     "id": "petrovsk",
     "name": "Petrovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.30639,
       "lng": 45.39167
@@ -39602,7 +39589,7 @@ const citiesData = [
   {
     "id": "yablonovskiy",
     "name": "Yablonovskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.98901,
       "lng": 38.94324
@@ -39641,7 +39628,7 @@ const citiesData = [
   {
     "id": "kizilyurt",
     "name": "Kizilyurt",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.20279,
       "lng": 46.86594
@@ -39667,7 +39654,7 @@ const citiesData = [
   {
     "id": "nartkala",
     "name": "Nartkala",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.5544,
       "lng": 43.85499
@@ -39680,7 +39667,7 @@ const citiesData = [
   {
     "id": "istra",
     "name": "Istra",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.91979,
       "lng": 36.86876
@@ -39719,7 +39706,7 @@ const citiesData = [
   {
     "id": "segezha",
     "name": "Segezha",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 63.74549,
       "lng": 34.31614
@@ -39953,7 +39940,7 @@ const citiesData = [
   {
     "id": "primorsko-akhtarsk",
     "name": "Primorsko-Akhtarsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.04817,
       "lng": 38.17929
@@ -39979,7 +39966,7 @@ const citiesData = [
   {
     "id": "kotovsk",
     "name": "Kotovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.59047,
       "lng": 41.50251
@@ -40174,7 +40161,7 @@ const citiesData = [
   {
     "id": "marks",
     "name": "Marks",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.71111,
       "lng": 46.74861
@@ -40460,7 +40447,7 @@ const citiesData = [
   {
     "id": "gudermes",
     "name": "Gudermes",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.35082,
       "lng": 46.10095
@@ -40577,7 +40564,7 @@ const citiesData = [
   {
     "id": "maloyaroslavets",
     "name": "Maloyaroslavets",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.01457,
       "lng": 36.47185
@@ -40681,7 +40668,7 @@ const citiesData = [
   {
     "id": "velikiy-ustyug",
     "name": "Velikiy Ustyug",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.76186,
       "lng": 46.31352
@@ -40850,7 +40837,7 @@ const citiesData = [
   {
     "id": "yubileyny",
     "name": "Yubileyny",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.93333,
       "lng": 37.83333
@@ -40954,7 +40941,7 @@ const citiesData = [
   {
     "id": "desnogorsk",
     "name": "Desnogorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.15077,
       "lng": 33.28151
@@ -41006,7 +40993,7 @@ const citiesData = [
   {
     "id": "lukhovitsy",
     "name": "Lukhovitsy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.97661,
       "lng": 39.0444
@@ -41045,7 +41032,7 @@ const citiesData = [
   {
     "id": "udomlya",
     "name": "Udomlya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.87597,
       "lng": 35.00702
@@ -41058,7 +41045,7 @@ const citiesData = [
   {
     "id": "slobodskoy",
     "name": "Slobodskoy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.73133,
       "lng": 50.17119
@@ -41617,7 +41604,7 @@ const citiesData = [
   {
     "id": "donskoy",
     "name": "Donskoy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.96796,
       "lng": 38.33151
@@ -41669,7 +41656,7 @@ const citiesData = [
   {
     "id": "kimovsk",
     "name": "Kimovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.97312,
       "lng": 38.53502
@@ -41721,7 +41708,7 @@ const citiesData = [
   {
     "id": "znamensk",
     "name": "Znamensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.5842,
       "lng": 45.7338
@@ -41825,7 +41812,7 @@ const citiesData = [
   {
     "id": "privolzhskiy",
     "name": "Privolzhskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.40944,
       "lng": 46.04833
@@ -41916,7 +41903,7 @@ const citiesData = [
   {
     "id": "gorodets",
     "name": "Gorodets",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.65497,
       "lng": 43.47269
@@ -42033,7 +42020,7 @@ const citiesData = [
   {
     "id": "nakhabino",
     "name": "Nakhabino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.84854,
       "lng": 37.17789
@@ -42228,7 +42215,7 @@ const citiesData = [
   {
     "id": "mozhaysk",
     "name": "Mozhaysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.50194,
       "lng": 36.02722
@@ -42709,7 +42696,7 @@ const citiesData = [
   {
     "id": "pavlovskaya",
     "name": "Pavlovskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.1377,
       "lng": 39.7832
@@ -42813,7 +42800,7 @@ const citiesData = [
   {
     "id": "likino-dulevo",
     "name": "Likino-Dulevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7083,
       "lng": 38.9542
@@ -42943,7 +42930,7 @@ const citiesData = [
   {
     "id": "rostov",
     "name": "Rostov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.19081,
       "lng": 39.41307
@@ -43541,7 +43528,7 @@ const citiesData = [
   {
     "id": "kirzhach",
     "name": "Kirzhach",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.15273,
       "lng": 38.85509
@@ -43671,7 +43658,7 @@ const citiesData = [
   {
     "id": "starominskaya",
     "name": "Starominskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.53,
       "lng": 39.04972
@@ -43996,7 +43983,7 @@ const citiesData = [
   {
     "id": "bogoroditsk",
     "name": "Bogoroditsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.77174,
       "lng": 38.12305
@@ -44113,7 +44100,7 @@ const citiesData = [
   {
     "id": "kostomuksha",
     "name": "Kostomuksha",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 64.571,
       "lng": 30.57667
@@ -44191,7 +44178,7 @@ const citiesData = [
   {
     "id": "shatura",
     "name": "Shatura",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.57259,
       "lng": 39.53417
@@ -44334,7 +44321,7 @@ const citiesData = [
   {
     "id": "lazarevskoye",
     "name": "Lazarevskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.90886,
       "lng": 39.33137
@@ -44399,7 +44386,7 @@ const citiesData = [
   {
     "id": "vilyeyka",
     "name": "Vilyeyka",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 54.4914,
       "lng": 26.9111
@@ -44412,7 +44399,7 @@ const citiesData = [
   {
     "id": "petrovskaya",
     "name": "Petrovskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.55,
       "lng": 37.78333
@@ -44425,7 +44412,7 @@ const citiesData = [
   {
     "id": "zagor'ye",
     "name": "Zagor’ye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.57657,
       "lng": 37.66709
@@ -44438,7 +44425,7 @@ const citiesData = [
   {
     "id": "annino",
     "name": "Annino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.58316,
       "lng": 37.26019
@@ -44451,7 +44438,7 @@ const citiesData = [
   {
     "id": "annino",
     "name": "Annino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.58333,
       "lng": 37.6
@@ -44464,7 +44451,7 @@ const citiesData = [
   {
     "id": "kur'yanovo",
     "name": "Kur’yanovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65,
       "lng": 37.7
@@ -44490,7 +44477,7 @@ const citiesData = [
   {
     "id": "vostryakovo",
     "name": "Vostryakovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.66667,
       "lng": 37.45
@@ -44503,7 +44490,7 @@ const citiesData = [
   {
     "id": "kolomenskoye",
     "name": "Kolomenskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.66667,
       "lng": 37.68333
@@ -44516,7 +44503,7 @@ const citiesData = [
   {
     "id": "nikulino",
     "name": "Nikulino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.66943,
       "lng": 37.46598
@@ -44529,7 +44516,7 @@ const citiesData = [
   {
     "id": "mikhalkovo",
     "name": "Mikhalkovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.68333,
       "lng": 37.43333
@@ -44542,7 +44529,7 @@ const citiesData = [
   {
     "id": "amin'yevo",
     "name": "Amin’yevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.46667
@@ -44555,7 +44542,7 @@ const citiesData = [
   {
     "id": "leninskiye-gory",
     "name": "Leninskiye Gory",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.7,
       "lng": 37.56667
@@ -44568,7 +44555,7 @@ const citiesData = [
   {
     "id": "matveyevskoye",
     "name": "Matveyevskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.71112,
       "lng": 37.47502
@@ -44581,7 +44568,7 @@ const citiesData = [
   {
     "id": "luzhniki",
     "name": "Luzhniki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.71599,
       "lng": 37.55376
@@ -44594,7 +44581,7 @@ const citiesData = [
   {
     "id": "vorob'yovo",
     "name": "Vorob’yovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.71667,
       "lng": 37.53333
@@ -44607,7 +44594,7 @@ const citiesData = [
   {
     "id": "davydkovo",
     "name": "Davydkovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.71815,
       "lng": 37.47271
@@ -44620,7 +44607,7 @@ const citiesData = [
   {
     "id": "kuskovo",
     "name": "Kuskovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.73423,
       "lng": 37.82616
@@ -44633,7 +44620,7 @@ const citiesData = [
   {
     "id": "leonovo",
     "name": "Leonovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.85,
       "lng": 37.65
@@ -44646,7 +44633,7 @@ const citiesData = [
   {
     "id": "kudrovo",
     "name": "Kudrovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.90349,
       "lng": 30.51058
@@ -44776,7 +44763,7 @@ const citiesData = [
   {
     "id": "kushchyovskaya",
     "name": "Kushchyovskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.5599,
       "lng": 39.6321
@@ -44867,7 +44854,7 @@ const citiesData = [
   {
     "id": "sasovo",
     "name": "Sasovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.35369,
       "lng": 41.91986
@@ -44984,7 +44971,7 @@ const citiesData = [
   {
     "id": "shar'ya",
     "name": "Shar’ya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.36848,
       "lng": 45.51622
@@ -45257,7 +45244,7 @@ const citiesData = [
   {
     "id": "byaroza",
     "name": "Byaroza",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.53129,
       "lng": 24.9782
@@ -45348,7 +45335,7 @@ const citiesData = [
   {
     "id": "kirovsk",
     "name": "Kirovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 67.61475,
       "lng": 33.67274
@@ -45387,7 +45374,7 @@ const citiesData = [
   {
     "id": "kapotnya",
     "name": "Kapotnya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.63806,
       "lng": 37.79306
@@ -45673,7 +45660,7 @@ const citiesData = [
   {
     "id": "novogrudok",
     "name": "Novogrudok",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.5942,
       "lng": 25.8191
@@ -45816,7 +45803,7 @@ const citiesData = [
   {
     "id": "sosnogorsk",
     "name": "Sosnogorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 63.60229,
       "lng": 53.88175
@@ -45907,7 +45894,7 @@ const citiesData = [
   {
     "id": "morozovsk",
     "name": "Morozovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.35502,
       "lng": 41.82627
@@ -45946,7 +45933,7 @@ const citiesData = [
   {
     "id": "zernograd",
     "name": "Zernograd",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 46.84518,
       "lng": 40.30834
@@ -46388,7 +46375,7 @@ const citiesData = [
   {
     "id": "ipatovo",
     "name": "Ipatovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.71801,
       "lng": 42.90612
@@ -46453,7 +46440,7 @@ const citiesData = [
   {
     "id": "unecha",
     "name": "Unecha",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.84294,
       "lng": 32.68761
@@ -46518,7 +46505,7 @@ const citiesData = [
   {
     "id": "krasnoarmeyskaya",
     "name": "Krasnoarmeyskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.36614,
       "lng": 38.21171
@@ -46557,7 +46544,7 @@ const citiesData = [
   {
     "id": "kokhma",
     "name": "Kokhma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.9321,
       "lng": 41.0947
@@ -46752,7 +46739,7 @@ const citiesData = [
   {
     "id": "gagarin",
     "name": "Gagarin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.55329,
       "lng": 34.99684
@@ -46856,7 +46843,7 @@ const citiesData = [
   {
     "id": "inozemtsevo",
     "name": "Inozemtsevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.09264,
       "lng": 43.09113
@@ -46869,7 +46856,7 @@ const citiesData = [
   {
     "id": "uvarovo",
     "name": "Uvarovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.98486,
       "lng": 42.26147
@@ -46986,7 +46973,7 @@ const citiesData = [
   {
     "id": "gusev",
     "name": "Gusev",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.59222,
       "lng": 22.19972
@@ -47155,7 +47142,7 @@ const citiesData = [
   {
     "id": "buturlinovka",
     "name": "Buturlinovka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.8299,
       "lng": 40.6067
@@ -47181,7 +47168,7 @@ const citiesData = [
   {
     "id": "isakogorka",
     "name": "Isakogorka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 64.446,
       "lng": 40.6531
@@ -47298,7 +47285,7 @@ const citiesData = [
   {
     "id": "kochubeyevskoye",
     "name": "Kochubeyevskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.64417,
       "lng": 41.84528
@@ -47597,7 +47584,7 @@ const citiesData = [
   {
     "id": "tomilino",
     "name": "Tomilino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.65619,
       "lng": 37.94713
@@ -47636,7 +47623,7 @@ const citiesData = [
   {
     "id": "pokhvistnevo",
     "name": "Pokhvistnevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.65237,
       "lng": 52.12738
@@ -47935,7 +47922,7 @@ const citiesData = [
   {
     "id": "bezhetsk",
     "name": "Bezhetsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.78422,
       "lng": 36.70082
@@ -48013,7 +48000,7 @@ const citiesData = [
   {
     "id": "argun",
     "name": "Argun",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.29289,
       "lng": 45.86691
@@ -48026,7 +48013,7 @@ const citiesData = [
   {
     "id": "goryachiy-klyuch",
     "name": "Goryachiy Klyuch",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.63083,
       "lng": 39.13
@@ -48078,7 +48065,7 @@ const citiesData = [
   {
     "id": "shcherbinka",
     "name": "Shcherbinka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.49972,
       "lng": 37.55972
@@ -48169,7 +48156,7 @@ const citiesData = [
   {
     "id": "aleksandrovskoye",
     "name": "Aleksandrovskoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.71417,
       "lng": 43.00083
@@ -48208,7 +48195,7 @@ const citiesData = [
   {
     "id": "mirnyy",
     "name": "Mirnyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 62.76437,
       "lng": 40.33855
@@ -48390,7 +48377,7 @@ const citiesData = [
   {
     "id": "dagestanskiye-ogni",
     "name": "Dagestanskiye Ogni",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 42.11585,
       "lng": 48.19192
@@ -48533,7 +48520,7 @@ const citiesData = [
   {
     "id": "neftekumsk",
     "name": "Neftekumsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.75583,
       "lng": 44.9925
@@ -48637,7 +48624,7 @@ const citiesData = [
   {
     "id": "krychaw",
     "name": "Krychaw",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.69571,
       "lng": 31.71233
@@ -48650,7 +48637,7 @@ const citiesData = [
   {
     "id": "rodniki",
     "name": "Rodniki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.10501,
       "lng": 41.73565
@@ -48754,7 +48741,7 @@ const citiesData = [
   {
     "id": "novoaleksandrovsk",
     "name": "Novoaleksandrovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.49745,
       "lng": 41.2253
@@ -48780,7 +48767,7 @@ const citiesData = [
   {
     "id": "kotel'nich",
     "name": "Kotel’nich",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.30348,
       "lng": 48.33745
@@ -48858,7 +48845,7 @@ const citiesData = [
   {
     "id": "atkarsk",
     "name": "Atkarsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.87185,
       "lng": 45.00775
@@ -48936,7 +48923,7 @@ const citiesData = [
   {
     "id": "kalach-na-donu",
     "name": "Kalach-na-Donu",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.69099,
       "lng": 43.52638
@@ -49924,7 +49911,7 @@ const citiesData = [
   {
     "id": "dedovsk",
     "name": "Dedovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.86861,
       "lng": 37.12222
@@ -49963,7 +49950,7 @@ const citiesData = [
   {
     "id": "zarya",
     "name": "Zarya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.75533,
       "lng": 38.09578
@@ -50015,7 +50002,7 @@ const citiesData = [
   {
     "id": "kotovo",
     "name": "Kotovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.32113,
       "lng": 44.80119
@@ -50639,7 +50626,7 @@ const citiesData = [
   {
     "id": "pavlovsk",
     "name": "Pavlovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.45778,
       "lng": 40.10806
@@ -50808,7 +50795,7 @@ const citiesData = [
   {
     "id": "buy",
     "name": "Buy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.47959,
       "lng": 41.53587
@@ -51211,7 +51198,7 @@ const citiesData = [
   {
     "id": "metallostroy",
     "name": "Metallostroy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.80083,
       "lng": 30.54778
@@ -51263,7 +51250,7 @@ const citiesData = [
   {
     "id": "oktyabr'sk",
     "name": "Oktyabr’sk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.16722,
       "lng": 48.70056
@@ -51380,7 +51367,7 @@ const citiesData = [
   {
     "id": "semiluki",
     "name": "Semiluki",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.6821,
       "lng": 39.0302
@@ -51900,7 +51887,7 @@ const citiesData = [
   {
     "id": "kubinka",
     "name": "Kubinka",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.57957,
       "lng": 36.70392
@@ -51978,7 +51965,7 @@ const citiesData = [
   {
     "id": "ozery",
     "name": "Ozëry",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.85998,
       "lng": 38.55062
@@ -52095,7 +52082,7 @@ const citiesData = [
   {
     "id": "krasnoarmeysk",
     "name": "Krasnoarmeysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.02389,
       "lng": 45.69694
@@ -52420,7 +52407,7 @@ const citiesData = [
   {
     "id": "krasnoarmeysk",
     "name": "Krasnoarmeysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.1,
       "lng": 38.13333
@@ -52667,7 +52654,7 @@ const citiesData = [
   {
     "id": "ekazhevo",
     "name": "Ekazhevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.21222,
       "lng": 44.82306
@@ -52771,7 +52758,7 @@ const citiesData = [
   {
     "id": "kireyevsk",
     "name": "Kireyevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.9297,
       "lng": 37.92148
@@ -53018,7 +53005,7 @@ const citiesData = [
   {
     "id": "omutninsk",
     "name": "Omutninsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 58.67015,
       "lng": 52.19313
@@ -53096,7 +53083,7 @@ const citiesData = [
   {
     "id": "nerekhta",
     "name": "Nerekhta",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.45795,
       "lng": 40.57169
@@ -53109,7 +53096,7 @@ const citiesData = [
   {
     "id": "nelidovo",
     "name": "Nelidovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.22761,
       "lng": 32.77474
@@ -53317,7 +53304,7 @@ const citiesData = [
   {
     "id": "mostovskoy",
     "name": "Mostovskoy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.41222,
       "lng": 40.79361
@@ -53356,7 +53343,7 @@ const citiesData = [
   {
     "id": "dzyarzhynsk",
     "name": "Dzyarzhynsk",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 53.6832,
       "lng": 27.138
@@ -53460,7 +53447,7 @@ const citiesData = [
   {
     "id": "bologoye",
     "name": "Bologoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.88587,
       "lng": 34.05324
@@ -53746,7 +53733,7 @@ const citiesData = [
   {
     "id": "shali",
     "name": "Shali",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.14806,
       "lng": 45.90194
@@ -53824,7 +53811,7 @@ const citiesData = [
   {
     "id": "luninyets",
     "name": "Luninyets",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.24864,
       "lng": 26.80061
@@ -53837,7 +53824,7 @@ const citiesData = [
   {
     "id": "dyat'kovo",
     "name": "Dyat’kovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.59782,
       "lng": 34.33825
@@ -53850,7 +53837,7 @@ const citiesData = [
   {
     "id": "volokolamsk",
     "name": "Volokolamsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.03361,
       "lng": 35.96944
@@ -53902,7 +53889,7 @@ const citiesData = [
   {
     "id": "zverevo",
     "name": "Zverevo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 48.02108,
       "lng": 40.12282
@@ -54526,7 +54513,7 @@ const citiesData = [
   {
     "id": "kirovsk",
     "name": "Kirovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.88002,
       "lng": 30.99549
@@ -54669,7 +54656,7 @@ const citiesData = [
   {
     "id": "zaraysk",
     "name": "Zaraysk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.76327,
       "lng": 38.88076
@@ -54682,7 +54669,7 @@ const citiesData = [
   {
     "id": "zheleznovodsk",
     "name": "Zheleznovodsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.14318,
       "lng": 43.00475
@@ -54864,7 +54851,7 @@ const citiesData = [
   {
     "id": "ostrov",
     "name": "Ostrov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.3438,
       "lng": 28.35363
@@ -55020,7 +55007,7 @@ const citiesData = [
   {
     "id": "tbilisskaya",
     "name": "Tbilisskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.36333,
       "lng": 40.19
@@ -55124,7 +55111,7 @@ const citiesData = [
   {
     "id": "novopavlovsk",
     "name": "Novopavlovsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.95942,
       "lng": 43.63156
@@ -55254,7 +55241,7 @@ const citiesData = [
   {
     "id": "skopin",
     "name": "Skopin",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.82499,
       "lng": 39.5531
@@ -55436,7 +55423,7 @@ const citiesData = [
   {
     "id": "nikol'sk",
     "name": "Nikol’sk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.71886,
       "lng": 46.07118
@@ -55449,7 +55436,7 @@ const citiesData = [
   {
     "id": "semenov",
     "name": "Semënov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.78758,
       "lng": 44.49619
@@ -55618,7 +55605,7 @@ const citiesData = [
   {
     "id": "balabanovo",
     "name": "Balabanovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.18161,
       "lng": 36.6606
@@ -55696,7 +55683,7 @@ const citiesData = [
   {
     "id": "ivatsevichi",
     "name": "Ivatsevichi",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 52.70793,
       "lng": 25.33509
@@ -56567,7 +56554,7 @@ const citiesData = [
   {
     "id": "nizhniy-lomov",
     "name": "Nizhniy Lomov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.53041,
       "lng": 43.67663
@@ -56762,7 +56749,7 @@ const citiesData = [
   {
     "id": "troitskaya",
     "name": "Troitskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.30664,
       "lng": 44.98395
@@ -56814,7 +56801,7 @@ const citiesData = [
   {
     "id": "bezenchuk",
     "name": "Bezenchuk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 52.982,
       "lng": 49.4333
@@ -57022,7 +57009,7 @@ const citiesData = [
   {
     "id": "yershov",
     "name": "Yershov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.3513,
       "lng": 48.2766
@@ -57035,7 +57022,7 @@ const citiesData = [
   {
     "id": "olenegorsk",
     "name": "Olenegorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 68.1432,
       "lng": 33.25287
@@ -57256,7 +57243,7 @@ const citiesData = [
   {
     "id": "semikarakorsk",
     "name": "Semikarakorsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 47.51675,
       "lng": 40.80577
@@ -57308,7 +57295,7 @@ const citiesData = [
   {
     "id": "lyskovo",
     "name": "Lyskovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.02927,
       "lng": 45.04233
@@ -57529,7 +57516,7 @@ const citiesData = [
   {
     "id": "l'govskiy",
     "name": "L’govskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.63069,
       "lng": 35.2775
@@ -57802,7 +57789,7 @@ const citiesData = [
   {
     "id": "kabanovo",
     "name": "Kabanovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.74815,
       "lng": 38.93511
@@ -57880,7 +57867,7 @@ const citiesData = [
   {
     "id": "lermontov",
     "name": "Lermontov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.1072,
       "lng": 42.97798
@@ -58595,7 +58582,7 @@ const citiesData = [
   {
     "id": "vel'sk",
     "name": "Vel’sk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.06919,
       "lng": 42.0992
@@ -59050,7 +59037,7 @@ const citiesData = [
   {
     "id": "otradnaya",
     "name": "Otradnaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.39333,
       "lng": 41.52056
@@ -59063,7 +59050,7 @@ const citiesData = [
   {
     "id": "bavly",
     "name": "Bavly",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.39304,
       "lng": 53.26023
@@ -59115,7 +59102,7 @@ const citiesData = [
   {
     "id": "il'skiy",
     "name": "Il’skiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.84222,
       "lng": 38.56686
@@ -59128,7 +59115,7 @@ const citiesData = [
   {
     "id": "lebedyan'",
     "name": "Lebedyan’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.01532,
       "lng": 39.14458
@@ -59141,7 +59128,7 @@ const citiesData = [
   {
     "id": "mendeleyevsk",
     "name": "Mendeleyevsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.90819,
       "lng": 52.29047
@@ -59271,7 +59258,7 @@ const citiesData = [
   {
     "id": "dankov",
     "name": "Dankov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.24976,
       "lng": 39.14409
@@ -59479,7 +59466,7 @@ const citiesData = [
   {
     "id": "severskaya",
     "name": "Severskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.85407,
       "lng": 38.67686
@@ -59895,7 +59882,7 @@ const citiesData = [
   {
     "id": "koz'modem'yansk",
     "name": "Koz’modem’yansk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 56.33209,
       "lng": 46.5606
@@ -59921,7 +59908,7 @@ const citiesData = [
   {
     "id": "onega",
     "name": "Onega",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 63.9057,
       "lng": 38.09944
@@ -60155,7 +60142,7 @@ const citiesData = [
   {
     "id": "novotitarovskaya",
     "name": "Novotitarovskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.23756,
       "lng": 38.98059
@@ -60571,7 +60558,7 @@ const citiesData = [
   {
     "id": "gorelovo",
     "name": "Gorelovo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.77234,
       "lng": 30.13455
@@ -60805,7 +60792,7 @@ const citiesData = [
   {
     "id": "shakhun'ya",
     "name": "Shakhun’ya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.67603,
       "lng": 46.61171
@@ -60935,7 +60922,7 @@ const citiesData = [
   {
     "id": "sergach",
     "name": "Sergach",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.52771,
       "lng": 45.45679
@@ -61039,7 +61026,7 @@ const citiesData = [
   {
     "id": "bryukhovetskaya",
     "name": "Bryukhovetskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 45.80603,
       "lng": 38.99959
@@ -61325,7 +61312,7 @@ const citiesData = [
   {
     "id": "nyandoma",
     "name": "Nyandoma",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 61.6718,
       "lng": 40.21221
@@ -61338,7 +61325,7 @@ const citiesData = [
   {
     "id": "novaya-usman'",
     "name": "Novaya Usman’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 51.6301,
       "lng": 39.4128
@@ -61351,7 +61338,7 @@ const citiesData = [
   {
     "id": "lodeynoye-pole",
     "name": "Lodeynoye Pole",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 60.72564,
       "lng": 33.56063
@@ -61416,7 +61403,7 @@ const citiesData = [
   {
     "id": "svetlyy",
     "name": "Svetlyy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.67501,
       "lng": 20.13473
@@ -61442,7 +61429,7 @@ const citiesData = [
   {
     "id": "losino-petrovskiy",
     "name": "Losino-Petrovskiy",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.87006,
       "lng": 38.19318
@@ -61520,7 +61507,7 @@ const citiesData = [
   {
     "id": "staraya-kupavna",
     "name": "Staraya Kupavna",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.80799,
       "lng": 38.1805
@@ -61624,7 +61611,7 @@ const citiesData = [
   {
     "id": "pikalevo",
     "name": "Pikalëvo",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.51833,
       "lng": 34.16639
@@ -61689,7 +61676,7 @@ const citiesData = [
   {
     "id": "ryazhsk",
     "name": "Ryazhsk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 53.70588,
       "lng": 40.08045
@@ -61715,7 +61702,7 @@ const citiesData = [
   {
     "id": "igra",
     "name": "Igra",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 57.5549,
       "lng": 53.0544
@@ -61871,7 +61858,7 @@ const citiesData = [
   {
     "id": "hlybokaye",
     "name": "Hlybokaye",
-    "country": "Belarus",
+    "country": "Null",
     "coordinates": {
       "lat": 55.1384,
       "lng": 27.6905
@@ -62131,7 +62118,7 @@ const citiesData = [
   {
     "id": "roshal'",
     "name": "Roshal’",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 55.66853,
       "lng": 39.87488
@@ -62859,7 +62846,7 @@ const citiesData = [
   {
     "id": "khadyzhensk",
     "name": "Khadyzhensk",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 44.4258,
       "lng": 39.5362
@@ -63548,7 +63535,7 @@ const citiesData = [
   {
     "id": "kovylkino",
     "name": "Kovylkino",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.03876,
       "lng": 43.91385
@@ -63574,7 +63561,7 @@ const citiesData = [
   {
     "id": "otradnoye",
     "name": "Otradnoye",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.7775,
       "lng": 30.81806
@@ -64224,7 +64211,7 @@ const citiesData = [
   {
     "id": "sheksna",
     "name": "Sheksna",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 59.20998,
       "lng": 38.51066
@@ -64250,7 +64237,7 @@ const citiesData = [
   {
     "id": "terek",
     "name": "Terek",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.48329,
       "lng": 44.13781
@@ -64458,7 +64445,7 @@ const citiesData = [
   {
     "id": "zelenchukskaya",
     "name": "Zelenchukskaya",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.85495,
       "lng": 41.59019
@@ -64614,7 +64601,7 @@ const citiesData = [
   {
     "id": "suvorov",
     "name": "Suvorov",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 54.1223,
       "lng": 36.49657
@@ -64718,7 +64705,7 @@ const citiesData = [
   {
     "id": "novy-oskol",
     "name": "Novy Oskol",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 50.76331,
       "lng": 37.86415
@@ -64978,7 +64965,7 @@ const citiesData = [
   {
     "id": "dugulubgey",
     "name": "Dugulubgey",
-    "country": "Russian Federation",
+    "country": "null",
     "coordinates": {
       "lat": 43.6625,
       "lng": 43.53694
@@ -64998,6 +64985,19 @@ const citiesData = [
     },
     "region": "Western Europe",
     "population": 20960,
+    "isTransportHub": false,
+    "size": "small"
+  },
+  {
+    "id": "caterham",
+    "name": "Caterham",
+    "country": "United Kingdom",
+    "coordinates": {
+      "lat": 51.2823,
+      "lng": -0.07889
+    },
+    "region": "Western Europe",
+    "population": 20957,
     "isTransportHub": false,
     "size": "small"
   }
