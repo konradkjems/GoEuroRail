@@ -51,15 +51,17 @@ const createStopIcon = (number: number) => {
   });
 };
 
+const MapboxMap = dynamic(() => import('@/components/MapboxMap'), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center">Loading map...</div>
+});
+
 interface MobileMapProps {
-  trip: FormTrip;
-  selectedStop: FormTripStop | null;
-  onStopSelect: (stop: FormTripStop) => void;
-  onBack?: () => void;
-  onUpdateNights?: (stopId: string, nights: number) => void;
-  onShowCityInfo?: (cityId: string) => void;
-  onShowTrainSchedule?: (fromCityId: string, toCityId: string, date: string) => void;
-  onTrainSelect?: (train: TrainConnection) => void;
+  stops: FormTripStop[];
+  onStopClick: (cityId: string) => void;
+  onShowTrainSchedule: (data: { fromCityId: string; toCityId: string; date: string }) => void;
+  onShowCityInfo: (cityId: string) => void;
+  className?: string;
 }
 
 // This component will handle map interactions after the map is ready
@@ -129,16 +131,13 @@ function getCircleStyle(city: City, isSelected: boolean, isInTrip: boolean, isCo
 }
 
 export default function MobileMap({ 
-  trip, 
-  selectedStop, 
-  onStopSelect,
-  onBack,
-  onUpdateNights,
-  onShowCityInfo,
+  stops, 
+  onStopClick,
   onShowTrainSchedule,
-  onTrainSelect
+  onShowCityInfo,
+  className
 }: MobileMapProps) {
-  const [localTrip, setLocalTrip] = useState<FormTrip>(trip);
+  const [localStops, setLocalStops] = useState<FormTripStop[]>(stops);
   const [showTrainSchedule, setShowTrainSchedule] = useState(false);
   const [trainScheduleData, setTrainScheduleData] = useState<{
     fromCityId: string;
@@ -146,26 +145,25 @@ export default function MobileMap({
     date: string;
   } | null>(null);
   
-  // Update local trip when prop changes
+  // Update local stops when prop changes
   useEffect(() => {
-    setLocalTrip(trip);
-  }, [trip]);
+    setLocalStops(stops);
+  }, [stops]);
 
   // Handle train schedule show/hide
   useEffect(() => {
     if (onShowTrainSchedule) {
-      const handleShowTrainSchedule = (fromCityId: string, toCityId: string, date: string) => {
-        setTrainScheduleData({ fromCityId, toCityId, date });
-        setShowTrainSchedule(true);
+      const handleTrainScheduleShow = (data: { fromCityId: string; toCityId: string; date: string }) => {
+        onShowTrainSchedule(data);
       };
-      onShowTrainSchedule = handleShowTrainSchedule;
+      (window as any).handleShowTrainSchedule = handleTrainScheduleShow;
     }
   }, [onShowTrainSchedule]);
 
   const handleLocalNightsUpdate = (stopId: string, nights: number) => {
     // Update local state first for immediate feedback
-    setLocalTrip(prevTrip => {
-      const updatedStops = prevTrip.stops.map(stop => {
+    setLocalStops(prevStops => {
+      return prevStops.map(stop => {
         if (stop.cityId === stopId) {
           const arrival = new Date(stop.arrivalDate);
           const departure = new Date(arrival);
@@ -180,19 +178,14 @@ export default function MobileMap({
         }
         return stop;
       });
-
-      return {
-        ...prevTrip,
-        stops: updatedStops
-      };
     });
 
     // Then trigger the parent update
-    onUpdateNights?.(stopId, nights);
+    onStopClick(stopId);
   };
 
   const getRouteCoordinates = () => {
-    return localTrip.stops
+    return localStops
       .map(stop => {
         const city = cities.find(c => c.id === stop.cityId);
         return city ? [city.coordinates.lat, city.coordinates.lng] : null;
@@ -201,7 +194,7 @@ export default function MobileMap({
   };
 
   const calculateTotalNights = () => {
-    return localTrip.stops.reduce((total, stop) => {
+    return localStops.reduce((total, stop) => {
       const arrival = new Date(stop.arrivalDate);
       const departure = new Date(stop.departureDate);
       const nights = Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
@@ -211,12 +204,12 @@ export default function MobileMap({
 
   const totalNights = calculateTotalNights();
   const plannedNights = totalNights;
-  const totalCost = localTrip.budget || 0;
+  const totalCost = 0; // This will need to be calculated based on your requirements
 
-  // Get initial map center - prioritize trip stops, otherwise center on Frankfurt (central Europe)
-  const initialCenter = localTrip.stops.length > 0
+  // Get initial map center - prioritize stops, otherwise center on Frankfurt (central Europe)
+  const initialCenter = localStops.length > 0
     ? (() => {
-        const firstCity = cities.find(c => c.id === localTrip.stops[0].cityId);
+        const firstCity = cities.find(c => c.id === localStops[0].cityId);
         return firstCity 
           ? [firstCity.coordinates.lat, firstCity.coordinates.lng]
           : [50.1109, 8.6821]; // Frankfurt coordinates as central Europe default
@@ -224,7 +217,7 @@ export default function MobileMap({
     : [50.1109, 8.6821];
 
   // Get rail connections for the trip
-  const tripConnections = getConnectionsForTrip(localTrip.stops.map(stop => stop.cityId));
+  const tripConnections = getConnectionsForTrip(localStops.map(stop => stop.cityId));
 
   const [isExpanded, setIsExpanded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -242,132 +235,48 @@ export default function MobileMap({
     if (scrollRef.current && scrollPosition > 0) {
       scrollRef.current.scrollTop = scrollPosition;
     }
-  }, [localTrip, scrollPosition]);
+  }, [localStops, scrollPosition]);
 
   const handleTrainSelect = (train: TrainConnection) => {
-    if (onTrainSelect) {
-      onTrainSelect(train);
-      setShowTrainSchedule(false);
-      setTrainScheduleData(null);
-    }
+    setShowTrainSchedule(false);
+    setTrainScheduleData(null);
   };
+
+  const firstCity = cities.find(c => c.id === stops[0]?.cityId);
+  const lastStop = stops[stops.length - 1];
 
   return (
     <div className="md:hidden h-screen flex flex-col relative">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm p-4 flex items-center">
-        <button onClick={onBack} className="p-2">
+        <button onClick={() => onStopClick(stops[0].cityId)} className="p-2">
           <ChevronLeftIcon className="h-6 w-6 text-gray-700" />
         </button>
         <div className="ml-2">
-          <h1 className="text-lg font-semibold text-gray-900">{trip.name}</h1>
+          <h1 className="text-lg font-semibold text-gray-900">{firstCity?.name || 'Trip'}</h1>
           <p className="text-sm text-gray-600">
-            {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
+            {new Date(stops[0]?.arrivalDate).toLocaleDateString()} - {new Date(lastStop?.departureDate).toLocaleDateString()}
           </p>
         </div>
       </div>
 
-      {/* Map Section - Now full height */}
+      {/* Map Section */}
       <div className="absolute inset-0 z-0">
-        <MapContainer
-          center={initialCenter as [number, number]}
-          zoom={5}
-          minZoom={4}
-          maxZoom={10}
-          style={{ height: '100%', width: '100%' }}
-          zoomControl={false}
-        >
-          <MapController trip={trip} />
-          <ZoomControl position="bottomright" />
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-
-          {/* Draw rail connections */}
-          {tripConnections.map((connection: RailConnection, index: number) => {
-            const dashArray = getRailSpeedDash(connection.speed);
-            return (
-              <Polyline
-                key={`${connection.fromCityId}-${connection.toCityId}-${index}`}
-                positions={[
-                  (() => {
-                    const fromCity = cities.find(c => c.id === connection.fromCityId);
-                    return [fromCity?.coordinates.lat || 0, fromCity?.coordinates.lng || 0];
-                  })(),
-                  (() => {
-                    const toCity = cities.find(c => c.id === connection.toCityId);
-                    return [toCity?.coordinates.lat || 0, toCity?.coordinates.lng || 0];
-                  })()
-                ]}
-                pathOptions={{
-                  color: getRailSpeedColor(connection.speed),
-                  weight: 2,
-                  opacity: 0.7,
-                  dashArray: dashArray || []
-                }}
-              />
-            );
-          })}
-
-          {/* Draw trip route */}
-          <Polyline
-            positions={getRouteCoordinates().filter((coord): coord is [number, number] => coord !== null)}
-            pathOptions={{
-              color: '#3B82F6',
-              weight: 4,
-              opacity: 0.8
-            }}
-          />
-
-          {/* Render city markers */}
-          {trip.stops.map((stop, index) => {
-            const city = cities.find(c => c.id === stop.cityId);
-            if (!city) return null;
-
-            return (
-              <React.Fragment key={stop.cityId}>
-                <CircleMarker
-                  center={[city.coordinates.lat, city.coordinates.lng]}
-                  {...getCircleStyle(
-                    city,
-                    selectedStop?.cityId === stop.cityId,
-                    true,
-                    false
-                  )}
-                  eventHandlers={{
-                    click: () => onStopSelect(stop),
-                  }}
-                >
-                  <Popup>
-                    <div className="text-sm">
-                      <h3 className="font-medium">{city.name}</h3>
-                      <p className="text-gray-500">{city.country}</p>
-                      {city.isTransportHub && (
-                        <p className="text-sm text-blue-600 mt-1">Major Transport Hub</p>
-                      )}
-                    </div>
-                  </Popup>
-                </CircleMarker>
-                <Marker
-                  position={[city.coordinates.lat, city.coordinates.lng]}
-                  icon={createStopIcon(index + 1)}
-                  zIndexOffset={1000}
-                >
-                  <Popup>
-                    <div className="text-sm">
-                      <h3 className="font-medium">{city.name}</h3>
-                      <p className="text-gray-500">{city.country}</p>
-                      {city.isTransportHub && (
-                        <p className="text-sm text-blue-600 mt-1">Major Transport Hub</p>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              </React.Fragment>
-            );
-          })}
-        </MapContainer>
+        <MapboxMap
+          trip={{
+            _id: 'mobile-trip',
+            name: firstCity?.name || 'Trip',
+            startDate: stops[0]?.arrivalDate || new Date().toISOString(),
+            endDate: lastStop?.departureDate || new Date().toISOString(),
+            stops: stops,
+            budget: totalCost
+          }}
+          selectedStop={stops[0] || null}
+          onStopSelect={(stop) => onStopClick(stop.cityId)}
+          onShowTrainSchedule={onShowTrainSchedule}
+          onTrainSelect={handleTrainSelect}
+          className={className}
+        />
       </div>
 
       {/* Trip Details Card */}
@@ -425,7 +334,7 @@ export default function MobileMap({
             className="p-4 space-y-4 overflow-y-auto h-full"
           >
             {/* Stops List */}
-            {trip.stops.map((stop, index) => {
+            {stops.map((stop, index) => {
               const city = cities.find(c => c.id === stop.cityId);
               if (!city) return null;
 
@@ -434,7 +343,7 @@ export default function MobileMap({
               const nights = Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
 
               // Calculate distance to next stop (if any)
-              const nextStop = trip.stops[index + 1];
+              const nextStop = stops[index + 1];
               let distance = null;
               if (nextStop) {
                 const nextCity = cities.find(c => c.id === nextStop.cityId);
@@ -458,14 +367,14 @@ export default function MobileMap({
                 >
                   <div 
                     className={`relative bg-white rounded-lg shadow-md border ${
-                      selectedStop?.cityId === stop.cityId 
+                      stops.find(s => s.cityId === stop.cityId)
                         ? 'border-[#06D6A0] ring-2 ring-[#06D6A0]/20'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      onStopSelect(stop);
+                      onStopClick(stop.cityId);
                     }}
                   >
                     {/* Stop number indicator */}
@@ -482,7 +391,7 @@ export default function MobileMap({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onShowCityInfo?.(stop.cityId);
+                                onShowCityInfo(stop.cityId);
                               }}
                               className="ml-2 text-[#264653] hover:text-[#06D6A0] p-1 rounded-full hover:bg-gray-50"
                               title="City information"
@@ -498,38 +407,36 @@ export default function MobileMap({
                         </div>
                         
                         {/* Nights adjustment buttons */}
-                        {onUpdateNights && (
-                          <div 
-                            className="flex items-center space-x-1 ml-4" 
+                        <div 
+                          className="flex items-center space-x-1 ml-4" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}
+                        >
+                          <button
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
+                              if (nights > 1) {
+                                handleLocalNightsUpdate(stop.cityId, nights - 1);
+                              }
                             }}
+                            className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
                           >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                if (nights > 1) {
-                                  handleLocalNightsUpdate(stop.cityId, nights - 1);
-                                }
-                              }}
-                              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
-                            >
-                              <MinusIcon className="h-4 w-4 text-gray-500" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                handleLocalNightsUpdate(stop.cityId, nights + 1);
-                              }}
-                              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
-                            >
-                              <PlusIcon className="h-4 w-4 text-gray-500" />
-                            </button>
-                          </div>
-                        )}
+                            <MinusIcon className="h-4 w-4 text-gray-500" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              handleLocalNightsUpdate(stop.cityId, nights + 1);
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
+                          >
+                            <PlusIcon className="h-4 w-4 text-gray-500" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Dates section */}
@@ -584,7 +491,13 @@ export default function MobileMap({
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
-                              onShowTrainSchedule?.(stop.cityId, nextStop.cityId, formatDate(departure));
+                              if (nextStop) {
+                                onShowTrainSchedule({
+                                  fromCityId: stop.cityId,
+                                  toCityId: nextStop.cityId,
+                                  date: formatDate(departure)
+                                });
+                              }
                             }}
                           >
                             <ArrowPathIcon className="h-6 w-6 text-[#FFD166] mr-3" />

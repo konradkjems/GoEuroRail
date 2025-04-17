@@ -1,30 +1,42 @@
-const fs = require('fs');
-const path = require('path');
-const csv = require('csv-parser');
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import csv from 'csv-parser';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface CityData {
   id: string;
   name: string;
   country: string;
-  latitude: number;
-  longitude: number;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
   region: string;
   population: number;
+  isTransportHub: boolean;
+  size: 'small' | 'medium' | 'large';
 }
 
 interface CsvRow {
-  ASCII_Name: string;
-  Country_Code: string;
-  Country_name_EN: string;
-  Coordinates: string;
-  Population_2021: string;
+  'Geoname ID': string;
+  'Name': string;
+  'Country Code': string;
+  'Country name EN': string;
+  'Population': string;
+  'Coordinates': string;
 }
 
+// Countries to exclude
+const excludedCountries = new Set(['RU', 'BY', 'MD']);
+
 const europeanCountryCodes = new Set([
-  'AL', 'AD', 'AT', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE',
+  'AL', 'AD', 'AT', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE',
   'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU',
-  'MT', 'MD', 'MC', 'ME', 'NL', 'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM',
-  'RS', 'SK', 'SI', 'ES', 'SE', 'CH', 'UA', 'GB', 'VA'
+  'MT', 'MC', 'ME', 'NL', 'MK', 'NO', 'PL', 'PT', 'RO', 'SM',
+  'RS', 'SK', 'SI', 'ES', 'SE', 'CH', 'GB', 'VA'
 ]);
 
 // Map countries to regions
@@ -38,10 +50,7 @@ const countryToRegion: { [key: string]: string } = {
   'IE': 'Western Europe',
   
   'PL': 'Eastern Europe',
-  'UA': 'Eastern Europe',
-  'BY': 'Eastern Europe',
   'RO': 'Eastern Europe',
-  'MD': 'Eastern Europe',
   
   'NO': 'Northern Europe',
   'SE': 'Northern Europe',
@@ -73,25 +82,46 @@ const countryToRegion: { [key: string]: string } = {
 
 const cities: CityData[] = [];
 
-fs.createReadStream(path.join(__dirname, '../../data/geonames-all-cities-with-a-population-10000-csv.csv'))
+fs.createReadStream(path.join(__dirname, '../../data/cities.csv'))
   .pipe(csv({ separator: ';' }))
   .on('data', (row: CsvRow) => {
-    // Check if the city is in Europe
-    if (europeanCountryCodes.has(row.Country_Code)) {
+    // Check if the city is in Europe and not in excluded countries
+    if (europeanCountryCodes.has(row['Country Code']) && !excludedCountries.has(row['Country Code'])) {
       // Parse coordinates from the dataset format
-      const coordinates = row.Coordinates.split(',').map((coord: string) => parseFloat(coord.trim()));
+      const coordinates = row['Coordinates'].split(',').map(coord => parseFloat(coord.trim()));
       
       if (coordinates.length === 2 && !isNaN(coordinates[0]) && !isNaN(coordinates[1])) {
-        const region = countryToRegion[row.Country_Code] || 'Other';
+        const region = countryToRegion[row['Country Code']] || 'Other';
+        const population = parseInt(row['Population'], 10) || 0;
+        
+        // Determine city size based on population
+        let size: 'small' | 'medium' | 'large' = 'small';
+        if (population > 1000000) {
+          size = 'large';
+        } else if (population > 500000) {
+          size = 'medium';
+        }
+        
+        // Determine if it's a transport hub (major cities)
+        const isTransportHub = population > 1000000 || [
+          'paris', 'london', 'berlin', 'amsterdam', 'brussels', 'frankfurt',
+          'munich', 'zurich', 'milan', 'rome', 'barcelona', 'madrid',
+          'vienna', 'prague', 'warsaw', 'budapest', 'copenhagen', 'stockholm',
+          'oslo', 'helsinki'
+        ].includes(row['Name'].toLowerCase());
         
         cities.push({
-          id: row.ASCII_Name.toLowerCase().replace(/\s+/g, '-'),
-          name: row.ASCII_Name,
-          country: row.Country_name_EN,
-          latitude: coordinates[0],
-          longitude: coordinates[1],
+          id: row['Name'].toLowerCase().replace(/\s+/g, '-'),
+          name: row['Name'],
+          country: row['Country name EN'],
+          coordinates: {
+            lat: coordinates[0],
+            lng: coordinates[1]
+          },
           region: region,
-          population: parseInt(row.Population_2021, 10) || 0
+          population: population,
+          isTransportHub,
+          size
         });
       }
     }
@@ -106,7 +136,10 @@ fs.createReadStream(path.join(__dirname, '../../data/geonames-all-cities-with-a-
     // Save to TypeScript file
     const output = `import { City } from '@/types';
 
-export const cities: City[] = ${JSON.stringify(topCities, null, 2)};`;
+const citiesData = ${JSON.stringify(topCities, null, 2)};
+
+export const cities: readonly City[] = citiesData as unknown as City[];
+export default cities;`;
 
     fs.writeFileSync(
       path.join(__dirname, '../lib/cities.ts'),
@@ -114,5 +147,5 @@ export const cities: City[] = ${JSON.stringify(topCities, null, 2)};`;
       'utf-8'
     );
 
-    console.log(`Generated cities.ts with ${topCities.length} European cities`);
+    console.log(`Generated cities.ts with ${topCities.length} European cities (excluding Russian Federation, Belarus, and Moldova)`);
   }); 

@@ -272,17 +272,13 @@ export default function TripDetails({ params }: { params: { id: string } }) {
   // Mobile view
   const MobileView = () => (
     <MobileMap
-      trip={trip}
-      selectedStop={selectedStop}
-      onStopSelect={(stop) => setSelectedStop(stop)}
-      onBack={() => router.push('/trips')}
-      onUpdateNights={handleUpdateNights}
-      onShowCityInfo={handleShowCityInfo}
-      onShowTrainSchedule={(fromCityId, toCityId, date) => {
+      stops={trip.stops}
+      onStopClick={handleCityClick}
+      onShowTrainSchedule={({ fromCityId, toCityId, date }) => {
+        setSelectedStop(trip.stops.find(stop => stop.cityId === fromCityId) || null);
         setTrainScheduleData({ fromCityId, toCityId, date });
-        setShowTrainSchedule(true);
       }}
-      onTrainSelect={handleTrainSelect}
+      onShowCityInfo={handleShowCityInfo}
     />
   );
 
