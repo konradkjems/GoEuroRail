@@ -57,3 +57,8 @@ cities_cost_of_living.csv
 cities.xlsx
 .env.local.example
 .next/
+
+# Environment variables
+.env
+.env.local
+.env.*.local

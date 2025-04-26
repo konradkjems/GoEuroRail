@@ -13,6 +13,11 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 // Set your Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
+// Check if token is missing
+if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
+  console.error('Mapbox token is missing. Please set NEXT_PUBLIC_MAPBOX_TOKEN in your environment variables.');
+}
+
 // Popular Interrail destinations
 const popularInterrailCities = [
   'amsterdam', 'barcelona', 'berlin', 'budapest', 'copenhagen', 
