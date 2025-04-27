@@ -21,12 +21,19 @@ import {
   ArrowsUpDownIcon,
   RocketLaunchIcon as TrainIcon,
   InformationCircleIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  UserGroupIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import TrainSchedule from "@/components/TrainSchedule";
 import SmartTripAssistant from "@/components/SmartTripAssistant";
+import dynamic from 'next/dynamic';
+
+// Dynamically import the AccommodationScreen component
+const AccommodationScreen = dynamic(() => import('@/components/AccommodationScreen'), {
+  ssr: false
+});
 
 interface TripItineraryProps {
   trip: FormTrip | null;
@@ -167,6 +174,10 @@ export default function TripItinerary({
 
   // New state for city info modal
   const [selectedCityInfo, setSelectedCityInfo] = useState<City | null>(null);
+
+  // New state for accommodation screen
+  const [showAccommodationScreen, setShowAccommodationScreen] = useState(false);
+  const [accommodationStopIndex, setAccommodationStopIndex] = useState(-1);
 
   // Update editedTrip when trip changes
   useEffect(() => {
@@ -609,6 +620,51 @@ export default function TripItinerary({
     setTempTravelers(editedTrip?.travelers || 1);
   };
 
+  // Handle selecting accommodation for a stop
+  const handleSelectAccommodation = (accommodation: any) => {
+    if (accommodationStopIndex === -1 || !editedTrip) return;
+    
+    const updatedStops = [...editedTrip.stops];
+    updatedStops[accommodationStopIndex] = {
+      ...updatedStops[accommodationStopIndex],
+      accommodation: accommodation.name
+    };
+    
+    const updatedTrip = { ...editedTrip, stops: updatedStops };
+    setEditedTrip(updatedTrip);
+    
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+    
+    // Close accommodation screen
+    setShowAccommodationScreen(false);
+  };
+  
+  // Handle removing accommodation from a stop
+  const handleRemoveAccommodation = (index: number) => {
+    if (!editedTrip) return;
+    
+    const updatedStops = [...editedTrip.stops];
+    updatedStops[index] = {
+      ...updatedStops[index],
+      accommodation: undefined
+    };
+    
+    const updatedTrip = { ...editedTrip, stops: updatedStops };
+    setEditedTrip(updatedTrip);
+    
+    if (onUpdateTrip) {
+      onUpdateTrip(updatedTrip);
+    }
+  };
+  
+  // Show accommodation screen for a specific stop
+  const handleShowAccommodationScreen = (index: number) => {
+    setAccommodationStopIndex(index);
+    setShowAccommodationScreen(true);
+  };
+
   // If no trip is selected
   if (!trip) {
     return (
@@ -883,6 +939,8 @@ export default function TripItinerary({
                 onMove={handleMoveStop}
                 editedTrip={editedTrip}
                     onShowCityInfo={handleShowCityInfo}
+                    onShowAccommodation={handleShowAccommodationScreen}
+                    onRemoveAccommodation={handleRemoveAccommodation}
                   />
                   
                   {/* Connection to next stop with appropriate styling */}
@@ -1015,6 +1073,35 @@ export default function TripItinerary({
           onClose={() => setSelectedCityInfo(null)} 
         />
       )}
+
+      {/* Accommodation Screen */}
+      {showAccommodationScreen && editedTrip && accommodationStopIndex >= 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden w-full max-w-4xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-[#264653]">
+                Find Accommodation in {cities.find(c => c.id === editedTrip.stops[accommodationStopIndex].cityId)?.name}
+              </h2>
+              <button
+                onClick={() => setShowAccommodationScreen(false)}
+                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <AccommodationScreen
+                city={cities.find(c => c.id === editedTrip.stops[accommodationStopIndex].cityId)?.name || ''}
+                checkInDate={editedTrip.stops[accommodationStopIndex].arrivalDate}
+                checkOutDate={editedTrip.stops[accommodationStopIndex].departureDate}
+                currentTripStop={editedTrip.stops[accommodationStopIndex]}
+                onSelectAccommodation={handleSelectAccommodation}
+                travelers={editedTrip.travelers || 2}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1032,6 +1119,8 @@ interface StopCardProps {
   onMove: (index: number, direction: 'up' | 'down') => void;
   editedTrip: FormTrip | null;
   onShowCityInfo: (cityId: string) => void;
+  onShowAccommodation: (index: number) => void;
+  onRemoveAccommodation: (index: number) => void;
 }
 
 const StopCard = ({
@@ -1045,7 +1134,9 @@ const StopCard = ({
   onAddDestinationAfter,
   onMove,
   editedTrip,
-  onShowCityInfo
+  onShowCityInfo,
+  onShowAccommodation,
+  onRemoveAccommodation
 }: StopCardProps) => {
   const cityData = cities.find(c => c.id === stop.cityId);
   const nextStop = editedTrip?.stops[index + 1];
@@ -1281,12 +1372,45 @@ const StopCard = ({
                   {cityData?.country}
                   </div>
                 
-                {/* Accommodation if present */}
-                {stop.accommodation && (
-                  <div className="flex items-center text-xs text-gray-500 mt-1">
+                {/* Accommodation if present or button to add */}
+                {stop.accommodation ? (
+                  <div className="flex items-center text-xs text-gray-500 mt-1 group">
                     <HomeIcon className="h-3 w-3 mr-1 text-[#06D6A0]" />
                     <span>{stop.accommodation}</span>
-                </div>
+                    <div className="ml-auto flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onShowAccommodation(index);
+                        }}
+                        className="ml-1 text-gray-400 hover:text-[#06D6A0]"
+                        title="Change accommodation"
+                      >
+                        <PencilIcon className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveAccommodation(index);
+                        }}
+                        className="ml-1 text-gray-400 hover:text-red-500"
+                        title="Remove accommodation"
+                      >
+                        <XMarkIcon className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onShowAccommodation(index);
+                    }}
+                    className="flex items-center text-xs text-[#06D6A0] mt-1 hover:text-[#05C090]"
+                  >
+                    <HomeIcon className="h-3 w-3 mr-1" />
+                    <span>Add accommodation</span>
+                  </button>
                 )}
               </div>
               

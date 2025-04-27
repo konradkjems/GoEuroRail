@@ -93,6 +93,55 @@ Ensure you set the following environment variables in your Vercel project:
 - Cost of living data: Local database
 - Activities and tours: GetYourGuide
 
+## Hotel APIs Configuration
+
+This application uses hotel APIs to fetch real accommodation data. You can configure which API to use in the `.env.local` file.
+
+### Available Providers
+
+#### 1. RapidAPI Hotels (Default)
+This provider requires an API key from RapidAPI. To use this provider:
+
+1. Sign up at [RapidAPI](https://rapidapi.com/)
+2. Subscribe to the [Hotels API](https://rapidapi.com/apidojo/api/hotels4) 
+3. Add your API key to the `.env.local` file:
+
+```
+NEXT_PUBLIC_RAPIDAPI_KEY=your_rapidapi_key
+NEXT_PUBLIC_RAPIDAPI_HOST=hotels4.p.rapidapi.com
+```
+
+#### 2. MakCorps Hotel API (Fallback)
+This provider offers a free plan with limited calls. To use this provider:
+
+1. Sign up at [MakCorps](https://makcorps.com/)
+2. Get your API key
+3. Add your API key to the `.env.local` file:
+
+```
+NEXT_PUBLIC_MAKCORPS_API_KEY=your_makcorps_api_key
+```
+
+The app will first try to use MakCorps API and fall back to the mock data if that fails.
+
+### Creating `.env.local` file
+
+Create a `.env.local` file in the root directory with the following content:
+
+```
+# RapidAPI credentials
+NEXT_PUBLIC_RAPIDAPI_KEY=your_rapidapi_key
+NEXT_PUBLIC_RAPIDAPI_HOST=hotels4.p.rapidapi.com
+
+# MakCorps API key
+NEXT_PUBLIC_MAKCORPS_API_KEY=free_demo
+
+# Cache settings
+CACHE_TTL_HOTELS=3600 # 1 hour
+```
+
+Replace `your_rapidapi_key` and `free_demo` with your actual API keys.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

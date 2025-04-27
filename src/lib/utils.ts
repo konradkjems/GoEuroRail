@@ -89,4 +89,11 @@ export const loadTrips = () => {
 export const saveTrips = (trips: any[]) => {
   if (typeof window === 'undefined') return;
   localStorage.setItem('trips', JSON.stringify(trips));
-}; 
+};
+
+// Function to format currency
+export function formatCurrency(amount: number, currency: string): string {
+  if (currency === 'EUR') return `€${amount.toFixed(2)}`;
+  if (currency === 'USD') return `$${amount.toFixed(2)}`;
+  return `${amount.toFixed(2)} ${currency}`;
+} 

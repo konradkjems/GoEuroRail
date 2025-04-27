@@ -81,12 +81,16 @@ const countryToRegion: { [key: string]: string } = {
 };
 
 const cities: CityData[] = [];
+let totalRowsProcessed = 0;
+let citiesInEurope = 0;
 
 fs.createReadStream(path.join(__dirname, '../../data/cities.csv'))
   .pipe(csv({ separator: ';' }))
   .on('data', (row: CsvRow) => {
+    totalRowsProcessed++;
     // Check if the city is in Europe and not in excluded countries
     if (europeanCountryCodes.has(row['Country Code']) && !excludedCountries.has(row['Country Code'])) {
+      citiesInEurope++;
       // Parse coordinates from the dataset format
       const coordinates = row['Coordinates'].split(',').map(coord => parseFloat(coord.trim()));
       
@@ -130,13 +134,25 @@ fs.createReadStream(path.join(__dirname, '../../data/cities.csv'))
     // Sort cities by population (descending)
     cities.sort((a, b) => b.population - a.population);
 
-    // Take top cities
-    const topCities = cities.slice(0, 1000);
+    // Debug logs to help diagnose the problem
+    console.log(`Total rows processed: ${totalRowsProcessed}`);
+    console.log(`Cities in Europe (excluding RU, BY, MD): ${citiesInEurope}`);
+    console.log(`Cities with valid coordinates: ${cities.length}`);
+    
+    // Specifically check for Menton
+    const mentonCity = cities.find(city => city.name === 'Menton');
+    console.log(`Menton found: ${mentonCity ? 'Yes' : 'No'}`);
+    if (mentonCity) {
+      console.log(`Menton details: ${JSON.stringify(mentonCity, null, 2)}`);
+    }
+
+    // Include ALL cities
+    const allCities = cities;
 
     // Save to TypeScript file
     const output = `import { City } from '@/types';
 
-const citiesData = ${JSON.stringify(topCities, null, 2)};
+const citiesData = ${JSON.stringify(allCities, null, 2)};
 
 export const cities: readonly City[] = citiesData as unknown as City[];
 export default cities;`;
@@ -147,5 +163,5 @@ export default cities;`;
       'utf-8'
     );
 
-    console.log(`Generated cities.ts with ${topCities.length} European cities (excluding Russian Federation, Belarus, and Moldova)`);
+    console.log(`Generated cities.ts with ${allCities.length} European cities (excluding Russian Federation, Belarus, and Moldova)`);
   }); 

@@ -42,7 +42,7 @@
 
 ### 4. Deepseek AI Integration
 - **Implementation Steps:**
-  1. Set up Deepseek API credentials (Partially implemented)
+  1. Set up Deepseek API credentials
   2. Create AI service layer
   3. Implement AI-powered features
   4. Add user feedback system
@@ -78,17 +78,18 @@
   - Shareable trip links
   - Sharing analytics
 
-### 2. Daily Spending Journal
+### 2. Daily Spending Journal ✅ (Partially Implemented)
 - **Implementation Steps:**
-  1. Design journal interface
-  2. Create expense categories
-  3. Implement daily entry system
-  4. Add photo upload capability
-  5. Create export functionality
+  4. Add photo upload capability with cloudinary
+
+- **Already implemtened:**
+  - Expense tracker with categories and Analysis
+  - Daily entries
+  - Export functionality
 
 ### 3. Flight Information Integration
 - **Implementation Steps:**
-  1. Integrate Google Flights API
+  1. Integrate an API to get flight data
   2. Create flight search interface
   3. Add price tracking
   4. Implement booking links

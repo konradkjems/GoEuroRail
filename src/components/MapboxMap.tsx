@@ -488,7 +488,11 @@ export default function MapboxMap({
                 speed: connection.speed,
                 distance: connection.distance,
                 color: getRailSpeedColor(connection.speed),
-                dashArray: getRailSpeedDash(connection.speed)
+                dashArray: getRailSpeedDash(connection.speed),
+                fromCityName: fromCity.name,
+                toCityName: toCity.name,
+                fromCityId: connection.fromCityId,
+                toCityId: connection.toCityId
               },
               geometry: {
                 type: 'LineString',
@@ -653,21 +657,62 @@ export default function MapboxMap({
             const props = e.features[0].properties;
             const speed = props.speed;
             const distance = props.distance;
+            const fromCityName = props.fromCityName;
+            const toCityName = props.toCityName;
+            
+            // Format speed text to show km/h ranges
+            const getSpeedRange = (speed: string): string => {
+              switch (speed) {
+                case 'high-speed':
+                  return '310-320 km/h';
+                case 'very-fast':
+                  return '270-300 km/h';
+                case 'fast':
+                  return '240-260 km/h';
+                case 'medium':
+                  return '200-230 km/h';
+                case 'under-construction':
+                  return 'Under Construction';
+                case 'normal':
+                default:
+                  return '< 200 km/h';
+              }
+            };
             
             // Create popup content
             const popupContent = document.createElement('div');
-            popupContent.className = 'p-2 text-sm';
+            popupContent.className = 'px-2 py-1.5 text-sm min-w-[120px] max-w-[200px]';
             popupContent.innerHTML = `
-              <div class="font-medium mb-1">Rail Connection</div>
-              <div class="text-gray-600">Speed: ${speed}</div>
-              ${distance ? `<div class="text-gray-600">Distance: ${distance} km</div>` : ''}
+              <div class="flex items-center gap-1 text-gray-900 font-medium text-[13px]">
+                <span>${fromCityName}</span>
+                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>${toCityName}</span>
+              </div>
+              <div class="text-[11px] text-gray-600 flex items-center gap-2 mt-0.5">
+                <span class="inline-flex items-center gap-0.5">
+                  <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  ${getSpeedRange(speed)}
+                </span>
+                ${distance ? `
+                <span class="inline-flex items-center gap-0.5">
+                  <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 22V2m0 20l-4-4m4 4l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  ${distance} km
+                </span>` : ''}
+              </div>
             `;
             
             // Show popup
             new mapboxgl.Popup({
               closeButton: false,
               closeOnClick: false,
-              className: 'rail-info-popup'
+              className: 'rail-info-popup !p-0',
+              offset: 5
             })
             .setLngLat(e.lngLat)
             .setDOMContent(popupContent)
@@ -758,7 +803,7 @@ export default function MapboxMap({
       </div>
       
       {/* Rail legend */}
-      <div className="absolute bottom-4 left-4 z-10">
+      <div className="absolute top-2 left-4 z-10">
         <RailLegend 
           isOpen={isLegendOpen} 
           onToggle={() => setIsLegendOpen(!isLegendOpen)}

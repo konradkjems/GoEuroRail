@@ -12,10 +12,10 @@ export default function SplitView({
   mapWidth = "70%" 
 }: SplitViewProps) {
   return (
-    <div className="flex flex-1 h-full overflow-hidden w-full">
+    <div className="flex flex-1 h-full overflow-hidden w-full m-0 p-0">
       {/* Map section */}
       <div 
-        className="relative h-full overflow-hidden" 
+        className="relative h-full overflow-hidden m-0 p-0" 
         style={{ width: mapWidth }}
       >
         {mapSection}
@@ -23,10 +23,12 @@ export default function SplitView({
 
       {/* Content section */}
       <div 
-        className="h-full overflow-auto"
+        className="h-full overflow-auto m-0 p-0"
         style={{ width: `calc(100% - ${mapWidth})` }}
       >
-        {contentSection}
+        <div className="p-4">
+          {contentSection}
+        </div>
       </div>
     </div>
   );

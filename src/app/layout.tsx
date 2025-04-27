@@ -2,9 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
-
 
 export const metadata: Metadata = {
   title: 'GoEuroRail - Plan Your European Rail Adventure',
@@ -21,14 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 min-h-screen font-sans flex flex-col">
+      <body className="bg-gray-50 min-h-screen font-sans flex flex-col overflow-hidden">
         <AuthProvider>
           <Navbar />
-          <main className="w-full px-4 sm:px-6 lg:px-8 py-6 flex-grow">
-            {children}
-          </main>
-          <Footer />
+          {children}
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

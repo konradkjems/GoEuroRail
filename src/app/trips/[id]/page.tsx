@@ -247,7 +247,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
   const DesktopView = () => (
     <SplitView 
       mapSection={
-        <div className="h-full">
+        <div className="h-full w-full overflow-hidden m-0 p-0">
           <InterrailMap
             selectedTrip={trip}
             onCityClick={handleCityClick}
@@ -255,7 +255,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
         </div>
       }
       contentSection={
-        <div className="h-full flex flex-col">
+        <div className="h-full w-full flex flex-col overflow-hidden m-0 p-0">
           <TripItinerary
             trip={trip}
             onDeleteTrip={handleDeleteTrip}
