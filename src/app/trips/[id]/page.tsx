@@ -1,27 +1,53 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { FormTrip, FormTripStop } from "@/types";
 import { loadTrips, saveTrips } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import SplitView from "@/components/SplitView";
-import TripItinerary from "@/components/TripItinerary";
-import TrainSchedule from "@/components/TrainSchedule";
-import { TrainConnection } from "@/lib/api/trainSchedule";
-import dynamic from "next/dynamic";
 import { cities } from "@/lib/cities";
 import { useAuth } from "@/context/AuthContext";
+import dynamic from "next/dynamic";
+import { TrainConnection } from "@/lib/api/trainSchedule";
+
+// Loading fallbacks
+const ItineraryFallback = () => (
+  <div className="h-full w-full p-4 bg-white animate-pulse">
+    <div className="h-6 w-40 bg-gray-200 rounded mb-4"></div>
+    <div className="space-y-3">
+      {[1, 2, 3].map(i => (
+        <div key={i} className="h-24 bg-gray-100 rounded w-full"></div>
+      ))}
+    </div>
+  </div>
+);
+
+const MapFallback = () => (
+  <div className="h-full w-full bg-gray-100 flex items-center justify-center">
+    <div className="text-gray-500">Loading map...</div>
+  </div>
+);
+
+// Dynamically import heavy components with loading states
+const TripItinerary = dynamic(() => import("@/components/TripItinerary"), {
+  loading: () => <ItineraryFallback />
+});
+
+const TrainSchedule = dynamic(() => import("@/components/TrainSchedule"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full flex items-center justify-center">Loading train schedules...</div>
+});
 
 // Dynamically import map components to avoid server-side rendering issues
 const InterrailMap = dynamic(() => import("@/components/InterrailMap"), {
   ssr: false,
-  loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center">Loading map...</div>
+  loading: () => <MapFallback />
 });
 
 const MobileMap = dynamic(() => import("@/components/MobileMap"), {
   ssr: false,
-  loading: () => <div className="h-full w-full bg-gray-100 flex items-center justify-center">Loading map...</div>
+  loading: () => <MapFallback />
 });
 
 export default function TripDetails({ params }: { params: { id: string } }) {
@@ -185,12 +211,26 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       if (stop.cityId === selectedStop.cityId) {
         return {
           ...stop,
+          // Add both trainDetails (legacy) and customTransport (new format)
           trainDetails: {
             trainNumber: train.trains.map(t => `${t.type} ${t.number}`).join(', '),
             duration: train.duration,
             changes: train.changes,
             price: train.price
           },
+          // Add the same info in the new format
+          customTransport: {
+            transportType: "train" as const,
+            departureTime: train.departureTime,
+            arrivalTime: train.arrivalTime,
+            departureDate: stop.arrivalDate,
+            arrivalDate: stop.departureDate,
+            departureStation: train.trains[0]?.departureStation,
+            arrivalStation: train.trains[train.trains.length - 1]?.arrivalStation,
+            operator: train.trains.map(t => t.operator).join(', '),
+            overnightTransport: false,
+            vehicleNumber: train.trains.map(t => `${t.type} ${t.number}`).join(', '),
+          }
         };
       }
       return stop;
@@ -248,21 +288,25 @@ export default function TripDetails({ params }: { params: { id: string } }) {
     <SplitView 
       mapSection={
         <div className="h-full w-full overflow-hidden m-0 p-0">
-          <InterrailMap
-            selectedTrip={trip}
-            onCityClick={handleCityClick}
-          />
+          <Suspense fallback={<MapFallback />}>
+            <InterrailMap 
+              selectedTrip={trip}
+              onCityClick={handleCityClick}
+            />
+          </Suspense>
         </div>
       }
       contentSection={
         <div className="h-full w-full flex flex-col overflow-hidden m-0 p-0">
-          <TripItinerary
-            trip={trip}
-            onDeleteTrip={handleDeleteTrip}
-            selectedStopIndex={selectedStopIndex}
-            onSelectStop={setSelectedStopIndex}
-            onUpdateTrip={handleUpdateTrip}
-          />
+          <Suspense fallback={<ItineraryFallback />}>
+            <TripItinerary 
+              trip={trip}
+              onDeleteTrip={handleDeleteTrip}
+              selectedStopIndex={selectedStopIndex}
+              onSelectStop={setSelectedStopIndex}
+              onUpdateTrip={handleUpdateTrip}
+            />
+          </Suspense>
         </div>
       }
       mapWidth="50%"
@@ -287,7 +331,7 @@ export default function TripDetails({ params }: { params: { id: string } }) {
       <div className="hidden md:block h-full">
         <DesktopView />
       </div>
-      <div className="md:hidden">
+      <div className="md:hidden mb-20">
         <MobileView />
       </div>
       {showTrainSchedule && trainScheduleData && (

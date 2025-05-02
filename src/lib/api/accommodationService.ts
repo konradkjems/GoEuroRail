@@ -352,6 +352,12 @@ function getAccommodationType(hotel: any): 'hotel' | 'hostel' | 'apartment' | 'g
  * Fallback accommodation data when API fails
  */
 function getFallbackAccommodations(params: AccommodationSearchParams): Accommodation[] {
+  console.log(`Generating fallback accommodations for "${params.cityName}"`);
+  
+  // Lowercase the city name to standardize comparisons
+  const cityNameLower = params.cityName.toLowerCase().trim();
+  console.log(`Standardized city name: "${cityNameLower}"`);
+  
   // More realistic mock data with better variety
   const mockCities: Record<string, Accommodation[]> = {
     // Vienna accommodations
@@ -620,48 +626,262 @@ function getFallbackAccommodations(params: AccommodationSearchParams): Accommoda
     ]
   };
   
-  // Normalize city name for matching
-  const normalizedCityName = params.cityName.toLowerCase().trim();
-  
-  // Try to match the city name
-  let accommodations: Accommodation[] = [];
-  
-  // Check if we have data for this specific city
-  if (normalizedCityName in mockCities) {
-    accommodations = mockCities[normalizedCityName];
-  } else {
-    // Try to find partial matches
-    const cityKeys = Object.keys(mockCities);
-    const matchedCity = cityKeys.find(city => 
-      city !== 'default' && normalizedCityName.includes(city) || city.includes(normalizedCityName)
-    );
-    
-    if (matchedCity) {
-      accommodations = mockCities[matchedCity];
-    } else {
-      // Fall back to default accommodations
-      accommodations = mockCities.default;
+  // Check if we have predefined mock data for this city
+  console.log(`Checking for predefined mock data among ${Object.keys(mockCities).length} mock cities`);
+  for (const [key, accommodations] of Object.entries(mockCities)) {
+    console.log(`  Comparing "${cityNameLower}" with mock city "${key}"`);
+    if (cityNameLower.includes(key) || key.includes(cityNameLower)) {
+      console.log(`✓ Match found! Using predefined data for "${key}"`);
+      return accommodations;
     }
   }
   
-  // Apply filters
-  let filtered = accommodations;
+  // If we don't have predefined mock data for this city, generate some
+  console.log(`No predefined mock data for "${params.cityName}", generating dynamic mock data`);
   
-  // Price filter
-  if (params.priceMin !== undefined || params.priceMax !== undefined) {
-    filtered = filtered.filter(acc => {
-      if (params.priceMin !== undefined && acc.price.amount < params.priceMin) return false;
-      if (params.priceMax !== undefined && acc.price.amount > params.priceMax) return false;
-      return true;
+  // Get approximate coordinates for the city
+  const cityCoordinates = getCityCoordinates(params.cityName);
+  console.log(`Using coordinates for "${params.cityName}":`, cityCoordinates);
+  
+  // Generate 5-8 random accommodations around those coordinates
+  const numAccommodations = 5 + Math.floor(Math.random() * 4); // 5 to 8 accommodations
+  const generatedAccommodations: Accommodation[] = [];
+  
+  const accommodationTypes: Array<'hotel' | 'hostel' | 'apartment' | 'guesthouse'> = ['hotel', 'hostel', 'apartment', 'guesthouse'];
+  const hotelPrefixes = ['Grand', 'Royal', 'Imperial', 'Central', 'City', 'Park', 'Plaza', 'Comfort', 'Premier'];
+  const hotelSuffixes = ['Hotel', 'Inn', 'Suites', 'Lodge', 'House', 'Residence', 'Palace'];
+  const hostelPrefixes = ['Backpackers', 'Budget', 'Travelers', 'Friendly', 'Happy', 'Urban'];
+  const hostelSuffixes = ['Hostel', 'House', 'City', 'Hub', 'Lounge', 'Haven'];
+  const apartmentPrefixes = ['Modern', 'Luxury', 'City', 'Central', 'Cozy', 'Spacious'];
+  const apartmentSuffixes = ['Apartments', 'Suites', 'Lofts', 'Studios', 'Stays', 'Views'];
+  const guesthousePrefixes = ['Tranquil', 'Quiet', 'Family', 'Charming', 'Historic', 'Traditional'];
+  const guesthouseSuffixes = ['Guesthouse', 'B&B', 'House', 'Cottage', 'Rooms', 'Retreat'];
+  
+  const amenitiesList = [
+    'Wi-Fi', 'Breakfast', 'Air conditioning', 'Non-smoking rooms', 'Restaurant', 
+    'Bar', '24-hour front desk', 'Fitness center', 'Spa', 'Terrace', 'Pool',
+    'Parking', 'Free parking', 'Garden', 'Shared kitchen', 'Laundry', 'TV',
+    'Elevator', 'Soundproof rooms', 'Family rooms', 'Airport shuttle'
+  ];
+  
+  for (let i = 0; i < numAccommodations; i++) {
+    const type = accommodationTypes[Math.floor(Math.random() * accommodationTypes.length)];
+    
+    // Create name based on type
+    let namePrefix, nameSuffix;
+    switch (type) {
+      case 'hotel':
+        namePrefix = hotelPrefixes[Math.floor(Math.random() * hotelPrefixes.length)];
+        nameSuffix = hotelSuffixes[Math.floor(Math.random() * hotelSuffixes.length)];
+        break;
+      case 'hostel':
+        namePrefix = hostelPrefixes[Math.floor(Math.random() * hostelPrefixes.length)];
+        nameSuffix = hostelSuffixes[Math.floor(Math.random() * hostelSuffixes.length)];
+        break;
+      case 'apartment':
+        namePrefix = apartmentPrefixes[Math.floor(Math.random() * apartmentPrefixes.length)];
+        nameSuffix = apartmentSuffixes[Math.floor(Math.random() * apartmentSuffixes.length)];
+        break;
+      case 'guesthouse':
+        namePrefix = guesthousePrefixes[Math.floor(Math.random() * guesthousePrefixes.length)];
+        nameSuffix = guesthouseSuffixes[Math.floor(Math.random() * guesthouseSuffixes.length)];
+        break;
+    }
+    
+    // Random location variation (within ~1-2km)
+    const latVariation = (Math.random() - 0.5) * 0.02;
+    const lngVariation = (Math.random() - 0.5) * 0.02;
+    
+    // Random price based on accommodation type
+    let basePrice;
+    switch (type) {
+      case 'hotel':
+        basePrice = 150 + Math.floor(Math.random() * 250);
+        break;
+      case 'hostel':
+        basePrice = 50 + Math.floor(Math.random() * 100);
+        break;
+      case 'apartment':
+        basePrice = 100 + Math.floor(Math.random() * 200);
+        break;
+      case 'guesthouse':
+        basePrice = 80 + Math.floor(Math.random() * 150);
+        break;
+    }
+    
+    // Random star rating (2-5 for hotels, 1-3 for hostels, 2-4 for apartments, 1-3 for guesthouses)
+    let stars;
+    switch (type) {
+      case 'hotel':
+        stars = 2 + Math.floor(Math.random() * 4);
+        break;
+      case 'hostel':
+        stars = 1 + Math.floor(Math.random() * 3);
+        break;
+      case 'apartment':
+        stars = 2 + Math.floor(Math.random() * 3);
+        break;
+      case 'guesthouse':
+        stars = 1 + Math.floor(Math.random() * 3);
+        break;
+    }
+    
+    // Random rating (6.5-9.5)
+    const rating = 6.5 + Math.random() * 3;
+    
+    // Random review count (50-1000)
+    const reviewCount = 50 + Math.floor(Math.random() * 950);
+    
+    // Select 3-8 random amenities
+    const numAmenities = 3 + Math.floor(Math.random() * 6);
+    const shuffledAmenities = [...amenitiesList].sort(() => 0.5 - Math.random());
+    const selectedAmenities = shuffledAmenities.slice(0, numAmenities);
+    
+    // Image based on type
+    let image;
+    switch (type) {
+      case 'hotel':
+        image = stars >= 4 
+          ? '/hotel-images/hotel-room-luxary.jpg' 
+          : '/hotel-images/hotel-room-moderate.jpg';
+        break;
+      case 'hostel':
+        image = '/hotel-images/hostel-room.jpg';
+        break;
+      case 'apartment':
+        image = '/hotel-images/hotel-room-moderate.jpg';
+        break;
+      case 'guesthouse':
+        image = '/hotel-images/hotel-room-moderate.jpg';
+        break;
+    }
+    
+    // Create the accommodation object
+    generatedAccommodations.push({
+      id: `generated-${i + 1}`,
+      name: `${namePrefix} ${params.cityName} ${nameSuffix}`,
+      type,
+      stars,
+      address: `${Math.floor(Math.random() * 150) + 1} Main Street, ${params.cityName}`,
+      latitude: cityCoordinates.lat + latVariation,
+      longitude: cityCoordinates.lng + lngVariation,
+      price: {
+        amount: basePrice,
+        currency: 'EUR'
+      },
+      images: [image],
+      rating,
+      reviewCount,
+      amenities: selectedAmenities,
+      url: 'https://www.booking.com'
     });
   }
   
-  // Accommodation type filter
-  if (params.accommodationType !== undefined && params.accommodationType.length > 0) {
-    filtered = filtered.filter(acc => params.accommodationType!.includes(acc.type));
+  return generatedAccommodations;
+}
+
+// Helper function to get coordinates for common cities or estimate them
+function getCityCoordinates(cityName: string): { lat: number, lng: number } {
+  // Lowercase the city name to standardize comparisons
+  const cityNameLower = cityName.toLowerCase().trim();
+  console.log(`Getting coordinates for "${cityNameLower}"`);
+  
+  // Common city coordinates (expanded list)
+  const cityCoordinates: {[key: string]: {lat: number, lng: number}} = {
+    'vienna': { lat: 48.2082, lng: 16.3738 },
+    'paris': { lat: 48.8566, lng: 2.3522 },
+    'amsterdam': { lat: 52.3676, lng: 4.9041 },
+    'berlin': { lat: 52.5200, lng: 13.4050 },
+    'rome': { lat: 41.9028, lng: 12.4964 },
+    'barcelona': { lat: 41.3851, lng: 2.1734 },
+    'london': { lat: 51.5074, lng: -0.1278 },
+    'prague': { lat: 50.0755, lng: 14.4378 },
+    'budapest': { lat: 47.4979, lng: 19.0402 },
+    'munich': { lat: 48.1351, lng: 11.5820 },
+    'zurich': { lat: 47.3769, lng: 8.5417 },
+    'copenhagen': { lat: 55.6761, lng: 12.5683 },
+    'stockholm': { lat: 59.3293, lng: 18.0686 },
+    'oslo': { lat: 59.9139, lng: 10.7522 },
+    'helsinki': { lat: 60.1699, lng: 24.9384 },
+    'madrid': { lat: 40.4168, lng: -3.7038 },
+    'lisbon': { lat: 38.7223, lng: -9.1393 },
+    'athens': { lat: 37.9838, lng: 23.7275 },
+    'istanbul': { lat: 41.0082, lng: 28.9784 },
+    'warsaw': { lat: 52.2297, lng: 21.0122 },
+    'milan': { lat: 45.4642, lng: 9.1900 },
+    'naples': { lat: 40.8518, lng: 14.2681 },
+    'venice': { lat: 45.4408, lng: 12.3155 },
+    'florence': { lat: 43.7696, lng: 11.2558 },
+    'cannes': { lat: 43.5528, lng: 7.0174 },
+    'nice': { lat: 43.7102, lng: 7.2620 },
+    'marseille': { lat: 43.2965, lng: 5.3698 },
+    'lyon': { lat: 45.7640, lng: 4.8357 },
+    'hamburg': { lat: 53.5511, lng: 9.9937 },
+    'frankfurt': { lat: 50.1109, lng: 8.6821 },
+    'brussels': { lat: 50.8503, lng: 4.3517 },
+    'geneva': { lat: 46.2044, lng: 6.1432 },
+    'ljubljana': { lat: 46.0569, lng: 14.5058 },
+    'dubrovnik': { lat: 42.6507, lng: 18.0944 },
+    'split': { lat: 43.5081, lng: 16.4402 },
+    'zagreb': { lat: 45.8150, lng: 15.9819 },
+    'belgrade': { lat: 44.7866, lng: 20.4489 },
+    'bucharest': { lat: 44.4268, lng: 26.1025 },
+    'sofia': { lat: 42.6977, lng: 23.3219 },
+    'bratislava': { lat: 48.1486, lng: 17.1077 },
+    'salzburg': { lat: 47.8095, lng: 13.0550 },
+    'innsbruck': { lat: 47.2692, lng: 11.4041 },
+    'dublin': { lat: 53.3498, lng: -6.2603 },
+    'edinburgh': { lat: 55.9533, lng: -3.1883 },
+    'glasgow': { lat: 55.8642, lng: -4.2518 },
+    'manchester': { lat: 53.4808, lng: -2.2426 },
+    'liverpool': { lat: 53.4084, lng: -2.9916 },
+    'bordeaux': { lat: 44.8378, lng: -0.5792 },
+    'porto': { lat: 41.1579, lng: -8.6291 },
+    'seville': { lat: 37.3891, lng: -5.9845 },
+    'valencia': { lat: 39.4699, lng: -0.3763 },
+    'malaga': { lat: 36.7213, lng: -4.4213 },
+    'krakow': { lat: 50.0647, lng: 19.9450 },
+    'gdansk': { lat: 54.3520, lng: 18.6466 },
+    'riga': { lat: 56.9496, lng: 24.1052 },
+    'tallinn': { lat: 59.4370, lng: 24.7536 },
+    'vilnius': { lat: 54.6872, lng: 25.2797 }
+  };
+  
+  // Check for exact match
+  if (cityCoordinates[cityNameLower]) {
+    console.log(`Found exact match for "${cityNameLower}"`);
+    return cityCoordinates[cityNameLower];
   }
   
-  return filtered;
+  // Check for partial match
+  console.log(`Checking for partial matches among ${Object.keys(cityCoordinates).length} cities`);
+  for (const [key, coords] of Object.entries(cityCoordinates)) {
+    if (cityNameLower.includes(key) || key.includes(cityNameLower)) {
+      console.log(`Found partial match: "${cityNameLower}" matches with "${key}"`);
+      return coords;
+    }
+  }
+  
+  // Extract city from string like "Vienna, Austria" or "Hotels in Vienna"
+  console.log(`No direct match found, trying to extract city from parts of "${cityNameLower}"`);
+  const cityParts = cityNameLower.split(/[,\s]+/);
+  console.log(`City parts:`, cityParts);
+  
+  for (const part of cityParts) {
+    if (part.length > 3) { // Only check parts with meaningful length
+      console.log(`Checking part: "${part}"`);
+      for (const [key, coords] of Object.entries(cityCoordinates)) {
+        if (part === key || key.includes(part) || part.includes(key)) {
+          console.log(`Found match with part "${part}" and city "${key}"`);
+          return coords;
+        }
+      }
+    }
+  }
+  
+  // Default to Europe center if city not recognized
+  console.log(`No match found for "${cityName}" in coordinate lookup, using default`);
+  return { lat: 48.8566, lng: 9.0 }; // Central Europe
 }
 
 /**
@@ -753,14 +973,14 @@ function getAccommodationImageByType(type: 'hotel' | 'hostel' | 'apartment' | 'g
   
   if (type === 'hostel') {
     return '/hotel-images/hostel-room.jpg';
-  } else if (type === 'hotel' || type === 'guesthouse') {
+  } else if (type === 'hotel') {
     if (stars >= 4.5) {
       return '/hotel-images/hotel-room-luxary.jpg';
     } else {
       return '/hotel-images/hotel-room-moderate.jpg';
     }
   } else {
-    // apartments or default
+    // apartments, guesthouses or default - use moderate hotel room
     return '/hotel-images/hotel-room-moderate.jpg';
   }
 } 

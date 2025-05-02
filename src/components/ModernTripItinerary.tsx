@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FormTrip, FormTripStop } from "@/types";
 import TripItineraryItem from '@/components/TripItineraryItem';
-import TransportModal from '@/components/TransportModal';
+import TransportScreen from '@/components/TransportScreen';
+import { CustomTransportDetails } from '@/components/CustomTransportModal';
 import { cities } from "@/lib/cities";
 import { formatDate } from "@/lib/utils";
 import {
@@ -12,16 +13,6 @@ import {
   PencilIcon,
   InformationCircleIcon
 } from "@heroicons/react/24/outline";
-
-interface TrainDetails {
-  trainNumber: string;
-  duration: string;
-  changes: number;
-  price?: {
-    amount: number;
-    currency: string;
-  };
-}
 
 interface ModernTripItineraryProps {
   trip: FormTrip | null;
@@ -84,13 +75,13 @@ export default function ModernTripItinerary({
     setShowTransportModal(true);
   };
 
-  const handleTransportUpdate = (trainDetails: TrainDetails) => {
+  const handleTransportUpdate = (transportDetails: CustomTransportDetails) => {
     if (selectedTransportIndex === null || !editedTrip) return;
     
     const updatedStops = [...editedTrip.stops];
     updatedStops[selectedTransportIndex] = {
       ...updatedStops[selectedTransportIndex],
-      trainDetails
+      customTransport: transportDetails
     };
 
     const updatedTrip = {
@@ -105,6 +96,19 @@ export default function ModernTripItinerary({
     
     setShowTransportModal(false);
     setSelectedTransportIndex(null);
+  };
+
+  // Get the previous stop's city for transport selection
+  const getFromCity = (index: number) => {
+    if (!editedTrip || index <= 0) return null;
+    const prevStopCityId = editedTrip.stops[index - 1].cityId;
+    return cities.find(c => c.id === prevStopCityId) || null;
+  };
+
+  // Get stop date for transport
+  const getStopDate = (index: number) => {
+    if (!editedTrip || index <= 0) return "";
+    return editedTrip.stops[index - 1].departureDate;
   };
 
   return (
@@ -151,16 +155,16 @@ export default function ModernTripItinerary({
         </div>
       </div>
 
-      {/* Transport modal */}
+      {/* Transport screen */}
       {showTransportModal && selectedTransportIndex !== null && (
-        <TransportModal
+        <TransportScreen
           isOpen={showTransportModal}
           onClose={() => setShowTransportModal(false)}
           onSave={handleTransportUpdate}
-          initialData={editedTrip.stops[selectedTransportIndex].trainDetails}
-          fromCity={selectedTransportIndex > 0 ? 
-            cities.find(c => c.id === editedTrip.stops[selectedTransportIndex - 1].cityId) || null : null}
+          initialData={editedTrip.stops[selectedTransportIndex].customTransport}
+          fromCity={getFromCity(selectedTransportIndex)}
           toCity={cities.find(c => c.id === editedTrip.stops[selectedTransportIndex].cityId) || null}
+          date={getStopDate(selectedTransportIndex)}
         />
       )}
     </div>

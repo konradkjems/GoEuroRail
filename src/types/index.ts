@@ -24,6 +24,23 @@ export interface FormTripStop {
   accommodation?: string;
   notes?: string;
   useInterrailPass?: boolean;
+  customTransport?: {
+    transportType: "train" | "bus";
+    departureTime: string;
+    arrivalTime: string;
+    departureDate: string;
+    arrivalDate: string;
+    departureStation?: string;
+    arrivalStation?: string;
+    operator?: string;
+    link?: string;
+    notes?: string;
+    overnightTransport: boolean;
+    bookingNumber?: string;
+    track?: string;
+    vehicleNumber?: string;
+    seatNumber?: string;
+  };
   trainDetails?: {
     trainNumber: string;
     duration: string;

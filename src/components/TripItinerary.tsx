@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { TrainConnection } from "@/lib/api/trainSchedule";
 import { cities } from "@/lib/cities";
 import { FormTrip, FormTripStop, City } from "@/types";
@@ -22,13 +22,17 @@ import {
   RocketLaunchIcon as TrainIcon,
   InformationCircleIcon,
   BuildingOfficeIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  TruckIcon
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import TrainSchedule from "@/components/TrainSchedule";
 import SmartTripAssistant from "@/components/SmartTripAssistant";
 import dynamic from 'next/dynamic';
+// Import the new TransportScreen component
+import TransportScreen from "@/components/TransportScreen";
+import { CustomTransportDetails } from "@/components/CustomTransportModal";
 
 // Dynamically import the AccommodationScreen component
 const AccommodationScreen = dynamic(() => import('@/components/AccommodationScreen'), {
@@ -46,28 +50,40 @@ interface TripItineraryProps {
 // Helper function to safely create ISO date strings
 const safeISODateString = (date: Date | string): string => {
   try {
-    // If date is already a string, convert to Date object
+    // If date is already a string in YYYY-MM-DD format, return it
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return date;
+    }
+    
+    // Convert to Date object
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     
     // Check if date is valid
     if (isNaN(dateObj.getTime())) {
-      // Return today's date as fallback
+      console.error('Invalid date:', date);
       return new Date().toISOString().split('T')[0];
     }
     
     return dateObj.toISOString().split('T')[0];
   } catch (error) {
     console.error("Error creating ISO date string:", error);
-    // Fallback to today's date
     return new Date().toISOString().split('T')[0];
   }
 };
 
 // Helper function to calculate nights between dates
 const calculateNights = (arrivalDate: string, departureDate: string): number => {
+  if (!arrivalDate || !departureDate) return 1;
+  
   const arrival = new Date(arrivalDate);
   const departure = new Date(departureDate);
-  return Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (isNaN(arrival.getTime()) || isNaN(departure.getTime())) {
+    return 1;
+  }
+  
+  const diffTime = departure.getTime() - arrival.getTime();
+  return Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)));
 };
 
 // Add this interface for the CityInfoModal
@@ -152,6 +168,23 @@ const getConnectionLineClass = (trainDetails?: { duration: string }) => {
   return "bg-[#F94144]"; // > 5h30 - Long
 };
 
+// Calculate departure date based on arrival date and nights
+const calculateDepartureDate = (stop: FormTripStop): string => {
+  if (!stop.arrivalDate) return ''; // Handle missing arrival date
+  
+  if (stop.isStopover) {
+    return stop.arrivalDate; // Same day departure for stopovers
+  }
+  
+  // Calculate departure date based on nights
+  const arrivalDate = new Date(stop.arrivalDate);
+  if (isNaN(arrivalDate.getTime())) return ''; // Handle invalid date
+  
+  const departureDate = new Date(arrivalDate);
+  departureDate.setDate(arrivalDate.getDate() + (stop.nights || 1));
+  return departureDate.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+};
+
 export default function TripItinerary({ 
   trip, 
   onDeleteTrip, 
@@ -199,19 +232,46 @@ export default function TripItinerary({
       let currentDate = new Date(newStartDate);
       
       updatedTrip.stops = updatedTrip.stops.map((stop, index) => {
-        const arrivalDate = currentDate.toISOString().split('T')[0];
-        
-        // For stopovers, departure is same day, otherwise add nights
-        if (stop.isStopover) {
+        // For the first stop, set arrival to the trip start date
+        if (index === 0) {
+          const arrivalDate = currentDate.toISOString().split('T')[0];
+          
+          // Calculate departure date based on nights or stopover
+          let departureDate;
+          if (stop.isStopover) {
+            departureDate = arrivalDate; // Same day for stopovers
+          } else {
+            const nights = stop.nights || 1;
+            const depDate = new Date(currentDate);
+            depDate.setDate(currentDate.getDate() + nights);
+            departureDate = depDate.toISOString().split('T')[0];
+            // Update current date for next stop
+            currentDate = new Date(depDate);
+          }
+          
           return {
             ...stop,
             arrivalDate,
-            departureDate: arrivalDate
+            departureDate
           };
         } else {
-          const nights = stop.nights || 1;
-          currentDate = new Date(currentDate.getTime() + (nights * 24 * 60 * 60 * 1000));
-          const departureDate = currentDate.toISOString().split('T')[0];
+          // For subsequent stops, use the prior stop's departure date as arrival
+          const prevStop = updatedTrip.stops[index - 1];
+          const arrivalDate = prevStop.departureDate;
+          const arrivalDateObj = new Date(arrivalDate);
+          
+          // Calculate departure date based on nights or stopover
+          let departureDate;
+          if (stop.isStopover) {
+            departureDate = arrivalDate; // Same day for stopovers
+          } else {
+            const nights = stop.nights || 1;
+            const depDate = new Date(arrivalDateObj);
+            depDate.setDate(arrivalDateObj.getDate() + nights);
+            departureDate = depDate.toISOString().split('T')[0];
+            // Update current date for next stop
+            currentDate = new Date(depDate);
+          }
           
           return {
             ...stop,
@@ -220,6 +280,10 @@ export default function TripItinerary({
           };
         }
       });
+      
+      // Update the trip end date to the last stop's departure date
+      const lastStop = updatedTrip.stops[updatedTrip.stops.length - 1];
+      updatedTrip.endDate = lastStop.departureDate;
     }
 
     setEditedTrip(updatedTrip);
@@ -253,19 +317,15 @@ export default function TripItinerary({
     if (editedTrip.stops.length > 0) {
       const lastStop = editedTrip.stops[editedTrip.stops.length - 1];
       
-      // Get the departure date from the last stop (considering stopovers)
-      let lastStopDeparture;
-      if (lastStop.isStopover) {
-        lastStopDeparture = new Date(lastStop.arrivalDate); // Same day departure for stopovers
-      } else {
-        const lastStopNights = lastStop.nights || 1;
-        lastStopDeparture = new Date(lastStop.arrivalDate);
-        lastStopDeparture.setDate(lastStopDeparture.getDate() + lastStopNights);
-      }
-      
+      // Use the departure date from the last stop for arrival
+      // For stopovers, this is the same as arrival date
+      const lastStopDeparture = lastStop.isStopover 
+        ? new Date(lastStop.arrivalDate)  // For stopovers, use arrival date (same as departure)
+        : new Date(lastStop.departureDate); // For normal stops, use departure date
+
       const newArrivalDate = lastStopDeparture.toISOString().split('T')[0];
-      const newDepartureDate = new Date(newArrivalDate);
-      newDepartureDate.setDate(newDepartureDate.getDate() + 1); // Default to 1 night
+      const newDepartureDate = new Date(lastStopDeparture);
+      newDepartureDate.setDate(lastStopDeparture.getDate() + 1); // Default to 1 night
       
       newStop = {
         ...newStop,
@@ -313,29 +373,23 @@ export default function TripItinerary({
     // Find the stop we're adding after
     const previousStop = editedTrip.stops[index];
     
-    // Calculate arrival date for the new stop
-    let arrivalDate;
-    if (previousStop.isStopover) {
-      // If adding after a stopover, arrive on the same day
-      arrivalDate = previousStop.arrivalDate;
-    } else {
-      // Otherwise, arrive after the previous stop's nights
-      const prevArrival = new Date(previousStop.arrivalDate);
-      const prevNights = previousStop.nights || 1;
-      arrivalDate = new Date(prevArrival.getTime() + (prevNights * 24 * 60 * 60 * 1000))
-        .toISOString().split('T')[0];
-    }
+    // Calculate arrival date for the new stop based on previous stop's departure date
+    // For stopovers, departure is same as arrival
+    const arrivalDate = previousStop.isStopover
+      ? previousStop.arrivalDate
+      : previousStop.departureDate;
     
     // Calculate departure date (default 1 night)
     const arrivalDateObj = new Date(arrivalDate);
-    const departureDate = new Date(arrivalDateObj.getTime() + (24 * 60 * 60 * 1000))
-      .toISOString().split('T')[0];
+    const departureDate = new Date(arrivalDateObj);
+    departureDate.setDate(arrivalDateObj.getDate() + 1); // Add 1 night
+    const departureDateStr = departureDate.toISOString().split('T')[0];
     
     // Create the new stop
     const newStop: FormTripStop = {
       cityId: cityToAdd.id,
       arrivalDate: arrivalDate,
-      departureDate: departureDate,
+      departureDate: departureDateStr,
       nights: 1,
       isStopover: false
     };
@@ -349,27 +403,17 @@ export default function TripItinerary({
       const previousStop = updatedStops[i - 1];
       const currentStop = updatedStops[i];
       
-      // Calculate new arrival based on previous stop type
-      let newArrival;
-      if (previousStop.isStopover) {
-        // If previous is a stopover, arrive on the same day
-        newArrival = new Date(previousStop.arrivalDate);
-      } else {
-        // Otherwise, add nights to previous arrival
-        const prevDate = new Date(previousStop.arrivalDate);
-        const prevNights = previousStop.nights || 1;
-        newArrival = new Date(prevDate.getTime() + (prevNights * 24 * 60 * 60 * 1000));
-      }
-      
-      // Set arrival date
-      currentStop.arrivalDate = newArrival.toISOString().split('T')[0];
+      // Current stop's arrival is previous stop's departure
+      currentStop.arrivalDate = previousStop.departureDate;
       
       // Set departure date based on current stop type
       if (currentStop.isStopover) {
-        currentStop.departureDate = currentStop.arrivalDate;
+        currentStop.departureDate = currentStop.arrivalDate; // Same day for stopovers
       } else {
         const currNights = currentStop.nights || 1;
-        const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
+        const newArrival = new Date(currentStop.arrivalDate);
+        const newDeparture = new Date(newArrival);
+        newDeparture.setDate(newArrival.getDate() + currNights);
         currentStop.departureDate = newDeparture.toISOString().split('T')[0];
       }
     }
@@ -395,14 +439,69 @@ export default function TripItinerary({
     if (!editedTrip) return;
     
     const stops = [...editedTrip.stops];
+    const oldStop = stops[index];
+    
+    // Update the specific stop with new values
     stops[index] = {
-      ...stops[index],
+      ...oldStop,
       ...updatedStop
     };
     
-    const updatedTrip = { ...editedTrip, stops };
-    setEditedTrip(updatedTrip);
+    // Special handling for stopovers - make arrival and departure the same day
+    if (updatedStop.isStopover === true) {
+      stops[index].departureDate = stops[index].arrivalDate;
+      stops[index].nights = 0;
+    }
     
+    // If nights were updated or isStopover changed, recalculate departure date
+    if ((updatedStop.nights !== undefined && updatedStop.nights !== oldStop.nights) || 
+        (updatedStop.isStopover !== undefined && updatedStop.isStopover !== oldStop.isStopover)) {
+      
+      // Recalculate departure date based on nights
+      if (!stops[index].isStopover) {
+        const arrivalDate = new Date(stops[index].arrivalDate);
+        const nights = stops[index].nights || 1;
+        const departureDate = new Date(arrivalDate);
+        departureDate.setDate(arrivalDate.getDate() + nights);
+        stops[index].departureDate = departureDate.toISOString().split('T')[0];
+      }
+    }
+    
+    // If departure date changed, we need to update all subsequent stops
+    const departureChanged = stops[index].departureDate !== oldStop.departureDate;
+    
+    if (departureChanged) {
+      // Update all subsequent stops
+      for (let i = index + 1; i < stops.length; i++) {
+        // Use previous stop's departure date as this stop's arrival
+        stops[i].arrivalDate = stops[i-1].departureDate;
+        
+        // Update departure date based on whether it's a stopover
+        if (stops[i].isStopover) {
+          stops[i].departureDate = stops[i].arrivalDate; // Same day for stopovers
+        } else {
+          const nights = stops[i].nights || 1;
+          const newArrival = new Date(stops[i].arrivalDate);
+          const newDeparture = new Date(newArrival);
+          newDeparture.setDate(newArrival.getDate() + nights);
+          stops[i].departureDate = newDeparture.toISOString().split('T')[0];
+        }
+      }
+    }
+    
+    // Update the trip's end date if the last stop was affected
+    let endDate = editedTrip.endDate;
+    if (stops.length > 0) {
+      endDate = stops[stops.length - 1].departureDate;
+    }
+    
+    const updatedTrip = { 
+      ...editedTrip, 
+      stops,
+      endDate
+    };
+    
+    setEditedTrip(updatedTrip);
     if (onUpdateTrip) {
       onUpdateTrip(updatedTrip);
     }
@@ -414,57 +513,59 @@ export default function TripItinerary({
     
     const updatedStops = editedTrip.stops.filter((_, i) => i !== index);
 
+    // If no stops left, just update the trip
+    if (updatedStops.length === 0) {
+      const updatedTrip = {
+        ...editedTrip,
+        stops: [],
+        endDate: editedTrip.startDate // If no stops, end date is same as start date
+      };
+      
+      setEditedTrip(updatedTrip);
+      if (onUpdateTrip) {
+        onUpdateTrip(updatedTrip);
+      }
+      return;
+    }
+
     // Update dates for remaining stops
-    for (let i = index; i < updatedStops.length; i++) {
-      if (i === 0) {
-        // First stop after removing
-        const tripStartDate = editedTrip.startDate;
-        updatedStops[i].arrivalDate = tripStartDate;
-        
-        if (updatedStops[i].isStopover) {
-          updatedStops[i].departureDate = tripStartDate;
-        } else {
-          const firstStopNights = updatedStops[i].nights || 1;
-          const departureDate = new Date(tripStartDate);
-          departureDate.setDate(departureDate.getDate() + firstStopNights);
-          updatedStops[i].departureDate = safeISODateString(departureDate);
-        }
+    // If first stop is removed, set first remaining stop to trip start date
+    if (index === 0) {
+      updatedStops[0].arrivalDate = editedTrip.startDate;
+      
+      if (updatedStops[0].isStopover) {
+        updatedStops[0].departureDate = editedTrip.startDate;
       } else {
+        const firstStopNights = updatedStops[0].nights || 1;
+        const departureDate = new Date(editedTrip.startDate);
+        departureDate.setDate(departureDate.getDate() + firstStopNights);
+        updatedStops[0].departureDate = departureDate.toISOString().split('T')[0];
+      }
+    }
+    
+    // Recalculate dates for all subsequent stops after the first one
+    for (let i = 1; i < updatedStops.length; i++) {
       const previousStop = updatedStops[i - 1];
       const currentStop = updatedStops[i];
       
-        // Calculate arrival based on previous stop type
-        let newArrival;
-        if (previousStop.isStopover) {
-          // If previous is a stopover, arrive on the same day
-          newArrival = new Date(previousStop.arrivalDate);
-        } else {
-          // Otherwise, add nights to previous arrival
-          const prevDate = new Date(previousStop.arrivalDate);
-          const prevNights = previousStop.nights || 1;
-          newArrival = new Date(prevDate.getTime() + (prevNights * 24 * 60 * 60 * 1000));
-        }
-        
-        // Set arrival date
-        currentStop.arrivalDate = safeISODateString(newArrival);
-        
-        // Set departure date based on current stop type
-        if (currentStop.isStopover) {
-          currentStop.departureDate = currentStop.arrivalDate;
-        } else {
-          const currNights = currentStop.nights || 1;
-          const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
-          currentStop.departureDate = safeISODateString(newDeparture);
-        }
+      // Current stop's arrival is previous stop's departure
+      currentStop.arrivalDate = previousStop.departureDate;
+      
+      // Calculate departure based on nights or stopover
+      if (currentStop.isStopover) {
+        currentStop.departureDate = currentStop.arrivalDate;
+      } else {
+        const currNights = currentStop.nights || 1;
+        const arrivalDate = new Date(currentStop.arrivalDate);
+        const departureDate = new Date(arrivalDate);
+        departureDate.setDate(arrivalDate.getDate() + currNights);
+        currentStop.departureDate = departureDate.toISOString().split('T')[0];
       }
     }
 
-    // Update end date based on last stop
-    let endDate = editedTrip.startDate;
-    if (updatedStops.length > 0) {
+    // Update end date from last stop
     const lastStop = updatedStops[updatedStops.length - 1];
-      endDate = lastStop.departureDate;
-    }
+    const endDate = lastStop.departureDate;
     
     const updatedTrip = {
       ...editedTrip,
@@ -490,50 +591,45 @@ export default function TripItinerary({
     updatedStops[index] = updatedStops[newIndex];
     updatedStops[newIndex] = temp;
 
-    // Update dates for all stops after the moved ones
-    for (let i = Math.min(index, newIndex); i < updatedStops.length; i++) {
-      if (i === 0) {
-        // First stop should start on trip start date
-        updatedStops[i].arrivalDate = editedTrip.startDate;
-        
-        if (updatedStops[i].isStopover) {
-          updatedStops[i].departureDate = editedTrip.startDate;
-        } else {
-          const currNights = updatedStops[i].nights || 1;
-          const startDate = new Date(updatedStops[i].arrivalDate);
-          updatedStops[i].departureDate = safeISODateString(new Date(startDate.getTime() + (currNights * 24 * 60 * 60 * 1000)));
-        }
+    // Update dates for all stops starting from the earlier of the two moved indices
+    const startRecalcFromIndex = Math.min(index, newIndex);
+    
+    // For the first stop, use the trip start date
+    if (startRecalcFromIndex === 0) {
+      const tripStartDate = new Date(editedTrip.startDate);
+      updatedStops[0].arrivalDate = editedTrip.startDate;
+      
+      if (updatedStops[0].isStopover) {
+        updatedStops[0].departureDate = editedTrip.startDate;
       } else {
+        const nights = updatedStops[0].nights || 1;
+        const depDate = new Date(tripStartDate);
+        depDate.setDate(tripStartDate.getDate() + nights);
+        updatedStops[0].departureDate = depDate.toISOString().split('T')[0];
+      }
+    }
+    
+    // Recalculate dates for all subsequent stops
+    for (let i = Math.max(1, startRecalcFromIndex); i < updatedStops.length; i++) {
       const previousStop = updatedStops[i - 1];
       const currentStop = updatedStops[i];
       
-        // Calculate arrival based on previous stop type
-        let newArrival;
-        if (previousStop.isStopover) {
-          // If previous is a stopover, arrive on the same day
-          newArrival = new Date(previousStop.arrivalDate);
+      // Current stop's arrival date is previous stop's departure date
+      const prevDepDate = new Date(previousStop.departureDate);
+      currentStop.arrivalDate = previousStop.departureDate;
+      
+      // Calculate departure date based on current stop type
+      if (currentStop.isStopover) {
+        currentStop.departureDate = currentStop.arrivalDate;
       } else {
-          // Normal calculation - add nights to previous arrival
-          const prevDate = new Date(previousStop.arrivalDate);
-          const prevNights = previousStop.nights || 1;
-          newArrival = new Date(prevDate.getTime() + (prevNights * 24 * 60 * 60 * 1000));
-        }
-        
-        // Set arrival date
-        currentStop.arrivalDate = safeISODateString(newArrival);
-        
-        // Set departure date based on current stop type
-        if (currentStop.isStopover) {
-          currentStop.departureDate = currentStop.arrivalDate;
-        } else {
-          const currNights = currentStop.nights || 1;
-          const newDeparture = new Date(newArrival.getTime() + (currNights * 24 * 60 * 60 * 1000));
-          currentStop.departureDate = safeISODateString(newDeparture);
-        }
+        const currNights = currentStop.nights || 1;
+        const depDate = new Date(prevDepDate);
+        depDate.setDate(prevDepDate.getDate() + currNights);
+        currentStop.departureDate = depDate.toISOString().split('T')[0];
       }
     }
 
-    // Update end date
+    // Update end date to the last stop's departure date
     const lastStop = updatedStops[updatedStops.length - 1];
     const endDate = lastStop.departureDate;
     
@@ -574,6 +670,20 @@ export default function TripItinerary({
       travelDays
     };
   };
+
+  // Memoize trip statistics calculations
+  const tripStats = useMemo(() => getTripStats(), [editedTrip]);
+
+  // Memoize expensive operations
+  const mapCenter = useMemo(() => {
+    // Only recalculate when relevant stops change
+    if (!editedTrip || !editedTrip.stops.length) return null;
+    return editedTrip.stops.map(stop => {
+      const city = cities.find(c => c.id === stop.cityId);
+      // Use the correct properties that exist on the City type
+      return city ? { name: city.name, id: city.id, country: city.country } : null;
+    }).filter(Boolean);
+  }, [editedTrip?.stops]);
 
   // New functions for editing trip name and travelers
   const handleEditTripName = () => {
@@ -665,6 +775,14 @@ export default function TripItinerary({
     setShowAccommodationScreen(true);
   };
 
+  // Add a useEffect to log city information when accommodationStopIndex changes
+  useEffect(() => {
+    if (showAccommodationScreen && editedTrip && accommodationStopIndex >= 0 && accommodationStopIndex < editedTrip.stops.length) {
+      const cityData = cities.find(c => c.id === editedTrip.stops[accommodationStopIndex].cityId);
+      console.log("Opening accommodation screen for city:", cityData);
+    }
+  }, [showAccommodationScreen, accommodationStopIndex, editedTrip]);
+
   // If no trip is selected
   if (!trip) {
     return (
@@ -684,34 +802,32 @@ export default function TripItinerary({
     );
   }
 
-  const tripStats = getTripStats();
-
   return (
     <div className="h-full flex">
       {/* Left sidebar with trip stats and smart assistant - fixed width */}
-      <div className="w-[350px] min-w-[350px] max-w-[350px] h-full bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+      <div className="w-[350px] min-w-[350px] max-w-[350px] h-full bg-white border-r border-gray-200 flex flex-col">
         {/* Sidebar header with tabs */}
-        <div className="border-b border-gray-200 flex">
-                <button 
+        <div className="border-b border-gray-200 flex flex-shrink-0 sticky top-0 bg-white z-10">
+          <button 
             className={`flex-1 py-3 px-4 font-medium text-sm ${activeSidebarTab === 'summary' ? 'text-[#264653] border-b-2 border-[#06D6A0]' : 'text-gray-500 hover:text-gray-700'}`}
             onClick={() => setActiveSidebarTab('summary')}
-                >
+          >
             Trip Summary
-                </button>
-                <button 
+          </button>
+          <button 
             className={`flex-1 py-3 px-4 font-medium text-sm ${activeSidebarTab === 'assistant' ? 'text-[#264653] border-b-2 border-[#06D6A0]' : 'text-gray-500 hover:text-gray-700'}`}
             onClick={() => setActiveSidebarTab('assistant')}
-                >
+          >
             Trip Assistant
-                </button>
+          </button>
         </div>
         
-        {/* Sidebar content */}
-        <div className="flex-1 overflow-auto">
+        {/* Sidebar content - independently scrollable */}
+        <div className="flex-1 overflow-hidden">
           {activeSidebarTab === 'summary' ? (
-            <>
-              {/* Trip header */}
-              <div className="p-4 border-b border-gray-200">
+            <div className="h-full flex flex-col">
+              {/* Trip header - fixed */}
+              <div className="p-4 border-b border-gray-200 flex-shrink-0 bg-white sticky top-0 z-10">
                 <div className="flex justify-between items-start">
                   <div>
                     {isEditingTripName ? (
@@ -751,19 +867,19 @@ export default function TripItinerary({
                   </div>
                   <div className="flex items-center space-x-2">
                     {onDeleteTrip && editedTrip && (
-                <button 
+                      <button 
                         onClick={() => onDeleteTrip(editedTrip._id)}
                         className="text-[#F94144] hover:text-[#E53E41] p-2 rounded-full hover:bg-red-50"
                         title="Delete trip"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-            )}
-          </div>
-        </div>
-        
-        <div className="flex items-center text-sm text-[#264653] mt-2">
-          <CalendarIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center text-sm text-[#264653] mt-2">
+                  <CalendarIcon className="h-4 w-4 mr-1 flex-shrink-0" />
                   <input
                     type="date"
                     value={editedTrip?.startDate || ""}
@@ -772,63 +888,63 @@ export default function TripItinerary({
                   />
                   <span className="mx-2">to</span>
                   <span>{formatDate(editedTrip?.endDate || "")}</span>
-        </div>
+                </div>
 
-        {/* Travelers section with edit capability */}
-        <div className="flex items-center text-sm text-[#264653] mt-2">
-          <UsersIcon className="h-4 w-4 mr-1 flex-shrink-0" />
-          {isEditingTravelers ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={tempTravelers}
-                min={1}
-                max={20}
-                onChange={(e) => setTempTravelers(parseInt(e.target.value) || 1)}
-                className="w-16 border-none bg-transparent focus:outline-none focus:ring-1 focus:ring-[#06D6A0] rounded px-1"
-              />
-              <span>traveler{tempTravelers !== 1 ? 's' : ''}</span>
-              <button
-                onClick={handleSaveTravelers}
-                className="text-[#06D6A0] hover:text-[#05C090]"
-              >
-                <CheckIcon className="h-4 w-4" />
-              </button>
-              <button
-                onClick={handleCancelTravelersEdit}
-                className="text-[#F94144] hover:text-[#E53E41]"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center">
-              <span>{editedTrip?.travelers || 1} traveler{(editedTrip?.travelers || 1) > 1 ? 's' : ''}</span>
-              <button
-                onClick={handleEditTravelers}
-                className="text-gray-400 hover:text-[#06D6A0] ml-2"
-                title="Edit number of travelers"
-              >
-                <PencilIcon className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-        </div>
-        
-          <textarea
-            value={editedTrip?.notes || ""}
-            onChange={(e) => editedTrip && setEditedTrip({...editedTrip, notes: e.target.value})}
-            placeholder="Add notes about your trip..."
-            className="mt-2 text-sm text-[#264653] w-full border border-gray-200 rounded p-2"
-            rows={2}
-          />
+                {/* Travelers section with edit capability */}
+                <div className="flex items-center text-sm text-[#264653] mt-2">
+                  <UsersIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+                  {isEditingTravelers ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={tempTravelers}
+                        min={1}
+                        max={20}
+                        onChange={(e) => setTempTravelers(parseInt(e.target.value) || 1)}
+                        className="w-16 border-none bg-transparent focus:outline-none focus:ring-1 focus:ring-[#06D6A0] rounded px-1"
+                      />
+                      <span>traveler{tempTravelers !== 1 ? 's' : ''}</span>
+                      <button
+                        onClick={handleSaveTravelers}
+                        className="text-[#06D6A0] hover:text-[#05C090]"
+                      >
+                        <CheckIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={handleCancelTravelersEdit}
+                        className="text-[#F94144] hover:text-[#E53E41]"
+                      >
+                        <XMarkIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <span>{editedTrip?.travelers || 1} traveler{(editedTrip?.travelers || 1) > 1 ? 's' : ''}</span>
+                      <button
+                        onClick={handleEditTravelers}
+                        className="text-gray-400 hover:text-[#06D6A0] ml-2"
+                        title="Edit number of travelers"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
+                <textarea
+                  value={editedTrip?.notes || ""}
+                  onChange={(e) => editedTrip && setEditedTrip({...editedTrip, notes: e.target.value})}
+                  placeholder="Add notes about your trip..."
+                  className="mt-2 text-sm text-[#264653] w-full border border-gray-200 rounded p-2"
+                  rows={2}
+                />
               </div>
               
-              {/* Trip Statistics */}
-              {editedTrip && editedTrip.stops.length > 0 && tripStats && (
-                <div className="p-4">
-                  <h3 className="text-sm font-medium text-[#264653] mb-3">Trip Statistics</h3>
+              {/* Trip Statistics - independently scrollable */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {editedTrip && editedTrip.stops.length > 0 && tripStats && (
                   <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-[#264653] mb-3">Trip Statistics</h3>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-[#F8F9FA] p-3 rounded-lg">
                         <div className="text-2xl font-bold text-[#06D6A0]">{tripStats.totalDays}</div>
@@ -891,12 +1007,12 @@ export default function TripItinerary({
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </>
+                )}
+              </div>
+            </div>
           ) : (
-            // Smart Trip Assistant
-            <div className="overflow-auto h-full">
+            // Smart Trip Assistant - independently scrollable
+            <div className="h-full overflow-y-auto">
               {editedTrip && (
                 <SmartTripAssistant trip={editedTrip} />
               )}
@@ -919,25 +1035,25 @@ export default function TripItinerary({
               <span>Add Destination</span>
             </button>
           )}
-      </div>
+        </div>
 
         {/* Trip stops - improved card width */}
         <div className="flex-1 overflow-auto bg-gray-50 relative">
           {editedTrip && editedTrip.stops.length > 0 ? (
-            <div className="p-4 space-y-4 max-w-5xl mx-auto">
+            <div className="p-4 pb-24 space-y-4 max-w-5xl mx-auto">
               {editedTrip.stops.map((stop, index) => (
                 <div key={`${stop.cityId}-${index}`} className="flex flex-col">
-              <StopCard 
-                stop={stop}
-                index={index}
-                isSelected={index === selectedStopIndex}
-                onClick={() => onSelectStop && onSelectStop(index)}
+                  <StopCard
+                    stop={stop}
+                    index={index}
+                    isSelected={index === selectedStopIndex}
+                    onClick={() => onSelectStop && onSelectStop(index)}
                     isLastStop={index === editedTrip.stops.length - 1}
-                onRemove={() => handleRemoveStop(index)}
-                onUpdate={(updatedStop) => handleUpdateStop(index, updatedStop)}
-                onAddDestinationAfter={handleAddDestinationAfter}
-                onMove={handleMoveStop}
-                editedTrip={editedTrip}
+                    onRemove={() => handleRemoveStop(index)}
+                    onUpdate={(updatedStop) => handleUpdateStop(index, updatedStop)}
+                    onAddDestinationAfter={handleAddDestinationAfter}
+                    onMove={handleMoveStop}
+                    editedTrip={editedTrip}
                     onShowCityInfo={handleShowCityInfo}
                     onShowAccommodation={handleShowAccommodationScreen}
                     onRemoveAccommodation={handleRemoveAccommodation}
@@ -952,9 +1068,9 @@ export default function TripItinerary({
                     </div>
                   )}
                 </div>
-            ))}
-          </div>
-        ) : (
+              ))}
+            </div>
+          ) : (
           <div className="text-center py-8">
             <p className="text-[#264653]">No stops added to this trip yet</p>
             <button
@@ -976,7 +1092,7 @@ export default function TripItinerary({
                 <h3 className="font-medium text-[#264653]">Add New Destination</h3>
                 <button onClick={() => setShowAddDestination(false)} className="text-gray-500 hover:text-gray-700">
                   <XMarkIcon className="h-5 w-5" />
-              </button>
+                </button>
               </div>
               
               <div className="space-y-4">
@@ -1058,49 +1174,33 @@ export default function TripItinerary({
                     className="flex-1 bg-[#06D6A0] text-white px-4 py-2 rounded disabled:opacity-50"
                   >
                     Add to Itinerary
-          </button>
-        </div>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
         )}
       </div>
-      
-      {/* City Info Modal */}
+
+      {/* City Info Modal - displayed when a city is selected for viewing */}
       {selectedCityInfo && (
         <CityInfoModal 
           city={selectedCityInfo} 
           onClose={() => setSelectedCityInfo(null)} 
         />
       )}
-
-      {/* Accommodation Screen */}
-      {showAccommodationScreen && editedTrip && accommodationStopIndex >= 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl overflow-hidden w-full max-w-4xl h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-[#264653]">
-                Find Accommodation in {cities.find(c => c.id === editedTrip.stops[accommodationStopIndex].cityId)?.name}
-              </h2>
-              <button
-                onClick={() => setShowAccommodationScreen(false)}
-                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <AccommodationScreen
-                city={cities.find(c => c.id === editedTrip.stops[accommodationStopIndex].cityId)?.name || ''}
-                checkInDate={editedTrip.stops[accommodationStopIndex].arrivalDate}
-                checkOutDate={editedTrip.stops[accommodationStopIndex].departureDate}
-                currentTripStop={editedTrip.stops[accommodationStopIndex]}
-                onSelectAccommodation={handleSelectAccommodation}
-                travelers={editedTrip.travelers || 2}
-              />
-            </div>
-          </div>
-        </div>
+      
+      {/* Accommodation Screen - displayed when adding/editing accommodations */}
+      {showAccommodationScreen && editedTrip && accommodationStopIndex >= 0 && accommodationStopIndex < editedTrip.stops.length && (
+        <AccommodationScreen
+          city={cities.find(c => c.id === editedTrip.stops[accommodationStopIndex].cityId)?.name || "Unknown City"}
+          checkInDate={editedTrip.stops[accommodationStopIndex].arrivalDate}
+          checkOutDate={editedTrip.stops[accommodationStopIndex].departureDate}
+          onSelectAccommodation={handleSelectAccommodation}
+          currentTripStop={editedTrip.stops[accommodationStopIndex]}
+          travelers={editedTrip.travelers || 2}
+          onClose={() => setShowAccommodationScreen(false)}
+        />
       )}
     </div>
   );
@@ -1138,24 +1238,33 @@ const StopCard = ({
   onShowAccommodation,
   onRemoveAccommodation
 }: StopCardProps) => {
-  const cityData = cities.find(c => c.id === stop.cityId);
-  const nextStop = editedTrip?.stops[index + 1];
-  const nextCityData = nextStop ? cities.find(c => c.id === nextStop.cityId) : null;
+  const cityData = cities.find(city => city.id === stop.cityId);
+  const nextStop = editedTrip && editedTrip.stops[index + 1];
+  const nextCityData = nextStop ? cities.find(city => city.id === nextStop.cityId) : null;
   
-  const [showHostels, setShowHostels] = useState(false);
+  // State variables for UI interactions
   const [showReplaceCity, setShowReplaceCity] = useState(false);
-  const [showTrainSchedule, setShowTrainSchedule] = useState(false);
   const [replacementCityId, setReplacementCityId] = useState("");
-  const [newDestinationInput, setNewDestinationInput] = useState("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState(stop.notes || "");
+  const [showHostels, setShowHostels] = useState(false);
+  
+  // Transport modal state
+  const [showTrainSchedule, setShowTrainSchedule] = useState(false);
+  const [showTransportScreen, setShowTransportScreen] = useState(false);
 
-  // Calculate dates based on nights
-  const arrivalDate = stop.arrivalDate;
-  const departureDate = stop.isStopover 
-    ? stop.arrivalDate // Same day for stopovers
-    : new Date(new Date(stop.arrivalDate).getTime() + ((stop.nights || 0) * 24 * 60 * 60 * 1000));
-
+  // Handler for custom transport selection
+  const handleTransportSave = (transportDetails: CustomTransportDetails) => {
+    if (!nextStop) return;
+    
+    onUpdate({
+      ...stop,
+      customTransport: transportDetails
+    });
+    
+    setShowTransportScreen(false);
+  };
+  
   // Handle notes editing
   const handleEditNotes = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1178,23 +1287,53 @@ const StopCard = ({
     setTempNotes(stop.notes || "");
   };
 
+  // Ensure when nights change, the departure date is automatically updated
   const handleNightsChange = (delta: number) => {
     const currentNights = stop.nights || 1;
     
-    // If reducing nights below 1, convert to stopover
+    // Special case: Converting to a stopover (when reducing from 1 night to 0)
     if (delta < 0 && currentNights === 1) {
+      // When converting to a stopover, arrival and departure are the same day
       onUpdate({ 
         ...stop, 
         nights: 0,
-        isStopover: true
+        isStopover: true,
+        departureDate: stop.arrivalDate // Same day departure
       });
-    } else {
-      // Otherwise, adjust nights normally (minimum 0 for stopovers)
+    } 
+    // Special case: Converting from a stopover to a regular stop (when increasing from 0 to 1 night)
+    else if (delta > 0 && currentNights === 0 && stop.isStopover) {
+      // Calculate the new departure date based on arrival date + 1 night
+      const arrivalDate = new Date(stop.arrivalDate);
+      const departureDate = new Date(arrivalDate);
+      departureDate.setDate(arrivalDate.getDate() + 1);
+      const newDepartureDate = departureDate.toISOString().split('T')[0];
+      
+      // Update the current stop
+      onUpdate({
+        ...stop,
+        nights: 1,
+        isStopover: false,
+        departureDate: newDepartureDate
+      });
+    }
+    // Normal case: Just adjusting the number of nights (not crossing the stopover boundary)
+    else {
+      // Adjust nights normally (minimum 0 for stopovers)
       const newNights = Math.max(0, currentNights + delta);
+      
+      // Calculate the new departure date based on arrival date and new nights
+      const arrivalD = new Date(stop.arrivalDate);
+      const departureD = new Date(arrivalD);
+      departureD.setDate(arrivalD.getDate() + (newNights || 0));
+      const newDepartureDate = departureD.toISOString().split('T')[0];
+      
+      // Update the current stop
       onUpdate({
         ...stop,
         nights: newNights,
-        isStopover: newNights === 0
+        isStopover: newNights === 0,
+        departureDate: newDepartureDate // Update the departure date with the correct calculation
       });
     }
   };
@@ -1209,23 +1348,34 @@ const StopCard = ({
     setReplacementCityId("");
   };
 
+  // Handle train selection from TrainSchedule component
   const handleTrainSelect = (train: TrainConnection) => {
     if (!nextStop) return;
     
-    // Update the current stop with train details but don't modify departure date
-    // as that would affect the itinerary calculation
+    // Update the current stop with both train details and custom transport details
     onUpdate({
       ...stop,
+      // Legacy format
       trainDetails: {
         trainNumber: train.trains.map(t => `${t.type} ${t.number}`).join(', '),
         duration: train.duration,
         changes: train.changes,
         price: train.price
+      },
+      // New format
+      customTransport: {
+        transportType: "train" as const,
+        departureTime: train.departureTime,
+        arrivalTime: train.arrivalTime,
+        departureDate: stop.departureDate, 
+        arrivalDate: nextStop.arrivalDate,
+        departureStation: train.trains[0]?.departureStation,
+        arrivalStation: train.trains[train.trains.length - 1]?.arrivalStation,
+        operator: train.trains.map(t => t.operator).join(', '),
+        overnightTransport: false,
+        vehicleNumber: train.trains.map(t => `${t.type} ${t.number}`).join(', '),
       }
     });
-    
-    // Modal will close itself via the onClose handler
-    setShowTrainSchedule(false);
   };
   
   return (
@@ -1268,20 +1418,20 @@ const StopCard = ({
                   <input
                     type="text"
                     placeholder="Search for a city..."
-                    value={newDestinationInput}
-                    onChange={(e) => {
-                      setNewDestinationInput(e.target.value);
-                      setReplacementCityId("");
-                    }}
+                    value={replacementCityId}
+                    onChange={(e) => setReplacementCityId(e.target.value)}
                     className="w-full rounded border border-gray-200 p-1.5 text-xs pr-6"
                   />
-                  {newDestinationInput && (
+                  {replacementCityId && (
                     <button 
                       className="absolute right-1.5 top-1.5 text-gray-400 hover:text-gray-600"
-                      onClick={() => setNewDestinationInput("")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setReplacementCityId("");
+                      }}
                     >
                       <XMarkIcon className="h-3.5 w-3.5" />
-              </button>
+                </button>
                   )}
             </div>
             
@@ -1289,9 +1439,9 @@ const StopCard = ({
                   {cities
                     .filter(city => 
                       (!editedTrip?.stops.some(s => s.cityId === city.id) || city.id === stop.cityId) &&
-                      (newDestinationInput === "" || 
-                       city.name.toLowerCase().includes(newDestinationInput.toLowerCase()) ||
-                       city.country.toLowerCase().includes(newDestinationInput.toLowerCase()))
+                      (replacementCityId === "" || 
+                       city.name.toLowerCase().includes(replacementCityId.toLowerCase()) ||
+                       city.country.toLowerCase().includes(replacementCityId.toLowerCase()))
                     )
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .slice(0, 8) // Limit to 8 results for better UX
@@ -1299,7 +1449,10 @@ const StopCard = ({
                       <div 
                         key={city.id} 
                         className={`text-xs p-1.5 cursor-pointer hover:bg-gray-50 flex justify-between ${city.id === replacementCityId ? 'bg-[#06D6A0]/10' : ''}`}
-                        onClick={() => setReplacementCityId(city.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setReplacementCityId(city.id);
+                        }}
                       >
                         <span>{city.name}, {city.country}</span>
                         {city.id === replacementCityId && <CheckIcon className="h-3.5 w-3.5 text-[#06D6A0]" />}
@@ -1307,34 +1460,33 @@ const StopCard = ({
                     ))}
                   {cities.filter(city => 
                     (!editedTrip?.stops.some(s => s.cityId === city.id) || city.id === stop.cityId) &&
-                    (newDestinationInput !== "" && 
-                     (city.name.toLowerCase().includes(newDestinationInput.toLowerCase()) ||
-                      city.country.toLowerCase().includes(newDestinationInput.toLowerCase())))
+                    (replacementCityId !== "" && 
+                     (city.name.toLowerCase().includes(replacementCityId.toLowerCase()) ||
+                      city.country.toLowerCase().includes(replacementCityId.toLowerCase())))
                   ).length === 0 && (
                     <div className="text-xs p-2 text-gray-500 text-center">No cities found</div>
             )}
           </div>
           
                 <div className="flex space-x-2">
-            <button
+                  <button
                     onClick={handleReplaceCity}
                     disabled={!replacementCityId}
-                    className="px-2 py-1 bg-[#06D6A0] text-white rounded text-xs disabled:opacity-50 flex-1"
+                    className="px-2 py-1 bg-[#06D6A0] text-white rounded text-xs disabled:bg-gray-200 disabled:text-gray-400 hover:bg-[#05C090] flex-1"
                   >
                     Replace
-            </button>
-            <button
+                  </button>
+                  <button
                     onClick={() => {
                       setShowReplaceCity(false);
-                      setNewDestinationInput("");
                       setReplacementCityId("");
                     }}
-                    className="px-2 py-1 border border-gray-200 rounded text-xs"
+                    className="px-2 py-1 border border-gray-200 rounded text-xs text-gray-600 hover:bg-gray-50"
                   >
                     Cancel
-            </button>
-          </div>
-        </div>
+                  </button>
+                </div>
+              </div>
             )}
             
             <div className="flex items-center justify-between mt-1">
@@ -1349,7 +1501,7 @@ const StopCard = ({
                     <span className="mx-1">•</span>
                   </span>
                   <span>
-                    {new Date(arrivalDate).toLocaleDateString('en-US', { 
+                    {new Date(stop.arrivalDate).toLocaleDateString('en-US', { 
                       weekday: 'short',
                       day: 'numeric', 
                       month: 'short'
@@ -1357,7 +1509,7 @@ const StopCard = ({
                     {!stop.isStopover && (
                       <>
                         <span className="mx-1">-</span>
-                        {new Date(departureDate).toLocaleDateString('en-US', { 
+                        {new Date(stop.departureDate).toLocaleDateString('en-US', { 
                           weekday: 'short',
                           day: 'numeric', 
                           month: 'short'
@@ -1536,27 +1688,73 @@ const StopCard = ({
           {/* Travel time section */}
           <div 
             className="grow flex items-center bg-[#FFD166]/30 p-3 cursor-pointer hover:bg-[#FFD166]/40 relative group"
-            onClick={() => setShowTrainSchedule(true)}
+            onClick={() => setShowTransportScreen(true)}
           >
-            <TrainIcon className="h-6 w-6 text-[#FFD166] mr-3" />
+            {/* Show appropriate icon based on transport type */}
+            {stop.customTransport ? (
+              stop.customTransport.transportType === "train" ? (
+                <TrainIcon className="h-6 w-6 text-[#FFD166] mr-3" />
+              ) : (
+                <TruckIcon className="h-6 w-6 text-[#FFD166] mr-3" />
+              )
+            ) : (
+              <TrainIcon className="h-6 w-6 text-[#FFD166] mr-3" />
+            )}
+            
             <div className="flex-1">
-              {stop.trainDetails ? (
+              {stop.customTransport ? (
+                <>
+                  <div className="font-medium text-[#264653] flex items-center">
+                    {stop.customTransport.departureTime} → {stop.customTransport.arrivalTime}
+                    {stop.customTransport.overnightTransport && (
+                      <span className="ml-2 text-xs bg-[#264653] text-white px-2 py-0.5 rounded-full">
+                        Overnight
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-[#264653] flex flex-col">
+                    <div className="flex items-center">
+                      <span className="font-medium">{stop.customTransport.transportType === "train" ? "Train" : "Bus"}</span>
+                      {stop.customTransport.operator && <span className="mx-1">•</span>}
+                      {stop.customTransport.operator && <span>{stop.customTransport.operator}</span>}
+                      {stop.customTransport.vehicleNumber && <span className="mx-1">•</span>}
+                      {stop.customTransport.vehicleNumber && <span>{stop.customTransport.vehicleNumber}</span>}
+                    </div>
+                    {(stop.customTransport.departureStation || stop.customTransport.arrivalStation) && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {stop.customTransport.departureStation && `From: ${stop.customTransport.departureStation}`}
+                        {stop.customTransport.departureStation && stop.customTransport.arrivalStation && " • "}
+                        {stop.customTransport.arrivalStation && `To: ${stop.customTransport.arrivalStation}`}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : stop.trainDetails ? (
                 <>
                   <div className="font-medium text-[#264653]">{stop.trainDetails.duration}</div>
                   <div className="text-sm text-[#264653]">
-                    {stop.trainDetails.trainNumber} • {stop.trainDetails.changes === 0 ? 'Direct' : `${stop.trainDetails.changes} changes`}
-                    {stop.trainDetails.price && ` • ${stop.trainDetails.price.amount} ${stop.trainDetails.price.currency}`}
-            </div>
+                    <span className="font-medium">Train</span>
+                    <span className="mx-1">•</span>
+                    <span>{stop.trainDetails.trainNumber}</span>
+                    <span className="mx-1">•</span>
+                    <span>{stop.trainDetails.changes === 0 ? 'Direct' : `${stop.trainDetails.changes} changes`}</span>
+                    {stop.trainDetails.price && (
+                      <>
+                        <span className="mx-1">•</span>
+                        <span>{stop.trainDetails.price.amount} {stop.trainDetails.price.currency}</span>
+                      </>
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
                   <div className="font-medium text-[#264653] flex items-center">
-                    Select train connection
-                    <span className="ml-1 text-xs bg-[#FFD166] text-white px-2 py-0.5 rounded-full">Click to choose</span>
-          </div>
+                    Add transport details
+                    <span className="ml-2 text-xs bg-[#FFD166] text-white px-2 py-0.5 rounded-full">Click to choose</span>
+                  </div>
                   <div className="text-sm text-[#264653]">
                     {cityData?.name} → {nextCityData?.name}
-            </div>
+                  </div>
                 </>
               )}
             </div>
@@ -1567,12 +1765,24 @@ const StopCard = ({
         </div>
       )}
 
-      {/* Train Schedule Modal */}
-      {showTrainSchedule && nextCityData && (
+      {/* Transport modals - placed inside the component return */}
+      {showTransportScreen && nextStop && (
+        <TransportScreen
+          isOpen={showTransportScreen}
+          onClose={() => setShowTransportScreen(false)}
+          onSave={handleTransportSave}
+          fromCity={cityData || null}
+          toCity={nextCityData || null}
+          date={stop.departureDate}
+          initialData={stop.customTransport}
+        />
+      )}
+
+      {showTrainSchedule && nextStop && (
         <TrainSchedule
-          fromCity={cityData?.name || ''}
-          toCity={nextCityData?.name || ''}
-          date={formatDate(departureDate)}
+          fromCity={cityData?.name || ""}
+          toCity={nextCityData?.name || ""}
+          date={stop.departureDate}
           onSelectTrain={handleTrainSelect}
           onClose={() => setShowTrainSchedule(false)}
         />

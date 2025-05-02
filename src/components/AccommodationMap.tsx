@@ -7,7 +7,11 @@ import { MapPinIcon, HomeIcon } from '@heroicons/react/24/outline';
 import ReactDOM from 'react-dom';
 
 // Set Mapbox access token
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+if (!MAPBOX_TOKEN) {
+  console.warn('Mapbox token not found. Map functionality will be limited.');
+}
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
 interface MapAccommodation {
   id: string;
@@ -52,11 +56,16 @@ export default function AccommodationMap({
   const [zoom] = useState(12); // Start at a slightly more zoomed out level
   const isDraggingRef = useRef(false);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
   const popups = useRef<{ [key: string]: mapboxgl.Popup }>({});
   
   // Initialize map with enhanced styling
   useEffect(() => {
     if (!mapContainer.current) return;
+    if (!MAPBOX_TOKEN) {
+      setMapError('Mapbox token not found. Please check your environment configuration.');
+      return;
+    }
     
     // Clean up function for unmounting
     let isMounted = true;
@@ -66,7 +75,7 @@ export default function AccommodationMap({
         container: mapContainer.current,
         style: 'mapbox://styles/konradkjems/cm9g0evsi00jc01s8f75w5g88', // Use the same style as MapboxMap
         center: [center.lng, center.lat],
-        zoom: zoom,
+        zoom: initialZoom || zoom,
         attributionControl: false,
       });
 
@@ -98,6 +107,14 @@ export default function AccommodationMap({
         setupMapControls(mapInstance);
       });
 
+      // Add error handling
+      mapInstance.on('error', (e) => {
+        console.error('Mapbox error:', e);
+        if (isMounted) {
+          setMapError('Error loading map. Please try refreshing the page.');
+        }
+      });
+
       // Add drag detection to prevent marker interaction during dragging
       mapInstance.on('mousedown', () => {
         isDraggingRef.current = false;
@@ -123,18 +140,23 @@ export default function AccommodationMap({
       mapInstance.keyboard.disableRotation();
     } catch (error) {
       console.error('Error initializing map:', error);
+      setMapError('Failed to initialize map. Please check your browser compatibility and try again.');
     }
 
     // Cleanup on unmount
     return () => {
       isMounted = false;
       if (map.current) {
-        Object.values(markersRef.current).forEach(marker => marker.remove());
-        markersRef.current = {};
-        map.current.remove();
+        try {
+          Object.values(markersRef.current).forEach(marker => marker.remove());
+          markersRef.current = {};
+          map.current.remove();
+        } catch (e) {
+          console.error('Error cleaning up map:', e);
+        }
       }
     };
-  }, [center.lat, center.lng, zoom]);
+  }, [center.lat, center.lng, initialZoom, zoom]);
   
   // Helper function to setup map controls
   const setupMapControls = (mapInstance: mapboxgl.Map) => {
@@ -487,6 +509,24 @@ export default function AccommodationMap({
       }
     });
   }, [selectedAccommodationId, mapLoaded]);
+
+  // Show error state if map fails to load
+  if (mapError) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-gray-100 p-4">
+        <div className="text-red-500 text-center max-w-md">
+          <div className="font-semibold mb-2">Map Error</div>
+          <p>{mapError}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative w-full h-full overflow-hidden rounded-lg shadow-inner ${className}`}>

@@ -6,6 +6,33 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
     serverComponentsExternalPackages: ['sharp'],
+    optimizeCss: true,
+    optimizePackageImports: ['@heroicons/react'],
+  },
+  webpack: (config, { isServer }) => {
+    config.optimization.splitChunks = {
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        mapComponents: {
+          test: /[\\/]components[\\/](InterrailMap|MobileMap|AccommodationMap)/,
+          name: 'map-components',
+          chunks: 'all',
+          priority: 10,
+        },
+        itineraryComponents: {
+          test: /[\\/]components[\\/](TripItinerary|AccommodationScreen|TrainSchedule)/,
+          name: 'itinerary-components',
+          chunks: 'all',
+          priority: 10,
+        },
+      },
+    };
+    
+    return config;
   },
   async headers() {
     return [
